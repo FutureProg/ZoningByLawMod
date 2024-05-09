@@ -19,11 +19,11 @@ namespace ZoningByLaw
             if (GameManager.instance.modManager.TryGetExecutableAsset(this, out var asset))
                 log.Info($"Current mod asset at {asset.path}");
 
-            m_Setting = new Setting(this);
-            m_Setting.RegisterInOptionsUI();
-            GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(m_Setting));
+            //m_Setting = new Setting(this);
+            //m_Setting.RegisterInOptionsUI();
+            //GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(m_Setting));
 
-            AssetDatabase.global.LoadSettings(nameof(ZoningByLaw), m_Setting, new Setting(this));
+            //AssetDatabase.global.LoadSettings(nameof(ZoningByLaw), m_Setting, new Setting(this));
         }
 
         public void OnDispose()

@@ -6,7 +6,7 @@ using Game.UI;
 using Game.UI.Widgets;
 using System.Collections.Generic;
 
-namespace ZoningByLaw
+namespace Trejak.ZoningByLaw
 {
     [FileLocation(nameof(ZoningByLaw))]
     [SettingsUIGroupOrder(kButtonGroup, kToggleGroup, kSliderGroup, kDropdownGroup)]
