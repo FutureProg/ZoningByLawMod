@@ -5,35 +5,34 @@ using Game.Modding;
 using Game.SceneFlow;
 using Game.SceneFlow;
 
-namespace Trejak.ZoningByLaw
+namespace Trejak.ZoningByLaw;
+
+public class Mod : IMod
 {
-    public class Mod : IMod
+    public static ILog log = LogManager.GetLogger($"{nameof(ZoningByLaw)}.{nameof(Mod)}").SetShowsErrorsInUI(false);
+    private Setting m_Setting;
+
+    public void OnLoad(UpdateSystem updateSystem)
     {
-        public static ILog log = LogManager.GetLogger($"{nameof(ZoningByLaw)}.{nameof(Mod)}").SetShowsErrorsInUI(false);
-        private Setting m_Setting;
+        log.Info(nameof(OnLoad));
 
-        public void OnLoad(UpdateSystem updateSystem)
+        if (GameManager.instance.modManager.TryGetExecutableAsset(this, out var asset))
+            log.Info($"Current mod asset at {asset.path}");
+
+        //m_Setting = new Setting(this);
+        //m_Setting.RegisterInOptionsUI();
+        //GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(m_Setting));
+
+        //AssetDatabase.global.LoadSettings(nameof(ZoningByLaw), m_Setting, new Setting(this));
+    }
+
+    public void OnDispose()
+    {
+        log.Info(nameof(OnDispose));
+        if (m_Setting != null)
         {
-            log.Info(nameof(OnLoad));
-
-            if (GameManager.instance.modManager.TryGetExecutableAsset(this, out var asset))
-                log.Info($"Current mod asset at {asset.path}");
-
-            //m_Setting = new Setting(this);
-            //m_Setting.RegisterInOptionsUI();
-            //GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(m_Setting));
-
-            //AssetDatabase.global.LoadSettings(nameof(ZoningByLaw), m_Setting, new Setting(this));
-        }
-
-        public void OnDispose()
-        {
-            log.Info(nameof(OnDispose));
-            if (m_Setting != null)
-            {
-                m_Setting.UnregisterInOptionsUI();
-                m_Setting = null;
-            }
+            m_Setting.UnregisterInOptionsUI();
+            m_Setting = null;
         }
     }
 }
