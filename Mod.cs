@@ -5,7 +5,7 @@ using Game.Modding;
 using Game.SceneFlow;
 using Game.SceneFlow;
 
-namespace ZoningByLaw
+namespace Trejak.ZoningByLaw
 {
     public class Mod : IMod
     {
