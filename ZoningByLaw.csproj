@@ -28,6 +28,9 @@
 		<Reference Include="Game">
 			<Private>false</Private>
 		</Reference>
+    <Reference Include="Colossal.Collections">
+      <Private>false</Private>
+    </Reference>
 		<Reference Include="Colossal.Core">
 			<Private>false</Private>
 		</Reference>
@@ -45,6 +48,9 @@
 		</Reference>
 		<Reference Include="Colossal.Localization">
 			<Private>false</Private>
+		</Reference>
+		<Reference Include="UnityEngine.AudioModule">
+		  <HintPath>E:\SteamLibrary\steamapps\common\Cities Skylines II\Cities2_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine.CoreModule">
 			<Private>false</Private>
@@ -78,6 +84,10 @@
 	<ItemGroup>
 		<None Include="$(ModPropsFile)" Link="Properties\Mod.props" />
 		<None Include="$(ModTargetsFile)" Link="Properties\Mod.targets" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Lib.Harmony" Version="2.2.2" />
 	</ItemGroup>
 
 </Project>
