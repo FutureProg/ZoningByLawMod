@@ -6,11 +6,13 @@ using Game.Modding;
 using Game.Prefabs;
 using Game.SceneFlow;
 using Game.SceneFlow;
+using Game.Simulation;
 using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Entities;
 using UnityEngine;
+using ZoningByLaw;
 using ZoningByLaw.Prefab;
 
 namespace Trejak.ZoningByLaw;
@@ -65,6 +67,7 @@ public class Mod : IMod
 
         GameManager.instance.onGameLoadingComplete += onGameLoadingComplete;
 
+        updateSystem.UpdateAfter<ByLawZoneSpawnSystem, ZoneSpawnSystem>(SystemUpdatePhase.GameSimulation);
 
         //m_Setting = new Setting(this);
         //m_Setting.RegisterInOptionsUI();
