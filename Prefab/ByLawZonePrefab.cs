@@ -24,9 +24,7 @@ namespace ZoningByLaw.Prefab
     }
 
     public struct ByLawZoneFlag : IComponentData
-    {
-
-    }
+    {}
 
     public enum ByLawZoneType : byte
     {
