@@ -18,6 +18,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Trejak.ZoningByLaw;
+using Unity.Burst;
 using Unity.Burst.CompilerServices;
 using Unity.Burst.Intrinsics;
 using Unity.Collections;
@@ -135,10 +136,7 @@ namespace Trejak.ZoningByLaw
         }
 
         protected override void OnUpdate()
-        {
-            // get all of the zones in the game, and only keep the ones where the entity has the ByLawZoneFlag component.
-            var zones = _zoneSystem.GetPrefabs();
-
+        {            
             Unity.Mathematics.Random random = RandomSeed.Next().GetRandom(0);
             bool spawnResidential = _zoneSpawnSystem.debugFastSpawn || this.CheckDemand(ref random, this._residentialDemandSystem.buildingDemand.x + this._residentialDemandSystem.buildingDemand.y + this._residentialDemandSystem.buildingDemand.z);
             bool spawnCommercial = _zoneSpawnSystem.debugFastSpawn || this.CheckDemand(ref random, this._commercialDemandSystem.buildingDemand);
@@ -155,7 +153,7 @@ namespace Trejak.ZoningByLaw
                 buildingChunks = _buildingsQuery.ToArchetypeChunkListAsync(base.World.UpdateAllocator.ToAllocator, out var buildingsQueryJob),
                 buildingDataHandle = GetComponentTypeHandle<BuildingData>(true),
                 buildingPropertyDataHandle = GetComponentTypeHandle<BuildingPropertyData>(true),
-                byLawZoneFlagLookup = GetComponentLookup<ByLawZoneFlag>(true),
+                byLawZoneFlagLookup = SystemAPI.GetComponentLookup<ByLawZoneFlag>(true),
                 curvePositionHandle = GetComponentTypeHandle<CurvePosition>(true),
                 entityHandle = GetEntityTypeHandle(),
                 groundPollutionMap = _pollutionSystem.GetMap(true, out var groundPollutionMapJob),
@@ -179,7 +177,8 @@ namespace Trejak.ZoningByLaw
                 zonePreferenceData = SystemAPI.GetSingleton<ZonePreferenceData>(),
                 commercialQ = commercialQ.AsParallelWriter(),
                 residentialQ = residentialQ.AsParallelWriter(),
-                industrialQ = industrialQ.AsParallelWriter()
+                industrialQ = industrialQ.AsParallelWriter(),
+                entityStorageInfoLookup = GetEntityStorageInfoLookup()
             };            
             ZoneSpawnSystem.SpawnBuildingJob spawnBuildingJob = new()
             {
@@ -245,6 +244,7 @@ namespace Trejak.ZoningByLaw
             public NativeQueue<ZoneSpawnSystem.SpawnLocation>.ParallelWriter residentialQ;
             public NativeQueue<ZoneSpawnSystem.SpawnLocation>.ParallelWriter commercialQ;
             public NativeQueue<ZoneSpawnSystem.SpawnLocation>.ParallelWriter industrialQ;
+            public EntityStorageInfoLookup entityStorageInfoLookup;
             public int minDemand;
 
             public EntityTypeHandle entityHandle;
@@ -276,12 +276,13 @@ namespace Trejak.ZoningByLaw
 
                 if (vacantLotsAccessor.Length > 0)
                 {
-
+                    //Mod.log.Info("Bylaw Zone Flag Lookup below: ");
+                    //Mod.log.Info(byLawZoneFlagLookup);
                     NativeArray<Owner> owners = chunk.GetNativeArray<Owner>(ref this.ownerHandle);
                     NativeArray<CurvePosition> curvePositions = chunk.GetNativeArray<CurvePosition>(ref this.curvePositionHandle);
                     NativeArray<Block> blocks = chunk.GetNativeArray<Block>(ref this.blockHandle);
                     for (int i = 0; i < entities.Length; i++)
-                    {
+                    {                        
                         Entity entity = entities[i];
                         var vacantLots = vacantLotsAccessor[i];
                         var owner = owners[i];
@@ -290,11 +291,17 @@ namespace Trejak.ZoningByLaw
                         for (int j = 0; j < vacantLots.Length; j++)
                         {
                             var vacantLot = vacantLots[i];
-                            var zonePrefab = this.zonePrefabs[vacantLot.m_Type];
-                            if (!byLawZoneFlagLookup.HasComponent(zonePrefab))
+                            var zonePrefab = this.zonePrefabs[vacantLot.m_Type];        
+                            try
+                            {
+                                if (!byLawZoneFlagLookup.HasComponent(zonePrefab))
+                                {
+                                    continue;
+                                }
+                            } catch(NullReferenceException exc)
                             {
                                 continue;
-                            }
+                            }                        
                             ZoneData zoneData = this.zoneDataLookup[zonePrefab];
                             DynamicBuffer<ProcessEstimate> estimates = this.processEstimatesLookup[zonePrefab];
 
@@ -402,7 +409,7 @@ namespace Trejak.ZoningByLaw
                         {
                             BuildingPropertyData buildingPropertyData = buildingPropertyDataArr[i];
                             location.m_AreaType = zoneDataLookup[spawnableData.m_ZonePrefab].m_AreaType;
-                            int num = this.EvaluateDemandAndAvailability(location.m_AreaType, buildingPropertyData, lotSize.x * lotSize.y, false);
+                            int num = this.EvaluateDemandAndAvailability(location.m_AreaType, buildingPropertyData, lotSize.x * lotSize.y, flag2);
                             if (num >= this.minDemand || extractor)
                             {
                                 int2 int2 = math.select(maxLotSize - lotSize, 0, lotSize == maxLotSize - 1);
@@ -459,7 +466,7 @@ namespace Trejak.ZoningByLaw
                 }
                 return false;
             }
-            private int EvaluateDemandAndAvailability(Game.Zones.AreaType m_AreaType, BuildingPropertyData buildingPropertyData, object value, object flag2)
+            private int EvaluateDemandAndAvailability(Game.Zones.AreaType m_AreaType, BuildingPropertyData buildingPropertyData, int value, bool flag2)
             {
 
                 //TODO: fill
