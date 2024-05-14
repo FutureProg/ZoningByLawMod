@@ -1,4 +1,5 @@
-﻿using Game;
+﻿using Colossal.Entities;
+using Game;
 using Game.Areas;
 using Game.City;
 using Game.Common;
@@ -21,6 +22,7 @@ using Unity.Burst.Intrinsics;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Entities.UniversalDelegates;
+using Unity.Jobs;
 using Unity.Mathematics;
 using ZoningByLaw.Prefab;
 using static Game.Simulation.ServiceCoverageSystem;
@@ -42,15 +44,16 @@ namespace ZoningByLaw
         EntityArchetype _definitionArchetype;
 
         ZoneSystem _zoneSystem;
-        private ResidentialDemandSystem _residentialDemandSystem;
-        private CommercialDemandSystem _commercialDemandSystem;
-        private IndustrialDemandSystem _industrialDemandSystem;
-        private GroundPollutionSystem _pollutionSystem;
-        private TerrainSystem _terrainSystem;
-        private SearchSystem _searchSystem;
-        private ResourceSystem _resourceSystem;
-        private CityConfigurationSystem _cityConfigurationSystem;
-        private EndFrameBarrier _endFrameBarrier;
+        ZoneSpawnSystem _zoneSpawnSystem;
+        ResidentialDemandSystem _residentialDemandSystem;
+        CommercialDemandSystem _commercialDemandSystem;
+        IndustrialDemandSystem _industrialDemandSystem;
+        GroundPollutionSystem _pollutionSystem;
+        TerrainSystem _terrainSystem;
+        Game.Zones.SearchSystem _searchSystem;
+        ResourceSystem _resourceSystem;
+        CityConfigurationSystem _cityConfigurationSystem;
+        EndFrameBarrier _endFrameBarrier;
 
         public override int GetUpdateInterval(SystemUpdatePhase phase)
         {
@@ -113,6 +116,7 @@ namespace ZoningByLaw
             _resourceSystem = base.World.GetOrCreateSystemManaged<ResourceSystem>();
             _cityConfigurationSystem = base.World.GetOrCreateSystemManaged<CityConfigurationSystem>();
             _endFrameBarrier = base.World.GetOrCreateSystemManaged<EndFrameBarrier>();
+            _zoneSpawnSystem = World.GetOrCreateSystemManaged<ZoneSpawnSystem>();
 
             this.RequireForUpdate(this._vacantLotsQuery);
             this.RequireForUpdate(_buildingsQuery);
@@ -134,8 +138,96 @@ namespace ZoningByLaw
             // get all of the zones in the game, and only keep the ones where the entity has the ByLawZoneFlag component.
             var zones = _zoneSystem.GetPrefabs();
 
+            Unity.Mathematics.Random random = RandomSeed.Next().GetRandom(0);
+            bool spawnResidential = _zoneSpawnSystem.debugFastSpawn || this.CheckDemand(ref random, this._residentialDemandSystem.buildingDemand.x + this._residentialDemandSystem.buildingDemand.y + this._residentialDemandSystem.buildingDemand.z);
+            bool spawnCommercial = _zoneSpawnSystem.debugFastSpawn || this.CheckDemand(ref random, this._commercialDemandSystem.buildingDemand);
+            bool spawnEmployment = _zoneSpawnSystem.debugFastSpawn || this.CheckDemand(ref random, this._industrialDemandSystem.industrialBuildingDemand + this._industrialDemandSystem.officeBuildingDemand);
+            bool spawnStorage = _zoneSpawnSystem.debugFastSpawn || this.CheckStorageDemand(ref random, this._industrialDemandSystem.storageBuildingDemand);
+            NativeQueue<ZoneSpawnSystem.SpawnLocation> residentialQ = new NativeQueue<ZoneSpawnSystem.SpawnLocation>(Allocator.TempJob);
+            NativeQueue<ZoneSpawnSystem.SpawnLocation> commercialQ = new NativeQueue<ZoneSpawnSystem.SpawnLocation>(Allocator.TempJob);
+            NativeQueue<ZoneSpawnSystem.SpawnLocation> industrialQ = new NativeQueue<ZoneSpawnSystem.SpawnLocation>(Allocator.TempJob);
 
-            // go through each lot, check the zonetype, see if it matches
+            EvaluateSpawnAreas evaluateSpawnAreas = new()
+            {
+                blockHandle = GetComponentTypeHandle<Block>(),
+                blockLookup = GetComponentLookup<Block>(),
+                buildingChunks = _buildingsQuery.ToArchetypeChunkListAsync(base.World.UpdateAllocator.ToAllocator, out var buildingsQueryJob),
+                buildingDataHandle = GetComponentTypeHandle<BuildingData>(true),
+                buildingPropertyDataHandle = GetComponentTypeHandle<BuildingPropertyData>(true),
+                byLawZoneFlagLookup = GetComponentLookup<ByLawZoneFlag>(true),
+                curvePositionHandle = GetComponentTypeHandle<CurvePosition>(true),
+                entityHandle = GetEntityTypeHandle(),
+                groundPollutionMap = _pollutionSystem.GetMap(true, out var groundPollutionMapJob),
+                industrialDemands = _industrialDemandSystem.GetBuildingDemands(out var industrialDemandJob),
+                industrialProcesses = _processQuery.ToComponentDataListAsync<IndustrialProcessData>(World.UpdateAllocator.ToAllocator, out var industrialProcessJob),
+                landValueLookup = GetComponentLookup<LandValue>(true),
+                minDemand = _zoneSpawnSystem.debugFastSpawn ? 1 : 1,
+                objGeomDataHandle = GetComponentTypeHandle<ObjectGeometryData>(true),
+                ownerHandle = GetComponentTypeHandle<Owner>(true),
+                processEstimatesLookup = GetBufferLookup<ProcessEstimate>(true),
+                randomSeed = RandomSeed.Next(),
+                resourceAvailabilityLookup = GetBufferLookup<ResourceAvailability>(true),
+                resourceDataLookup = GetComponentLookup<ResourceData>(true),
+                resourcePrefabs = _resourceSystem.GetPrefabs(),
+                spawnableBuildingDataHandle = GetComponentTypeHandle<SpawnableBuildingData>(true),
+                storageDemands = _industrialDemandSystem.GetStorageBuildingDemands(out var storageBuildingDemandJob),
+                vacantLotHandle = GetBufferTypeHandle<VacantLot>(true),
+                warehouseHandle = GetComponentTypeHandle<WarehouseData>(true),
+                zoneDataLookup = GetComponentLookup<ZoneData>(true),
+                zonePrefabs = _zoneSystem.GetPrefabs(),
+                zonePreferenceData = SystemAPI.GetSingleton<ZonePreferenceData>(),
+                commercialQ = commercialQ.AsParallelWriter(),
+                residentialQ = residentialQ.AsParallelWriter(),
+                industrialQ = industrialQ.AsParallelWriter()
+            };            
+            ZoneSpawnSystem.SpawnBuildingJob spawnBuildingJob = new()
+            {
+                m_BlockData = GetComponentLookup<Block>(true),
+                m_BuildingConfigurationData = _buildingConfigQuery.GetSingleton<BuildingConfigurationData>(),
+                m_Cells = GetBufferLookup<Cell>(true),
+                m_CommandBuffer = _endFrameBarrier.CreateCommandBuffer().AsParallelWriter(),
+                m_Commercial = commercialQ,
+                m_DefinitionArchetype = _definitionArchetype,
+                m_Industrial = industrialQ,
+                m_LefthandTraffic = _cityConfigurationSystem.leftHandTraffic,
+                m_PrefabAreaGeometryData = GetComponentLookup<AreaGeometryData>(true),
+                m_PrefabBuildingData = GetComponentLookup<BuildingData>(true),
+                m_PrefabNetGeometryData = GetComponentLookup<NetGeometryData>(true),
+                m_PrefabObjectGeometryData = GetComponentLookup<ObjectGeometryData>(true),
+                m_PrefabPlaceableObjectData = GetComponentLookup<PlaceableObjectData>(true),
+                m_PrefabPlaceholderElements = GetBufferLookup<PlaceholderObjectElement>(true),
+                m_PrefabRefData = GetComponentLookup<PrefabRef>(true),
+                m_PrefabSpawnableObjectData = GetComponentLookup<SpawnableObjectData>(true),
+                m_PrefabSubAreaNodes = GetBufferLookup<Game.Prefabs.SubAreaNode>(true),
+                m_PrefabSubAreas = GetBufferLookup<Game.Prefabs.SubArea>(true),
+                m_PrefabSubNets = GetBufferLookup<Game.Prefabs.SubNet>(true),
+                m_RandomSeed = RandomSeed.Next(),
+                m_Residential = residentialQ,
+                m_TerrainHeightData = _terrainSystem.GetHeightData(false),
+                m_TransformData = GetComponentLookup<Game.Objects.Transform>(true),
+                m_ValidAreaData = GetComponentLookup<ValidArea>(true),
+                m_ZoneSearchTree = _searchSystem.GetSearchTree(true, out var searchTreeJob)
+            };
+
+            var evaluationHandle = evaluateSpawnAreas.ScheduleParallel(this._vacantLotsQuery, JobUtils.CombineDependencies(buildingsQueryJob, groundPollutionMapJob,
+                groundPollutionMapJob, industrialDemandJob, industrialProcessJob, this.Dependency, storageBuildingDemandJob));
+            var spawnBuildingHandle = spawnBuildingJob.Schedule(3, 1, JobHandle.CombineDependencies(evaluationHandle, searchTreeJob));
+            
+            _resourceSystem.AddPrefabsReader(evaluationHandle);
+            _pollutionSystem.AddReader(evaluationHandle);
+            _commercialDemandSystem.AddReader(evaluationHandle);
+            _industrialDemandSystem.AddReader(evaluationHandle);
+
+            residentialQ.Dispose(spawnBuildingHandle);
+            commercialQ.Dispose(spawnBuildingHandle);
+            industrialQ.Dispose(spawnBuildingHandle);
+
+            _zoneSystem.AddPrefabsReader(evaluationHandle);
+            _terrainSystem.AddCPUHeightReader(spawnBuildingHandle);
+            _endFrameBarrier.AddJobHandleForProducer(spawnBuildingHandle);
+            _searchSystem.AddSearchTreeReader(spawnBuildingHandle);
+
+            this.Dependency = spawnBuildingHandle;
         }
 
         public struct EvaluateSpawnAreas : IJobChunk
@@ -149,6 +241,9 @@ namespace ZoningByLaw
             public NativeArray<int> storageDemands;
             public NativeArray<int> industrialDemands;
             public ResourcePrefabs resourcePrefabs;
+            public NativeQueue<ZoneSpawnSystem.SpawnLocation>.ParallelWriter residentialQ;
+            public NativeQueue<ZoneSpawnSystem.SpawnLocation>.ParallelWriter commercialQ;
+            public NativeQueue<ZoneSpawnSystem.SpawnLocation>.ParallelWriter industrialQ;
             public int minDemand;
 
             public EntityTypeHandle entityHandle;
@@ -174,8 +269,6 @@ namespace ZoningByLaw
             {
                 Unity.Mathematics.Random random = this.randomSeed.GetRandom(unfilteredChunkIndex);
                 ZoneSpawnSystem.SpawnLocation spawnLocation = default(ZoneSpawnSystem.SpawnLocation);
-                ZoneSpawnSystem.SpawnLocation spawnLocation2 = default(ZoneSpawnSystem.SpawnLocation);
-                ZoneSpawnSystem.SpawnLocation spawnLocation3 = default(ZoneSpawnSystem.SpawnLocation);
 
                 NativeArray<Entity> entities = chunk.GetNativeArray(this.entityHandle);
                 BufferAccessor<VacantLot> vacantLotsAccessor = chunk.GetBufferAccessor<VacantLot>(ref this.vacantLotHandle);
@@ -208,6 +301,24 @@ namespace ZoningByLaw
                             float curvePosScalar = this.CalculateCurvePos(curvePos, vacantLot, block);
                             this.TryAddLot(ref spawnLocation, ref random, owner.m_Owner, curvePosScalar, entity, vacantLot.m_Area, vacantLot.m_Flags, (int)vacantLot.m_Height, zoneData, estimates, this.industrialProcesses, true, false);
                         }
+                    }
+                }
+                if (spawnLocation.m_Priority != 0f)
+                {
+                    switch (spawnLocation.m_AreaType)
+                    {
+                        case Game.Zones.AreaType.Commercial:
+                            this.commercialQ.Enqueue(spawnLocation);
+                            break;
+                        case Game.Zones.AreaType.Industrial:
+                            this.industrialQ.Enqueue(spawnLocation);
+                            break;
+                        case Game.Zones.AreaType.Residential:
+                            this.residentialQ.Enqueue(spawnLocation);
+                            break;
+                        case Game.Zones.AreaType.None:
+                        default:
+                            break;
                     }
                 }
             }
@@ -256,7 +367,7 @@ namespace ZoningByLaw
                     {
                         bestLocation = spawnLocation;
                     }
-                }
+                }                
             }
 
             private bool SelectBuilding(ref ZoneSpawnSystem.SpawnLocation location, ref Unity.Mathematics.Random random, DynamicBuffer<ResourceAvailability> availabilities,
