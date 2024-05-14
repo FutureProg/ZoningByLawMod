@@ -2,9 +2,9 @@
 using Colossal.Logging;
 using Colossal.UI.Binding;
 using Game;
+using Game.Buildings;
 using Game.Modding;
 using Game.Prefabs;
-using Game.SceneFlow;
 using Game.SceneFlow;
 using Game.Simulation;
 using HarmonyLib;
@@ -66,6 +66,7 @@ public class Mod : IMod
 
         GameManager.instance.onGameLoadingComplete += onGameLoadingComplete;
 
+        World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<ZoneCheckSystem>().Enabled = false;
         updateSystem.UpdateAfter<ByLawZoneSpawnSystem, ZoneSpawnSystem>(SystemUpdatePhase.GameSimulation);
 
         //m_Setting = new Setting(this);

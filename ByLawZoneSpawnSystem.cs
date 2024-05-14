@@ -138,7 +138,6 @@ namespace Trejak.ZoningByLaw
         {
             // get all of the zones in the game, and only keep the ones where the entity has the ByLawZoneFlag component.
             var zones = _zoneSystem.GetPrefabs();
-            Mod.log
 
             Unity.Mathematics.Random random = RandomSeed.Next().GetRandom(0);
             bool spawnResidential = _zoneSpawnSystem.debugFastSpawn || this.CheckDemand(ref random, this._residentialDemandSystem.buildingDemand.x + this._residentialDemandSystem.buildingDemand.y + this._residentialDemandSystem.buildingDemand.z);
