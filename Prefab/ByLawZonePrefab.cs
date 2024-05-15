@@ -19,11 +19,11 @@ namespace ZoningByLaw.Prefab
         public override void GetPrefabComponents(HashSet<ComponentType> components)
         {
             base.GetPrefabComponents(components);
-            components.Add(ComponentType.ReadWrite<ByLawZoneFlag>());
+            components.Add(ComponentType.ReadWrite<ByLawZoneData>());
         }
     }
 
-    public struct ByLawZoneFlag : IComponentData
+    public struct ByLawZoneData : IComponentData
     {}
 
     public enum ByLawZoneType : byte

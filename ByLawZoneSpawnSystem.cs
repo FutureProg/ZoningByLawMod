@@ -153,7 +153,7 @@ namespace Trejak.ZoningByLaw
                 buildingChunks = _buildingsQuery.ToArchetypeChunkListAsync(base.World.UpdateAllocator.ToAllocator, out var buildingsQueryJob),
                 buildingDataHandle = GetComponentTypeHandle<BuildingData>(true),
                 buildingPropertyDataHandle = GetComponentTypeHandle<BuildingPropertyData>(true),
-                byLawZoneFlagLookup = SystemAPI.GetComponentLookup<ByLawZoneFlag>(true),
+                byLawZoneFlagLookup = SystemAPI.GetComponentLookup<ByLawZoneData>(true),
                 curvePositionHandle = GetComponentTypeHandle<CurvePosition>(true),
                 entityHandle = GetEntityTypeHandle(),
                 groundPollutionMap = _pollutionSystem.GetMap(true, out var groundPollutionMapJob),
@@ -261,7 +261,7 @@ namespace Trejak.ZoningByLaw
             public BufferLookup<ProcessEstimate> processEstimatesLookup;
             public BufferLookup<ResourceAvailability> resourceAvailabilityLookup;
             public ComponentLookup<ZoneData> zoneDataLookup;
-            public ComponentLookup<ByLawZoneFlag> byLawZoneFlagLookup;
+            public ComponentLookup<ByLawZoneData> byLawZoneFlagLookup;
             public ComponentLookup<Block> blockLookup;
             public ComponentLookup<LandValue> landValueLookup;
             public ComponentLookup<ResourceData> resourceDataLookup;
