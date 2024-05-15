@@ -291,14 +291,8 @@ namespace Trejak.ZoningByLaw
                         for (int j = 0; j < vacantLots.Length; j++)
                         {
                             var vacantLot = vacantLots[j];
-                            var zonePrefab = this.zonePrefabs[vacantLot.m_Type];        
-                            try
-                            {
-                                if (!byLawZoneFlagLookup.HasComponent(zonePrefab))
-                                {
-                                    continue;
-                                }
-                            } catch(NullReferenceException exc)
+                            var zonePrefab = this.zonePrefabs[vacantLot.m_Type];                                    
+                            if (!byLawZoneFlagLookup.HasComponent(zonePrefab))
                             {
                                 continue;
                             }                        
