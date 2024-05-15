@@ -1,9 +1,10 @@
 import { ModRegistrar } from "cs2/modding";
-import { HelloWorldComponent } from "mods/hello-world";
+import { MainPanel } from "mods/MainPanel";
 
 const register: ModRegistrar = (moduleRegistry) => {
 
-    moduleRegistry.append('Menu', HelloWorldComponent);
+    moduleRegistry.append('Game', MainPanel);
+
 }
 
 export default register;

@@ -1,0 +1,46 @@
+.mainPanel {
+    width: 50%;
+    min-height: 400rem;
+}
+.mainPanelContentContainer {
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+
+.mainPanelContent {
+    padding: 8rem 8rem;
+    display: flex;
+    height: 100%;
+    width: 100%;    
+    flex-direction: column;
+    overflow: hidden;    
+}
+
+.mainPanelTopBar, .mainPanelBottomBar {
+    width: 100%;
+    display: flex;    
+    flex-direction: row;
+    margin: 4rem 0;
+}
+
+.mainPanelSections {
+    display: flex;    
+    flex-direction: row;
+    width: 100%;    
+    height: 80%;
+    margin: 4rem 0;
+}
+
+.bylawList {
+    background-color: rgba($color: #000000, $alpha: 0.8);
+    height: 100%;    
+    width: 35%;       
+}
+
+.bylawDetails {
+    background-color: rgba($color: #d61b1b, $alpha: 0.8);
+    height: 100%; 
+    width: 65%;   
+    margin-left: 4rem;
+}
