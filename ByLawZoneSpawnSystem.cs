@@ -290,7 +290,7 @@ namespace Trejak.ZoningByLaw
                         var block = blocks[i];
                         for (int j = 0; j < vacantLots.Length; j++)
                         {
-                            var vacantLot = vacantLots[i];
+                            var vacantLot = vacantLots[j];
                             var zonePrefab = this.zonePrefabs[vacantLot.m_Type];        
                             try
                             {
@@ -404,12 +404,13 @@ namespace Trejak.ZoningByLaw
                         BuildingData subjBuildingData = buildingDataArr[i];
                         int2 lotSize = subjBuildingData.m_LotSize;
                         bool2 rhs = new bool2((subjBuildingData.m_Flags & Game.Prefabs.BuildingFlags.LeftAccess) > (Game.Prefabs.BuildingFlags)0U, (subjBuildingData.m_Flags & Game.Prefabs.BuildingFlags.RightAccess) > (Game.Prefabs.BuildingFlags)0U);
-                        float y = objGeomDataArr[i].m_Size.y;
-                        if (math.all(lotSize <= maxLotSize) && y <= maxHeight && y >= min_height)
+                        float bldgHeight = objGeomDataArr[i].m_Size.y;
+                        if (math.all(lotSize <= maxLotSize) && bldgHeight <= maxHeight && bldgHeight >= min_height && bldgHeight <= 50)
                         {
                             BuildingPropertyData buildingPropertyData = buildingPropertyDataArr[i];
-                            location.m_AreaType = zoneDataLookup[spawnableData.m_ZonePrefab].m_AreaType;
-                            int num = this.EvaluateDemandAndAvailability(location.m_AreaType, buildingPropertyData, lotSize.x * lotSize.y, flag2);
+                            Game.Zones.AreaType evalAreaType = zoneDataLookup[spawnableData.m_ZonePrefab].m_AreaType; 
+                            
+                            int num = this.EvaluateDemandAndAvailability(evalAreaType, buildingPropertyData, lotSize.x * lotSize.y, flag2);
                             if (num >= this.minDemand || extractor)
                             {
                                 int2 int2 = math.select(maxLotSize - lotSize, 0, lotSize == maxLotSize - 1);
@@ -423,7 +424,7 @@ namespace Trejak.ZoningByLaw
                                 {
                                     float num3 = landValue;
                                     float num4;
-                                    if (location.m_AreaType == Game.Zones.AreaType.Residential)
+                                    if (evalAreaType == Game.Zones.AreaType.Residential)
                                     {
                                         num4 = ((buildingPropertyData.m_ResidentialProperties == 1) ? 2f : ((float)buildingPropertyData.CountProperties()));
                                         lotSize.x = math.select(lotSize.x, maxLotSize.x, lotSize.x == maxLotSize.x - 1 && supportsNarrow);
@@ -433,7 +434,7 @@ namespace Trejak.ZoningByLaw
                                     {
                                         num4 = buildingPropertyData.m_SpaceMultiplier;
                                     }
-                                    float num5 = ZoneEvaluationUtils.GetScore(location.m_AreaType, office, availabilities, curvePos, ref this.zonePreferenceData,
+                                    float num5 = ZoneEvaluationUtils.GetScore(evalAreaType, office, availabilities, curvePos, ref this.zonePreferenceData,
                                         flag2, flag2 ? this.storageDemands : this.industrialDemands,
                                         buildingPropertyData, pollution, num3 / num4, estimates, processes, this.resourcePrefabs, ref this.resourceDataLookup);
                                     num5 = math.select(num5, math.max(0f, num5) + 1f, this.minDemand == 0);
@@ -442,6 +443,7 @@ namespace Trejak.ZoningByLaw
                                 if (num2 > location.m_Priority)
                                 {
                                     location.m_Building = buildingEntities[i];
+                                    location.m_AreaType = evalAreaType;
                                     buildingData = subjBuildingData;
                                     location.m_Priority = num2;
                                 }
