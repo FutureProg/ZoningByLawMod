@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Unity.Entities;
 using Unity.Mathematics;
 
-namespace ZoningByLaw.Prefab
+namespace Trejak.ZoningByLaw.Prefab
 {    
 
     public class ByLawZonePrefab : ZonePrefab

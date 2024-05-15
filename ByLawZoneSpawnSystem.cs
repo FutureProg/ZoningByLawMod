@@ -26,7 +26,7 @@ using Unity.Entities;
 using Unity.Entities.UniversalDelegates;
 using Unity.Jobs;
 using Unity.Mathematics;
-using ZoningByLaw.Prefab;
+using Trejak.ZoningByLaw.Prefab;
 using static Game.Simulation.ServiceCoverageSystem;
 using BuildingData = Game.Prefabs.BuildingData;
 
