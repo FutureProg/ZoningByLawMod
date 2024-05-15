@@ -53,6 +53,7 @@ namespace ZoningByLaw.Prefab
                 bylawData.ValueRW.parking = prefab.parking;
                 bylawData.ValueRW.zoneType = prefab.zoneType;
             }
+            entities.Dispose();
         }
 
     }
