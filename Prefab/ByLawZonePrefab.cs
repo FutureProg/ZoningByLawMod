@@ -1,10 +1,12 @@
-﻿using Game.Prefabs;
+﻿using Colossal.Mathematics;
+using Game.Prefabs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Unity.Entities;
+using Unity.Mathematics;
 
 namespace ZoningByLaw.Prefab
 {    
@@ -13,8 +15,10 @@ namespace ZoningByLaw.Prefab
     {
 
         public ByLawZoneType zoneType;
-        public float maxHeight;
-        public float minHeight;
+        public Bounds2 height;
+        public Bounds2 lotSize;
+        public Bounds2 frontage;
+        public Bounds2 parking;
 
         public override void GetPrefabComponents(HashSet<ComponentType> components)
         {
@@ -24,10 +28,19 @@ namespace ZoningByLaw.Prefab
     }
 
     public struct ByLawZoneData : IComponentData
-    {}
+    {
+
+        public ByLawZoneType zoneType;
+        public Bounds2 height;
+        public Bounds2 lotSize;
+        public Bounds2 frontage;
+        public Bounds2 parking;
+
+    }
 
     public enum ByLawZoneType : byte
     {
+        None = 0,
         Residential = 1,
         Commercial,
         Industrial,
