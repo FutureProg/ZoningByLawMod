@@ -24,10 +24,7 @@ const Bounds1Field = (props : {bounds?: Bounds1}) => {
     )
 }
 
-const EnumField = <T,>(props: {enum? : ByLawZoneType, onChange?: (enumValue: number) => any}) => {        
-    if (!props.enum) {
-        props.enum = ByLawZoneType.Residential | ByLawZoneType.Commercial;        
-    }                   
+const EnumField = <T,>(props: {enum : ByLawZoneType, onChange?: (enumValue: number) => any}) => {            
     type x = keyof T;
     let preEntries : [any, any][] = Object.entries(ByLawZoneType);
     let entries : {[key: string]: number} = Object.fromEntries(
@@ -72,8 +69,9 @@ export const ByLawDetailsPanel = () => {
     let [newByLawData, updateNewByLawData] = useState<ByLawZoneComponent>();
 
     useEffect(() => {        
+        console.log(byLawData);
         updateNewByLawData(byLawData);
-    }, [byLawData])    
+    }, [byLawData]);    
 
     return (
         <Scrollable className={styles.bylawDetails}>   
@@ -81,7 +79,7 @@ export const ByLawDetailsPanel = () => {
                 <div className={styles.byLawDetailsTable}>
                     <tr>
                         <th>Permitted Uses</th>
-                        <td><EnumField<ByLawZoneType> enum={newByLawData?.zoneType} onChange={(nVal) => console.log(nVal)} /> </td>
+                        <td><EnumField<ByLawZoneType> enum={byLawData? byLawData.zoneType : 1} onChange={(nVal) => console.log(nVal)} /> </td>
                     </tr>
                     <tr>
                         <th>Height Constraints</th>

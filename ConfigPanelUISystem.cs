@@ -2,6 +2,7 @@
 using Colossal.UI.Binding;
 using Game;
 using Game.Common;
+using Game.Input;
 using Game.Prefabs;
 using Game.Tools;
 using Game.UI;
@@ -52,11 +53,6 @@ namespace Trejak.ZoningByLaw.UI
             }
         }
 
-        public override int GetUpdateInterval(SystemUpdatePhase phase)
-        {
-            return 32;
-        }
-
         protected override void OnCreate()
         {
             base.OnCreate();
@@ -76,6 +72,7 @@ namespace Trejak.ZoningByLaw.UI
 
         void SetActiveByLaw(Entity entity)
         {
+            Mod.log.Info("Set active by law to " + entity.Index + ", " + entity.Version);
             _selectedByLaw = entity;
             ByLawZoneData data;
             if (_selectedByLaw == Entity.Null)
@@ -84,6 +81,7 @@ namespace Trejak.ZoningByLaw.UI
             } else
             {
                 data = EntityManager.GetComponentData<ByLawZoneData>(entity);
+                Mod.log.Info("By Law Info" + data.height + ", " + data.zoneType);
             }            
             this._selectedByLawData.Update(data);
         }
@@ -146,6 +144,7 @@ namespace Trejak.ZoningByLaw.UI
                 Mod.log.Error($"Failed to add new zone prefab \"{byLawName}\"!");
                 return;
             }
+            UpdateByLawList();
         }
 
         void DeleteByLaw(Entity entity)
@@ -186,7 +185,6 @@ namespace Trejak.ZoningByLaw.UI
         protected override void OnUpdate()
         {
             base.OnUpdate();
-            UpdateByLawList();
         }
 
     }

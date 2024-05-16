@@ -1,10 +1,11 @@
 import { Button, Panel, Scrollable } from "cs2/ui";
 import styles from './mainpanel.module.scss';
 import { useValue } from "cs2/api";
-import { byLawZoneList$ } from "./bindings";
+import { byLawZoneList$, setActiveByLaw } from "./bindings";
 import { ByLawZoneListItem } from "./types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ByLawDetailsPanel } from "./ByLawDetailsPanel";
+import { Entity } from "cs2/bindings";
 
 export const MainPanel = () => {
     // This is a void component that does not output anynthing.
@@ -12,13 +13,18 @@ export const MainPanel = () => {
     // React JSX elements!
     const onClose = () => {}
     let [selectedListItem, setSelectedListItem] = useState(-1);
+    const listItemOnClick = (entity: Entity) => () => {
+        setSelectedListItem(entity.index);
+        setActiveByLaw(entity);
+    }
+
     let byLawZoneList = useValue(byLawZoneList$);    
     const testZoneList : ByLawZoneListItem[] = [...Array(20)].map((_, idx) => {return {name: (idx+1) + ": Zone", entity: {index: idx, version: -1}}})
-    const listItems = testZoneList.map((item : ByLawZoneListItem, idx) => 
+    const listItems = byLawZoneList.map((item : ByLawZoneListItem, idx) => 
         <div 
         className={styles.bylawListItem + " " + (selectedListItem == item.entity.index? styles.selected : "")} 
         key={item.entity.index}
-        onClick={() => {setSelectedListItem(item.entity.index)}}
+        onClick={listItemOnClick(item.entity)}
         >
             {item.name}
         </div>

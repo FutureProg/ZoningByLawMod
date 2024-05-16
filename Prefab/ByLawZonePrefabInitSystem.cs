@@ -1,14 +1,11 @@
 ﻿using Game;
 using Game.Common;
 using Game.Prefabs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Trejak.ZoningByLaw;
 using Trejak.ZoningByLaw.Prefab;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Entities.UniversalDelegates;
 
 namespace ZoningByLaw.Prefab
 {
@@ -28,7 +25,6 @@ namespace ZoningByLaw.Prefab
             _createdZonesQuery = this.GetEntityQuery(new ComponentType[]
             {
                 ComponentType.ReadOnly<Created>(),
-                ComponentType.ReadWrite<ZoneData>(),
                 ComponentType.ReadWrite<ByLawZoneData>()
             });
             _prefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
@@ -40,9 +36,11 @@ namespace ZoningByLaw.Prefab
             {
                 return;
             }
+            Mod.log.Info("Starting init prefab");
             var entities = this._createdZonesQuery.ToEntityArray(Allocator.Temp);
             for(int i = 0; i < entities.Length; i++)
             {
+                Mod.log.Info("Init Prefab Running for " + i);
                 var entity = entities[i];
                 var bylawData = SystemAPI.GetComponentRW<ByLawZoneData>(entity);
                 var prefabData = SystemAPI.GetComponentRO<PrefabData>(entity);
@@ -52,6 +50,7 @@ namespace ZoningByLaw.Prefab
                 bylawData.ValueRW.lotSize = prefab.lotSize;
                 bylawData.ValueRW.parking = prefab.parking;
                 bylawData.ValueRW.zoneType = prefab.zoneType;
+                SystemAPI.SetComponent(entity, bylawData.ValueRW);
             }
             entities.Dispose();
         }

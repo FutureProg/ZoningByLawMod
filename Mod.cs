@@ -15,6 +15,7 @@ using UnityEngine;
 using Trejak.ZoningByLaw.Prefab;
 using ZoningByLaw.Prefab;
 using Trejak.ZoningByLaw.UI;
+using Colossal.Mathematics;
 
 namespace Trejak.ZoningByLaw;
 
@@ -40,6 +41,9 @@ public class Mod : IMod
         basePrefab.components.CopyTo(baseComponents);
 
         var prefab = new ByLawZonePrefab();
+        prefab.zoneType = ByLawZoneType.Residential | ByLawZoneType.Commercial | ByLawZoneType.Office;
+        prefab.height = new Bounds1(30, 100);        
+
         prefab.m_Office = (prefab.zoneType & ByLawZoneType.Office) != (ByLawZoneType)0;        
         prefab.m_Color = Color.red;
         prefab.m_Edge = Color.black;
@@ -70,7 +74,7 @@ public class Mod : IMod
 
         World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<ZoneCheckSystem>().Enabled = false;
         updateSystem.UpdateAfter<ByLawZoneSpawnSystem, ZoneSpawnSystem>(SystemUpdatePhase.GameSimulation);
-        updateSystem.UpdateAt<ByLawZonePrefabInitSystem>(SystemUpdatePhase.GameSimulation);
+        updateSystem.UpdateAt<ByLawZonePrefabInitSystem>(SystemUpdatePhase.PrefabUpdate);
         updateSystem.UpdateAt<ConfigPanelUISystem>(SystemUpdatePhase.UIUpdate);
 
         //m_Setting = new Setting(this);
