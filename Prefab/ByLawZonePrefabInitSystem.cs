@@ -40,7 +40,7 @@ namespace ZoningByLaw.Prefab
             {
                 return;
             }
-            var entities = this._createdZonesQuery.ToEntityArray(Allocator.Temp);            
+            var entities = this._createdZonesQuery.ToEntityArray(Allocator.Temp);
             for(int i = 0; i < entities.Length; i++)
             {
                 var entity = entities[i];
