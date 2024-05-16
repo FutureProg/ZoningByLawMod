@@ -77,7 +77,14 @@ namespace Trejak.ZoningByLaw
         void SetActiveByLaw(Entity entity)
         {
             _selectedByLaw = entity;
-            ByLawZoneData data = EntityManager.GetComponentData<ByLawZoneData>(entity);
+            ByLawZoneData data;
+            if (_selectedByLaw == Entity.Null)
+            {
+                data = default;
+            } else
+            {
+                data = EntityManager.GetComponentData<ByLawZoneData>(entity);
+            }            
             this._selectedByLawData.Update(data);
         }
 
@@ -145,7 +152,9 @@ namespace Trejak.ZoningByLaw
         {
             var data = EntityManager.GetComponentData<ByLawZoneData>(entity);
             data.deleted = true;
-            EntityManager.SetComponentData(entity, data);
+            EntityManager.SetComponentData(entity, data);            
+            UpdateByLawList();
+            SetActiveByLaw(Entity.Null);
         }
 
         void UpdateByLawList()
