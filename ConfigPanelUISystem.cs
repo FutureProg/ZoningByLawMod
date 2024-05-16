@@ -16,7 +16,7 @@ using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
-namespace Trejak.ZoningByLaw
+namespace Trejak.ZoningByLaw.UI
 {
     public partial class ConfigPanelUISystem : UISystemBase
     {
@@ -44,9 +44,9 @@ namespace Trejak.ZoningByLaw
             public void Write(IJsonWriter writer)
             {
                 writer.TypeBegin(GetType().FullName);
-                writer.Write("entity");
+                writer.PropertyName("entity");
                 writer.Write(entity);
-                writer.Write("name");
+                writer.PropertyName("name");
                 writer.Write(name);
                 writer.TypeEnd();
             }
@@ -62,16 +62,16 @@ namespace Trejak.ZoningByLaw
             base.OnCreate();
             _bylawsQuery = GetEntityQuery(ComponentType.ReadOnly<ByLawZoneData>());
             _selectedByLaw = Entity.Null;
+            _prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
+            GetBasePrefab();
+
             this.AddBinding(_selectedByLawData = new ValueBinding<ByLawZoneData>(uiGroupName, "SelectedByLawData", default));
             this.AddBinding(_byLawZoneList = new ValueBinding<ByLawZoneListItem[]>(uiGroupName, "ByLawZoneList", GetByLawList(), new ArrayWriter<ByLawZoneListItem>()));
 
             this.AddBinding(_setActiveByLaw = new TriggerBinding<Entity>(uiGroupName, "SetActiveByLaw", SetActiveByLaw));
             this.AddBinding(_setByLawData = new TriggerBinding<ByLawZoneData>(uiGroupName, "SetByLawData", SetByLawData));
             this.AddBinding(_createNewByLaw = new TriggerBinding<ByLawZoneData>(uiGroupName, "CreateNewByLaw", CreateNewByLaw));
-            this.AddBinding(_deleteByLaw = new TriggerBinding<Entity>(uiGroupName, "DeleteByLaw", DeleteByLaw));
-
-            _prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
-            GetBasePrefab();
+            this.AddBinding(_deleteByLaw = new TriggerBinding<Entity>(uiGroupName, "DeleteByLaw", DeleteByLaw));            
         }
 
         void SetActiveByLaw(Entity entity)

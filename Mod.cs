@@ -14,6 +14,7 @@ using Unity.Entities;
 using UnityEngine;
 using Trejak.ZoningByLaw.Prefab;
 using ZoningByLaw.Prefab;
+using Trejak.ZoningByLaw.UI;
 
 namespace Trejak.ZoningByLaw;
 
@@ -70,6 +71,7 @@ public class Mod : IMod
         World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<ZoneCheckSystem>().Enabled = false;
         updateSystem.UpdateAfter<ByLawZoneSpawnSystem, ZoneSpawnSystem>(SystemUpdatePhase.GameSimulation);
         updateSystem.UpdateAt<ByLawZonePrefabInitSystem>(SystemUpdatePhase.GameSimulation);
+        updateSystem.UpdateAt<ConfigPanelUISystem>(SystemUpdatePhase.UIUpdate);
 
         //m_Setting = new Setting(this);
         //m_Setting.RegisterInOptionsUI();

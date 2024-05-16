@@ -1,11 +1,14 @@
 import { Button, Panel, Scrollable } from "cs2/ui";
 import styles from './mainpanel.module.scss';
+import { useValue } from "cs2/api";
+import { byLawZoneList$ } from "./bindings";
 
 export const MainPanel = () => {
     // This is a void component that does not output anynthing.
     // Cities: Skylines 2 UI is built with React and mods support outputting standard
     // React JSX elements!
     const onClose = () => {}
+    var byLawZoneList = useValue(byLawZoneList$);    
 
     return (
         <Panel className={styles.mainPanel} draggable={true} header={"Zoning ByLaws"} onClose={onClose} contentClassName={styles.mainPanelContentContainer}>            
