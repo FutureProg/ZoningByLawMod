@@ -24,24 +24,39 @@ const Bounds1Field = (props : {bounds?: Bounds1}) => {
     )
 }
 
-const EnumField = <T,>(props: {enum? : number}) => {        
+const EnumField = <T,>(props: {enum? : ByLawZoneType, onChange?: (enumValue: number) => any}) => {        
     if (!props.enum) {
-        props.enum = ByLawZoneType.None;
-    }    
+        props.enum = ByLawZoneType.Residential | ByLawZoneType.Commercial;        
+    }                   
+    type x = keyof T;
     let preEntries : [any, any][] = Object.entries(ByLawZoneType);
-    let entries : [string: number] = Object.fromEntries(
-        preEntries.filter((value, idx) => idx < preEntries.length/2).map(([k,v]) => [v,k])
+    let entries : {[key: string]: number} = Object.fromEntries(
+        preEntries.filter((value, idx) => idx < preEntries.length/2 && Number(value[0]) != 0).map(([k,v]) => [v,k])
     )        
-    let defaultState : Record<string, boolean> = {};
-    Object.keys(entries).forEach((k) => defaultState[k] =  false);    
+    let defaultState : Record<string, boolean> = {};    
+    Object.entries(entries).forEach(([k,v],idx,arr) => defaultState[k] = (v & props.enum!) !== 0);    
+    
+    const onCheckboxChange = (key: string) => (e: any) => {
+        let nState = {...checked};
+        nState[key] = (e as any) as boolean;         
+        let nEnum = 0;        
+        Object.entries(nState).forEach(([k, v], idx) => {
+            if (v) {
+                nEnum |= entries[k];
+            }
+        });
+        props.onChange? props.onChange(nEnum) : undefined;
+        setChecked(nState);
+    };
+
     let [checked, setChecked] = useState(defaultState);
-    useEffect(() => {console.log(checked);}, [checked]);
+    
     const list = Object.entries(entries).map(([key, value], idx) => 
         <div key={key}>
             <label>{key}</label>
             <VanillaComponentResolver.instance.Checkbox 
                 checked={checked[key]}
-                onChange={(e) => {console.log("Change " + e + " " + typeof e); let x = {...checked}; x[key] = (e as any) as boolean; setChecked(x);}} 
+                onChange={onCheckboxChange(key)} 
                 theme={VanillaComponentResolver.instance.checkboxTheme}/>            
         </div>
     );
@@ -66,7 +81,7 @@ export const ByLawDetailsPanel = () => {
                 <div className={styles.byLawDetailsTable}>
                     <tr>
                         <th>Permitted Uses</th>
-                        <td><EnumField<ByLawZoneType> enum={newByLawData?.zoneType} /> </td>
+                        <td><EnumField<ByLawZoneType> enum={newByLawData?.zoneType} onChange={(nVal) => console.log(nVal)} /> </td>
                     </tr>
                     <tr>
                         <th>Height Constraints</th>
