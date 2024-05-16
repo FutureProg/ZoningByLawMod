@@ -4,8 +4,8 @@ import { ByLawZoneComponent, ByLawZoneData, ByLawZoneListItem } from "./types";
 import { Entity } from "cs2/bindings";
 
 
-export const byLawZoneList = bindValue<ByLawZoneListItem[]>(mod.fullname, "ByLawZoneList", []);
-export const selectedByLawData = bindValue<ByLawZoneComponent>(mod.fullname, "SelectedByLawData");
+export const byLawZoneList$ = bindValue<ByLawZoneListItem[]>(mod.fullname, "ByLawZoneList", []);
+export const selectedByLawData$ = bindValue<ByLawZoneComponent>(mod.fullname, "SelectedByLawData");
 
 export const setActiveByLaw = (entity: Entity) => {
     trigger(mod.fullname, "SetActiveByLaw", entity);
