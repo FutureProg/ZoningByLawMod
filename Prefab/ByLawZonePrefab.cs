@@ -31,11 +31,11 @@ namespace Trejak.ZoningByLaw.Prefab
     {
 
         public ByLawZoneType zoneType;
-        public Bounds2 height;
-        public Bounds2 lotSize;
-        public Bounds2 frontage;
-        public Bounds2 parking;
-
+        public Bounds1 height;
+        public Bounds1 lotSize;
+        public Bounds1 frontage;
+        public Bounds1 parking;
+        
     }
 
     public enum ByLawZoneType : byte
