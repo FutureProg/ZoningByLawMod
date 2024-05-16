@@ -33,14 +33,80 @@
 }
 
 .bylawList {
-    background-color: rgba($color: #000000, $alpha: 0.8);
+    background-color: rgba($color: #000000, $alpha: 0.2);
     height: 100%;    
-    width: 35%;       
+    width: 35%;
+}
+.bylawListItem {
+    padding: 8rem 4rem;
+    background-color: rgba($color: #000000, $alpha: 0.2);
+    border: 1rem solid rgba($color: #FFFFFF, $alpha: 0.2);
+    width: 100%;
+}
+.bylawListItem:hover {
+    background-color: rgba($color: #000000, $alpha: 0.8);
+}
+.bylawListItem.selected {
+    background-color: rgba($color: #2079ec, $alpha: 0.8);
 }
 
 .bylawDetails {
-    background-color: rgba($color: #d61b1b, $alpha: 0.8);
+    background-color: rgba($color: #000000, $alpha: 0.2);
     height: 100%; 
     width: 65%;   
     margin-left: 4rem;
+}
+.byLawDetailsTable {
+    position: relative;
+    padding: 8rem 4rem;
+}
+.byLawDetailsTable > tr {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;    
+    justify-content: left;
+    padding: 8rem 0;
+}
+.byLawDetailsTable > tr > th {
+    font-size: 16rem;
+    font-weight: 400;
+    width: 30%;
+    margin-right: 24rem;
+}
+.byLawDetailsTable > tr > td {
+    position: relative;
+} 
+
+.bounds1Field {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 70%;
+}
+.bounds1Field > div {
+    margin-right: 16rem;
+}
+.bounds1Field input {
+    width: 100rem;    
+}
+
+.enumField {
+    position: relative;
+    display: flex;
+    flex-direction: row;   
+    justify-content: space-between; 
+    flex-wrap: wrap;  
+    width: 70%;  
+}
+.enumField > div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    position: relative;    
+    margin-right:4rem;    
+    margin-bottom: 8rem;
+}
+.enumField > div > label {
+    width: 35%;
 }
