@@ -162,7 +162,7 @@ namespace Trejak.ZoningByLaw
                 industrialDemands = _industrialDemandSystem.GetBuildingDemands(out var industrialDemandJob),
                 industrialProcesses = _processQuery.ToComponentDataListAsync<IndustrialProcessData>(World.UpdateAllocator.ToAllocator, out var industrialProcessJob),
                 landValueLookup = GetComponentLookup<LandValue>(true),
-                minDemand = _zoneSpawnSystem.debugFastSpawn ? 1 : 1,
+                minDemand = _zoneSpawnSystem.debugFastSpawn ? 0 : 1,
                 objGeomDataHandle = GetComponentTypeHandle<ObjectGeometryData>(true),
                 ownerHandle = GetComponentTypeHandle<Owner>(true),
                 processEstimatesLookup = GetBufferLookup<ProcessEstimate>(true),

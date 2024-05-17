@@ -141,12 +141,16 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number}) => {
                         <td><EnumField<ByLawZoneType> enum={newByLawData != undefined? newByLawData!.zoneType : byLawData? byLawData.zoneType : 0} onChange={onUpdateZoneType} /> </td>
                     </tr>
                     <tr>
-                        <th>Height Constraints</th>
+                        <th>Height Constraints (metres)</th>
                         <td><Bounds1Field bounds={newByLawData?.height} name='height' onChange={onUpdateBounds} /></td>
                     </tr>
                     <tr>
-                        <th>Lot Frontage Constraints</th>
+                        <th>Lot Frontage Constraints (8 metre units)</th>
                         <td><Bounds1Field bounds={newByLawData?.frontage} name='frontage' onChange={onUpdateBounds} /></td>
+                    </tr>
+                    <tr>
+                        <th>Lot Size Constraints (8 metre units squared)</th>
+                        <td><Bounds1Field bounds={newByLawData?.lotSize} name='lotSize' onChange={onUpdateBounds} /></td>
                     </tr>
                 </div>
                 <div>
