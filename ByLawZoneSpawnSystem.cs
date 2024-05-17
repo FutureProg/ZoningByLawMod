@@ -309,6 +309,7 @@ namespace Trejak.ZoningByLaw
 
                             // normally is a switch here for the type of area (residential, industry, commercial)
                             float curvePosScalar = this.CalculateCurvePos(curvePos, vacantLot, block);
+                            //TODO: Allow storage to be spawned
                             this.TryAddLot(byLawData, ref spawnLocation, ref random, owner.m_Owner, curvePosScalar, entity, vacantLot.m_Area, vacantLot.m_Flags, (int)vacantLot.m_Height, zoneData, estimates, this.industrialProcesses, true, false);
                         }
                     }
