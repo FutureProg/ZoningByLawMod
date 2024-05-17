@@ -59,7 +59,7 @@ public class Mod : IMod
         newUIObj.name = "Zoning ByLaw #0";//uiObj.name.Replace("NA Residential Medium", "ByLaw Zone");
         newUIObj.m_Priority = uiObj.m_Priority;
         newUIObj.m_Group = uiObj.m_Group;
-        newUIObj.active = uiObj.active;
+        newUIObj.active = uiObj.active;      
         prefab.AddComponentFrom(newUIObj);
 
 
@@ -68,6 +68,8 @@ public class Mod : IMod
             Mod.log.Error("Failed to add cloned zone prefab! exiting.");
             return;
         }
+        Utils.AddLocaleText($"Assets.NAME[{prefab.name}]", prefab.name);
+        Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", prefab.CreateDescription());
 
         GameManager.instance.onGameLoadingComplete += onGameLoadingComplete;
 

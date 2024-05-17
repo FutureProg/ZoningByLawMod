@@ -4,6 +4,7 @@ using Game;
 using Game.Common;
 using Game.Input;
 using Game.Prefabs;
+using Game.SceneFlow;
 using Game.Tools;
 using Game.UI;
 using HarmonyLib;
@@ -30,12 +31,14 @@ namespace Trejak.ZoningByLaw.UI
         private ValueBinding<ByLawZoneData> _selectedByLawData;
         private ValueBinding<ByLawZoneListItem[]> _byLawZoneList;
         private ValueBinding<bool> _configPanelOpen;
+        private ValueBinding<string> _selectedByLawName;
 
         private TriggerBinding<Entity> _setActiveByLaw;
         private TriggerBinding<ByLawZoneData> _setByLawData;
         private TriggerBinding<ByLawZoneData> _createNewByLaw;
         private TriggerBinding<Entity> _deleteByLaw;
         private TriggerBinding<bool> _setConfigPanelOpen;
+        private TriggerBinding<string> _setByLawName;
 
         const string uiGroupName = "Trejak.ZoningByLaw";
 
@@ -65,6 +68,7 @@ namespace Trejak.ZoningByLaw.UI
 
             this.AddBinding(_selectedByLawData = new ValueBinding<ByLawZoneData>(uiGroupName, "SelectedByLawData", default));
             this.AddBinding(_configPanelOpen = new ValueBinding<bool>(uiGroupName, "IsConfigPanelOpen", default));
+            this.AddBinding(_selectedByLawName = new ValueBinding<string>(uiGroupName, "SelectedByLawName", default));
             this.AddBinding(_byLawZoneList = new ValueBinding<ByLawZoneListItem[]>(uiGroupName, "ByLawZoneList", GetByLawList(), new ArrayWriter<ByLawZoneListItem>()));
 
             this.AddBinding(_setActiveByLaw = new TriggerBinding<Entity>(uiGroupName, "SetActiveByLaw", SetActiveByLaw));
@@ -72,6 +76,7 @@ namespace Trejak.ZoningByLaw.UI
             this.AddBinding(_createNewByLaw = new TriggerBinding<ByLawZoneData>(uiGroupName, "CreateNewByLaw", CreateNewByLaw));
             this.AddBinding(_deleteByLaw = new TriggerBinding<Entity>(uiGroupName, "DeleteByLaw", DeleteByLaw));
             this.AddBinding(_setConfigPanelOpen = new TriggerBinding<bool>(uiGroupName, "SetConfigPanelOpen", SetConfigPanelOpen));
+            this.AddBinding(_setByLawName = new TriggerBinding<string>(uiGroupName, "SetByLawName", SetByLawName));
         }
 
         void SetConfigPanelOpen(bool newValue)
@@ -90,7 +95,8 @@ namespace Trejak.ZoningByLaw.UI
             } else
             {
                 data = EntityManager.GetComponentData<ByLawZoneData>(entity);
-            }            
+            }
+            this._selectedByLawName.Update(_prefabSystem.GetPrefabName(entity));
             this._selectedByLawData.Update(data);
         }
 
@@ -98,7 +104,23 @@ namespace Trejak.ZoningByLaw.UI
         {
             Mod.log.Info("Set By Law Data: " + data);
             EntityManager.SetComponentData<ByLawZoneData>(_selectedByLaw, data);
+            var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(_selectedByLaw);
+            Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", data.CreateDescription());
             this._selectedByLawData.Update(data);
+        }
+
+        void SetByLawName(string name)
+        {
+            if (_selectedByLaw == Entity.Null)
+            {
+                return;
+            }            
+            var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(_selectedByLaw);
+            prefab.name = name;
+            Utils.AddLocaleText($"Assets.NAME[{prefab.name}]", prefab.name);
+            Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", _selectedByLawData.value.CreateDescription());
+            _selectedByLawName.Update(name);
+            UpdateByLawList();
         }
 
         void GetBasePrefab()
@@ -121,7 +143,7 @@ namespace Trejak.ZoningByLaw.UI
             _basePrefab.components.CopyTo(baseComponents);
 
             var prefab = new ByLawZonePrefab();
-            string byLawName = "Zoning ByLaw #" + _bylawsQuery.CalculateEntityCount() + 1; // TODO: make it so the player can create their own name
+            string byLawName = "Zoning ByLaw #" + _bylawsQuery.CalculateEntityCount(); // TODO: make it so the player can create their own name
             
             // Copy over prefab data
             prefab.zoneType = data.zoneType;
@@ -154,6 +176,8 @@ namespace Trejak.ZoningByLaw.UI
                 Mod.log.Error($"Failed to add new zone prefab \"{byLawName}\"!");
                 return;
             }
+            Utils.AddLocaleText($"Assets.NAME[{prefab.name}]", prefab.name);
+            Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", data.CreateDescription());
             UpdateByLawList();
         }
 
@@ -190,11 +214,6 @@ namespace Trejak.ZoningByLaw.UI
             }
             entityArr.Dispose();
             return list.ToArray();
-        }
-
-        protected override void OnUpdate()
-        {
-            base.OnUpdate();
         }
 
     }

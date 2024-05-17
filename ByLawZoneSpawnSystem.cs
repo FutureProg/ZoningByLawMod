@@ -383,13 +383,14 @@ namespace Trejak.ZoningByLaw
                 re = re && (byLaw.height.min >= 0 ? objGeomData.m_Size.y >= byLaw.height.min : true);
                 re = re && (byLaw.height.max >= 0 ? objGeomData.m_Size.y <= byLaw.height.max : true);
                 //// Lot Frontage
-                //re = re && byLaw.frontage.min >= 0 ? buildingData.m_LotSize.x >= byLaw.frontage.min : true;
-                //re = re && byLaw.frontage.max >= 0 ? buildingData.m_LotSize.x <= byLaw.frontage.max : true;                
+                re = re && (byLaw.frontage.min >= 0 ? buildingData.m_LotSize.x >= byLaw.frontage.min : true);
+                re = re && (byLaw.frontage.max >= 0 ? buildingData.m_LotSize.x <= byLaw.frontage.max : true);
                 //// Lot Size
-                //var lotSize = buildingData.m_LotSize.x * buildingData.m_LotSize.y;
-                //re = re && byLaw.lotSize.min >= 0 ? lotSize >= byLaw.lotSize.min : true;
-                //re = re && byLaw.lotSize.max >= 0 ? lotSize <= byLaw.lotSize.max : true;
+                var lotSize = buildingData.m_LotSize.x * buildingData.m_LotSize.y;
+                re = re && (byLaw.lotSize.min >= 0 ? lotSize >= byLaw.lotSize.min : true);
+                re = re && (byLaw.lotSize.max >= 0 ? lotSize <= byLaw.lotSize.max : true);
                 //// TODO: Parking
+                if (!re) return re;
 
                 // Permitted Uses
                 var archetypeComponents = objectData.m_Archetype.GetComponentTypes();

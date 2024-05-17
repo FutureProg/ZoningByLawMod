@@ -26,6 +26,35 @@ namespace Trejak.ZoningByLaw.Prefab
             base.GetPrefabComponents(components);
             components.Add(ComponentType.ReadWrite<ByLawZoneData>());
         }
+
+        public string CreateDescription()
+        {
+            string re = "";
+
+            re += "Permitted Uses: ";
+            var usesValArr = Enum.GetValues(typeof(ByLawZoneType));
+            for (int i = 0; i < usesValArr.Length; i++)
+            {
+                ByLawZoneType val = (ByLawZoneType)usesValArr.GetValue(i);
+                if ((val & zoneType) != 0)
+                {
+                    re += Enum.GetName(typeof(ByLawZoneType), val) + ", ";
+                }
+            }
+            if (re.EndsWith(", "))
+            {
+                re = re.Substring(0, re.Length - 2);
+            }
+            else
+            {
+                re += "None";
+            }
+            re += "\n";
+            re += $"Height: Min={(height.min >= 0 ? height.min : "None")}, Max={(height.max >= 0 ? height.max : "None")}\n";
+            re += $"Lot Size: Min={(lotSize.min >= 0 ? lotSize.min : "None")}, Max={(lotSize.max >= 0 ? lotSize.max : "None")}\n";
+            re += $"Frontage: Min={(frontage.min >= 0 ? frontage.min : "None")}, Max={(frontage.max >= 0 ? frontage.max : "None")}\n";
+            return re;
+        }
     }
 
     public struct ByLawZoneData : IComponentData, IJsonWritable, IJsonReadable
@@ -74,6 +103,35 @@ namespace Trejak.ZoningByLaw.Prefab
             writer.PropertyName("parking");
             writer.Write(parking);
             writer.TypeEnd();
+        }
+
+        public string CreateDescription()
+        {
+            string re = "";
+
+            re += "Permitted Uses: ";
+            var usesValArr = Enum.GetValues(typeof(ByLawZoneType));
+            for (int i = 0; i < usesValArr.Length; i++)
+            {
+                ByLawZoneType val = (ByLawZoneType)usesValArr.GetValue(i);
+                if ((val & zoneType) != 0)
+                {
+                    re += Enum.GetName(typeof(ByLawZoneType), val) + ", ";
+                }
+            }
+            if (re.EndsWith(", "))
+            {
+                re = re.Substring(0, re.Length - 2);
+            }
+            else
+            {
+                re += "None";
+            }
+            re += "\n";
+            re += $"Height: Min={(height.min >= 0 ? height.min : "None")}, Max={(height.max >= 0 ? height.max : "None")}\n";
+            re += $"Lot Size: Min={(lotSize.min >= 0 ? lotSize.min : "None")}, Max={(lotSize.max >= 0 ? lotSize.max : "None")}\n";
+            re += $"Frontage: Min={(frontage.min >= 0 ? frontage.min : "None")}, Max={(frontage.max >= 0 ? frontage.max : "None")}\n";
+            return re;
         }
     }
 

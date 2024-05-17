@@ -1,12 +1,12 @@
 import { Button, DropdownItem, DropdownToggle, Scrollable } from "cs2/ui"
 import styles from './mainpanel.module.scss';
-import { selectedByLawData$, setByLawData } from "./bindings";
+import { selectedByLawData$, selectedByLawName$, setByLawData, setByLawName } from "./bindings";
 import { useValue } from "cs2/api";
-import { useEffect, useRef, useState } from "react";
+import { ChangeEvent, ChangeEventHandler, useEffect, useRef, useState } from "react";
 import { ByLawZoneComponent, ByLawZoneType } from "./types";
 import { Bounds1 } from "cs2/bindings";
 import { Dropdown } from "cs2/ui";
-import { FOCUS_AUTO } from "cs2/input";
+import { FOCUS_AUTO, InputContext } from "cs2/input";
 import { VanillaComponentResolver } from "vanillacomponentresolver";
 
 const Bounds1Field = (props : {bounds?: Bounds1, name: string, onChange?: (name: string, newValue: Bounds1) => void}) => {
@@ -18,9 +18,17 @@ const Bounds1Field = (props : {bounds?: Bounds1, name: string, onChange?: (name:
         setLocalBounds(props.bounds);
     }, [props.bounds, minRef, maxRef]);    
 
-    let onInputChange = () => {
+    let onInputChange = (e: any) => {
+        let min = Number(minRef.current?.value);
+        let max = Number(maxRef.current?.value);
+        if (isNaN(min) || isNaN(max)) {
+            return;
+        }        
+        let nBounds = {min, max};
+        console.log(nBounds);
+        setLocalBounds(nBounds);
         if (props.onChange) {
-            props.onChange(props.name, {min: minRef.current?.value as any as number, max: maxRef.current?.value as any as number})
+            props.onChange(props.name, nBounds);
         }
     }
 
@@ -28,11 +36,11 @@ const Bounds1Field = (props : {bounds?: Bounds1, name: string, onChange?: (name:
         <div className={styles.bounds1Field}>        
             <div>
                 <label>Min</label>
-                <input type="number" ref={minRef} defaultValue={props.bounds?.min} />
+                <input type="number" ref={minRef} value={localBounds?.min} onChange={onInputChange} />
             </div>
             <div>
                 <label>Max</label>
-                <input type="number" ref={maxRef} defaultValue={localBounds?.max} />
+                <input type="number" ref={maxRef} value={localBounds?.max} onChange={onInputChange} />
             </div>        
         </div>
     )
@@ -45,11 +53,7 @@ const EnumField = <T,>(props: {enum : ByLawZoneType, onChange?: (enumValue: T) =
         preEntries.filter((value, idx) => idx < preEntries.length/2 && Number(value[0]) != 0).map(([k,v]) => [v,k])
     )        
     let defaultState : Record<string, boolean> = {};    
-    Object.entries(entries).forEach(([k,v],idx,arr) => defaultState[k] = (v & props.enum!) !== 0);    
-    useEffect(() => {
-        Object.entries(entries).forEach(([k,v],idx,arr) => defaultState[k] = (v & props.enum!) !== 0);
-        setChecked(defaultState);
-    }, [props.enum]);
+    Object.entries(entries).forEach(([k,v]) => defaultState[k] = (v & props.enum!) !== 0);        
     const onCheckboxChange = (key: string) => (e: any) => {
         let nState = {...checked};
         nState[key] = (e as any) as boolean;         
@@ -64,6 +68,10 @@ const EnumField = <T,>(props: {enum : ByLawZoneType, onChange?: (enumValue: T) =
     };
 
     let [checked, setChecked] = useState(defaultState);
+    useEffect(() => {
+        Object.entries(entries).forEach(([k,v]) => defaultState[k] = (v & props.enum!) !== 0);
+        setChecked(defaultState);
+    }, [props.enum]);
     
     const list = Object.entries(entries).map(([key, value], idx) => 
         <div key={key}>
@@ -83,12 +91,16 @@ const EnumField = <T,>(props: {enum : ByLawZoneType, onChange?: (enumValue: T) =
 
 export const ByLawDetailsPanel = (props: {selectedRowIndex: number}) => {    
     let byLawData = useValue(selectedByLawData$);    
+    let byLawName = useValue(selectedByLawName$);
     let [newByLawData, updateNewByLawData] = useState<ByLawZoneComponent>();
+    let [newByLawName, updateNewByLawName] = useState<string>();
 
-    useEffect(() => {        
-        console.log(byLawData);
+    useEffect(() => {                
         updateNewByLawData(byLawData);
     }, [byLawData]);
+    useEffect(() => {
+        updateNewByLawName(byLawName);
+    }, [byLawName]);
 
     const onUpdateZoneType = (newType: number) => {        
         updateNewByLawData({
@@ -103,9 +115,16 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number}) => {
         updateNewByLawData(newData);
     }
 
+    const onNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+        updateNewByLawName(e.target.value);        
+    }
+
     const onSave = () => {
         if (newByLawData != undefined) {
             setByLawData(newByLawData!);
+        }
+        if (newByLawName != undefined && newByLawName !== byLawName && byLawName.length > 0) {
+            setByLawName(newByLawName!);
         }
     }
 
@@ -113,6 +132,10 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number}) => {
         <Scrollable className={styles.bylawDetails}>   
             <div style={{display: props.selectedRowIndex == -1? 'none': 'block'}}>
                 <div className={styles.byLawDetailsTable}>
+                    <tr>
+                        <th>Name</th>
+                        <td><input type="text" value={newByLawName} onChange={onNameChange}/></td>
+                    </tr>
                     <tr>
                         <th>Permitted Uses</th>
                         <td><EnumField<ByLawZoneType> enum={newByLawData != undefined? newByLawData!.zoneType : byLawData? byLawData.zoneType : 0} onChange={onUpdateZoneType} /> </td>
