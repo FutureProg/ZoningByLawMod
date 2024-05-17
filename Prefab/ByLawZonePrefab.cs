@@ -81,8 +81,8 @@ namespace Trejak.ZoningByLaw.Prefab
     {
         None = 0,
         Residential = 1,
-        Commercial,
-        Industrial,
-        Office
+        Commercial = 2,
+        Industrial = 4,
+        Office = 8
     }
 }

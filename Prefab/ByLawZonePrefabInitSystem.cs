@@ -36,15 +36,14 @@ namespace ZoningByLaw.Prefab
             {
                 return;
             }
-            Mod.log.Info("Starting init prefab");
             var entities = this._createdZonesQuery.ToEntityArray(Allocator.Temp);
             for(int i = 0; i < entities.Length; i++)
-            {
-                Mod.log.Info("Init Prefab Running for " + i);
+            {                
                 var entity = entities[i];
                 var bylawData = SystemAPI.GetComponentRW<ByLawZoneData>(entity);
                 var prefabData = SystemAPI.GetComponentRO<PrefabData>(entity);
                 ByLawZonePrefab prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(prefabData.ValueRO);
+                Mod.log.Info("Initializing Zone Prefab: " + prefab.name);
                 bylawData.ValueRW.frontage = prefab.frontage;
                 bylawData.ValueRW.height = prefab.height;
                 bylawData.ValueRW.lotSize = prefab.lotSize;

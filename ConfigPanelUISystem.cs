@@ -29,11 +29,13 @@ namespace Trejak.ZoningByLaw.UI
 
         private ValueBinding<ByLawZoneData> _selectedByLawData;
         private ValueBinding<ByLawZoneListItem[]> _byLawZoneList;
+        private ValueBinding<bool> _configPanelOpen;
 
         private TriggerBinding<Entity> _setActiveByLaw;
         private TriggerBinding<ByLawZoneData> _setByLawData;
         private TriggerBinding<ByLawZoneData> _createNewByLaw;
         private TriggerBinding<Entity> _deleteByLaw;
+        private TriggerBinding<bool> _setConfigPanelOpen;
 
         const string uiGroupName = "Trejak.ZoningByLaw";
 
@@ -62,12 +64,19 @@ namespace Trejak.ZoningByLaw.UI
             GetBasePrefab();
 
             this.AddBinding(_selectedByLawData = new ValueBinding<ByLawZoneData>(uiGroupName, "SelectedByLawData", default));
+            this.AddBinding(_configPanelOpen = new ValueBinding<bool>(uiGroupName, "IsConfigPanelOpen", default));
             this.AddBinding(_byLawZoneList = new ValueBinding<ByLawZoneListItem[]>(uiGroupName, "ByLawZoneList", GetByLawList(), new ArrayWriter<ByLawZoneListItem>()));
 
             this.AddBinding(_setActiveByLaw = new TriggerBinding<Entity>(uiGroupName, "SetActiveByLaw", SetActiveByLaw));
             this.AddBinding(_setByLawData = new TriggerBinding<ByLawZoneData>(uiGroupName, "SetByLawData", SetByLawData));
             this.AddBinding(_createNewByLaw = new TriggerBinding<ByLawZoneData>(uiGroupName, "CreateNewByLaw", CreateNewByLaw));
-            this.AddBinding(_deleteByLaw = new TriggerBinding<Entity>(uiGroupName, "DeleteByLaw", DeleteByLaw));            
+            this.AddBinding(_deleteByLaw = new TriggerBinding<Entity>(uiGroupName, "DeleteByLaw", DeleteByLaw));
+            this.AddBinding(_setConfigPanelOpen = new TriggerBinding<bool>(uiGroupName, "SetConfigPanelOpen", SetConfigPanelOpen));
+        }
+
+        void SetConfigPanelOpen(bool newValue)
+        {
+            _configPanelOpen.Update(newValue);
         }
 
         void SetActiveByLaw(Entity entity)
@@ -81,14 +90,15 @@ namespace Trejak.ZoningByLaw.UI
             } else
             {
                 data = EntityManager.GetComponentData<ByLawZoneData>(entity);
-                Mod.log.Info("By Law Info" + data.height + ", " + data.zoneType);
             }            
             this._selectedByLawData.Update(data);
         }
 
         void SetByLawData(ByLawZoneData data)
         {
+            Mod.log.Info("Set By Law Data: " + data);
             EntityManager.SetComponentData<ByLawZoneData>(_selectedByLaw, data);
+            this._selectedByLawData.Update(data);
         }
 
         void GetBasePrefab()

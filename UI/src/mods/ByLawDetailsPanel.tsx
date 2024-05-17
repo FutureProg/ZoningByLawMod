@@ -1,6 +1,6 @@
-import { DropdownItem, DropdownToggle, Scrollable } from "cs2/ui"
+import { Button, DropdownItem, DropdownToggle, Scrollable } from "cs2/ui"
 import styles from './mainpanel.module.scss';
-import { selectedByLawData$ } from "./bindings";
+import { selectedByLawData$, setByLawData } from "./bindings";
 import { useValue } from "cs2/api";
 import { useEffect, useState } from "react";
 import { ByLawZoneComponent, ByLawZoneType } from "./types";
@@ -24,7 +24,7 @@ const Bounds1Field = (props : {bounds?: Bounds1}) => {
     )
 }
 
-const EnumField = <T,>(props: {enum : ByLawZoneType, onChange?: (enumValue: number) => any}) => {            
+const EnumField = <T,>(props: {enum : ByLawZoneType, onChange?: (enumValue: T) => any}) => {            
     type x = keyof T;
     let preEntries : [any, any][] = Object.entries(ByLawZoneType);
     let entries : {[key: string]: number} = Object.fromEntries(
@@ -42,7 +42,7 @@ const EnumField = <T,>(props: {enum : ByLawZoneType, onChange?: (enumValue: numb
                 nEnum |= entries[k];
             }
         });
-        props.onChange? props.onChange(nEnum) : undefined;
+        props.onChange? props.onChange((nEnum as any) as T) : undefined;
         setChecked(nState);
     };
 
@@ -71,7 +71,20 @@ export const ByLawDetailsPanel = () => {
     useEffect(() => {        
         console.log(byLawData);
         updateNewByLawData(byLawData);
-    }, [byLawData]);    
+    }, [byLawData]);
+
+    const onUpdateZoneType = (newType: number) => {        
+        updateNewByLawData({
+            ...newByLawData!,
+            zoneType: newType
+        });
+    } 
+
+    const onSave = () => {
+        if (newByLawData != undefined) {
+            setByLawData(newByLawData!);
+        }
+    }
 
     return (
         <Scrollable className={styles.bylawDetails}>   
@@ -79,7 +92,7 @@ export const ByLawDetailsPanel = () => {
                 <div className={styles.byLawDetailsTable}>
                     <tr>
                         <th>Permitted Uses</th>
-                        <td><EnumField<ByLawZoneType> enum={byLawData? byLawData.zoneType : 1} onChange={(nVal) => console.log(nVal)} /> </td>
+                        <td><EnumField<ByLawZoneType> enum={newByLawData != undefined? newByLawData!.zoneType : byLawData? byLawData.zoneType : 0} onChange={onUpdateZoneType} /> </td>
                     </tr>
                     <tr>
                         <th>Height Constraints</th>
@@ -90,6 +103,9 @@ export const ByLawDetailsPanel = () => {
                         <td><Bounds1Field bounds={newByLawData?.frontage} /></td>
                     </tr>
                 </div>
+                <div>
+                    <Button onClick={onSave} variant="flat">Save</Button>
+                </div>                
             </div>            
         </Scrollable>
     )
