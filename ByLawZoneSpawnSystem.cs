@@ -30,6 +30,7 @@ using Trejak.ZoningByLaw.Prefab;
 using static Game.Simulation.ServiceCoverageSystem;
 using BuildingData = Game.Prefabs.BuildingData;
 using Game.Buildings;
+using System.Security.AccessControl;
 
 namespace Trejak.ZoningByLaw
 {
@@ -180,7 +181,9 @@ namespace Trejak.ZoningByLaw
                 residentialQ = residentialQ.AsParallelWriter(),
                 industrialQ = industrialQ.AsParallelWriter(),
                 entityStorageInfoLookup = GetEntityStorageInfoLookup(),
-                objectdataLookup = SystemAPI.GetComponentLookup<ObjectData>(true)
+                objectdataLookup = SystemAPI.GetComponentLookup<ObjectData>(true),
+                commercialDemands = _commercialDemandSystem.GetBuildingDemands(out var commercialDemandJob),
+                residentialDemands = _residentialDemandSystem.buildingDemand
             };            
             ZoneSpawnSystem.SpawnBuildingJob spawnBuildingJob = new()
             {
@@ -212,7 +215,7 @@ namespace Trejak.ZoningByLaw
             };
 
             var evaluationHandle = evaluateSpawnAreas.ScheduleParallel(this._vacantLotsQuery, JobUtils.CombineDependencies(buildingsQueryJob, groundPollutionMapJob,
-                groundPollutionMapJob, industrialDemandJob, industrialProcessJob, this.Dependency, storageBuildingDemandJob));
+                groundPollutionMapJob, industrialDemandJob, industrialProcessJob, this.Dependency, storageBuildingDemandJob, commercialDemandJob));
             var spawnBuildingHandle = spawnBuildingJob.Schedule(3, 1, JobHandle.CombineDependencies(evaluationHandle, searchTreeJob));
             
             _resourceSystem.AddPrefabsReader(evaluationHandle);
@@ -240,6 +243,8 @@ namespace Trejak.ZoningByLaw
             public NativeArray<GroundPollution> groundPollutionMap;
             public NativeList<ArchetypeChunk> buildingChunks;
             public ZonePreferenceData zonePreferenceData;
+            public int3 residentialDemands;
+            public NativeArray<int> commercialDemands;
             public NativeArray<int> storageDemands;
             public NativeArray<int> industrialDemands;
             public ResourcePrefabs resourcePrefabs;
@@ -247,7 +252,7 @@ namespace Trejak.ZoningByLaw
             public NativeQueue<ZoneSpawnSystem.SpawnLocation>.ParallelWriter commercialQ;
             public NativeQueue<ZoneSpawnSystem.SpawnLocation>.ParallelWriter industrialQ;
             public EntityStorageInfoLookup entityStorageInfoLookup;
-            public int minDemand;
+            public int minDemand;                        
 
             public EntityTypeHandle entityHandle;
             public ComponentTypeHandle<Owner> ownerHandle;
@@ -431,7 +436,7 @@ namespace Trejak.ZoningByLaw
 
                 var chunkIdx = random.NextInt(0, buildingChunks.Length);
                 ArchetypeChunk buildingChunk = this.buildingChunks[chunkIdx];
-                bool flag2 = buildingChunk.Has<WarehouseData>(ref this.warehouseHandle);
+                bool isStorage = buildingChunk.Has<WarehouseData>(ref this.warehouseHandle);
                 var buildingEntities = buildingChunk.GetNativeArray(this.entityHandle);
                 var buildingDataArr = buildingChunk.GetNativeArray<BuildingData>(ref this.buildingDataHandle);
                 var spawnableDataArr = buildingChunk.GetNativeArray<SpawnableBuildingData>(ref this.spawnableBuildingDataHandle);
@@ -452,7 +457,7 @@ namespace Trejak.ZoningByLaw
                             BuildingPropertyData buildingPropertyData = buildingPropertyDataArr[i];
                             Game.Zones.AreaType evalAreaType = zoneDataLookup[spawnableData.m_ZonePrefab].m_AreaType; 
                             
-                            int num = this.EvaluateDemandAndAvailability(evalAreaType, buildingPropertyData, lotSize.x * lotSize.y, flag2);
+                            int num = this.EvaluateDemandAndAvailability(evalAreaType, buildingPropertyData, lotSize.x * lotSize.y, isStorage);
                             if (num >= this.minDemand || extractor)
                             {
                                 int2 int2 = math.select(maxLotSize - lotSize, 0, lotSize == maxLotSize - 1);
@@ -477,7 +482,7 @@ namespace Trejak.ZoningByLaw
                                         num4 = buildingPropertyData.m_SpaceMultiplier;
                                     }
                                     float num5 = ZoneEvaluationUtils.GetScore(evalAreaType, office, availabilities, curvePos, ref this.zonePreferenceData,
-                                        flag2, flag2 ? this.storageDemands : this.industrialDemands,
+                                        isStorage, isStorage ? this.storageDemands : this.industrialDemands,
                                         buildingPropertyData, pollution, num3 / num4, estimates, processes, this.resourcePrefabs, ref this.resourceDataLookup);
                                     num5 = math.select(num5, math.max(0f, num5) + 1f, this.minDemand == 0);
                                     num2 *= num5;
@@ -510,11 +515,56 @@ namespace Trejak.ZoningByLaw
                 }
                 return false;
             }
-            private int EvaluateDemandAndAvailability(Game.Zones.AreaType m_AreaType, BuildingPropertyData buildingPropertyData, int value, bool flag2)
+            private int EvaluateDemandAndAvailability(Game.Zones.AreaType areaType, BuildingPropertyData propertyData, int lotSize, bool storage = false)
             {
-
-                //TODO: fill
-                return 1;
+                switch (areaType)
+                {
+                    case Game.Zones.AreaType.Residential:
+                        if (propertyData.m_ResidentialProperties == 1)
+                        {
+                            return this.residentialDemands.z;
+                        }
+                        if ((float)propertyData.m_ResidentialProperties / (propertyData.m_SpaceMultiplier * (float)lotSize) < 1f)
+                        {
+                            return this.residentialDemands.y;
+                        }
+                        return this.residentialDemands.x;
+                    case Game.Zones.AreaType.Commercial:
+                        {
+                            int num = 0;
+                            ResourceIterator iterator = ResourceIterator.GetIterator();
+                            while (iterator.Next())
+                            {
+                                if ((propertyData.m_AllowedSold & iterator.resource) != Resource.NoResource)
+                                {
+                                    num += this.commercialDemands[EconomyUtils.GetResourceIndex(iterator.resource)];
+                                }
+                            }
+                            return num;
+                        }
+                    case Game.Zones.AreaType.Industrial:
+                        {
+                            int num2 = 0;
+                            ResourceIterator iterator2 = ResourceIterator.GetIterator();
+                            while (iterator2.Next())
+                            {
+                                if (storage)
+                                {
+                                    if ((propertyData.m_AllowedStored & iterator2.resource) != Resource.NoResource)
+                                    {
+                                        num2 += this.storageDemands[EconomyUtils.GetResourceIndex(iterator2.resource)];
+                                    }
+                                }
+                                else if ((propertyData.m_AllowedManufactured & iterator2.resource) != Resource.NoResource)
+                                {
+                                    num2 += this.industrialDemands[EconomyUtils.GetResourceIndex(iterator2.resource)];
+                                }
+                            }
+                            return num2;
+                        }
+                    default:
+                        return 0;
+                }                
             }
         }
     }
