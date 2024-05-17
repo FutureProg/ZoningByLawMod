@@ -15,11 +15,11 @@ namespace Trejak.ZoningByLaw.Prefab
     public class ByLawZonePrefab : ZonePrefab
     {
 
-        public ByLawZoneType zoneType;
-        public Bounds1 height;
-        public Bounds1 lotSize;
-        public Bounds1 frontage;
-        public Bounds1 parking;
+        public ByLawZoneType zoneType = ByLawZoneType.None;
+        public Bounds1 height = new Bounds1(-1, -1);
+        public Bounds1 lotSize = new Bounds1(-1, -1);
+        public Bounds1 frontage = new Bounds1(-1, -1);
+        public Bounds1 parking = new Bounds1(-1, -1);
 
         public override void GetPrefabComponents(HashSet<ComponentType> components)
         {
