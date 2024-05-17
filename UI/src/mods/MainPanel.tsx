@@ -12,7 +12,11 @@ export const MainPanel = () => {
     // This is a void component that does not output anynthing.
     // Cities: Skylines 2 UI is built with React and mods support outputting standard
     // React JSX elements!    
-    const onClose = () => {setConfigPanelOpen(false)}
+    const onClose = () => {
+        setActiveByLaw({index: 0, version: 0});
+        setSelectedListItem(-1);        
+        setConfigPanelOpen(false);
+    }
     const isPanelOpen = useValue(isConfigPanelOpen$);
     let [selectedListItem, setSelectedListItem] = useState(-1);
     const listItemOnClick = (entity: Entity) => () => {
@@ -47,7 +51,7 @@ export const MainPanel = () => {
                     <Scrollable className={styles.bylawList}>
                         {listItems}
                     </Scrollable>
-                    <ByLawDetailsPanel/>
+                    <ByLawDetailsPanel selectedRowIndex={selectedListItem}/>
                 </div>
                 <div className={styles.mainPanelBottomBar}>
                 </div>

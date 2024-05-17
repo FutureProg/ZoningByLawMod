@@ -29,6 +29,7 @@ using Unity.Mathematics;
 using Trejak.ZoningByLaw.Prefab;
 using static Game.Simulation.ServiceCoverageSystem;
 using BuildingData = Game.Prefabs.BuildingData;
+using Game.Buildings;
 
 namespace Trejak.ZoningByLaw
 {
@@ -178,7 +179,8 @@ namespace Trejak.ZoningByLaw
                 commercialQ = commercialQ.AsParallelWriter(),
                 residentialQ = residentialQ.AsParallelWriter(),
                 industrialQ = industrialQ.AsParallelWriter(),
-                entityStorageInfoLookup = GetEntityStorageInfoLookup()
+                entityStorageInfoLookup = GetEntityStorageInfoLookup(),
+                objectdataLookup = SystemAPI.GetComponentLookup<ObjectData>(true)
             };            
             ZoneSpawnSystem.SpawnBuildingJob spawnBuildingJob = new()
             {
@@ -265,6 +267,7 @@ namespace Trejak.ZoningByLaw
             public ComponentLookup<Block> blockLookup;
             public ComponentLookup<LandValue> landValueLookup;
             public ComponentLookup<ResourceData> resourceDataLookup;
+            public ComponentLookup<ObjectData> objectdataLookup;
 
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
             {
@@ -372,28 +375,47 @@ namespace Trejak.ZoningByLaw
                 }                
             }
 
-            private bool CompliesWithByLaw(ByLawZoneData byLaw, ObjectGeometryData objGeomData, ZoneData zoneData, BuildingData buildingData)
+            private bool CompliesWithByLaw(ByLawZoneData byLaw, ObjectGeometryData objGeomData, ZoneData zoneData, BuildingData buildingData, BuildingPropertyData propertyData, ObjectData objectData)
             {
                 bool re = true;
 
-                // Height
-                re = re && byLaw.height.min >= 0 ? objGeomData.m_Size.y >= byLaw.height.min : true;
-                re = re && byLaw.height.max >= 0 ? objGeomData.m_Size.y <= byLaw.height.max : true;
-                // Lot Frontage
-                re = re && byLaw.frontage.min >= 0 ? buildingData.m_LotSize.x >= byLaw.frontage.min : true;
-                re = re && byLaw.frontage.max >= 0 ? buildingData.m_LotSize.x <= byLaw.frontage.max : true;                
-                // Lot Size
-                var lotSize = buildingData.m_LotSize.x * buildingData.m_LotSize.y;
-                re = re && byLaw.lotSize.min >= 0 ? lotSize >= byLaw.lotSize.min : true;
-                re = re && byLaw.lotSize.max >= 0 ? lotSize <= byLaw.lotSize.max : true;
-                // TODO: Parking
+                //// Height
+                re = re && (byLaw.height.min >= 0 ? objGeomData.m_Size.y >= byLaw.height.min : true);
+                re = re && (byLaw.height.max >= 0 ? objGeomData.m_Size.y <= byLaw.height.max : true);
+                //// Lot Frontage
+                //re = re && byLaw.frontage.min >= 0 ? buildingData.m_LotSize.x >= byLaw.frontage.min : true;
+                //re = re && byLaw.frontage.max >= 0 ? buildingData.m_LotSize.x <= byLaw.frontage.max : true;                
+                //// Lot Size
+                //var lotSize = buildingData.m_LotSize.x * buildingData.m_LotSize.y;
+                //re = re && byLaw.lotSize.min >= 0 ? lotSize >= byLaw.lotSize.min : true;
+                //re = re && byLaw.lotSize.max >= 0 ? lotSize <= byLaw.lotSize.max : true;
+                //// TODO: Parking
 
                 // Permitted Uses
-                bool isOffice = zoneData.m_ZoneFlags.HasFlag(ZoneFlags.Office);
-                re = re && !byLaw.zoneType.HasFlag(ByLawZoneType.Office) ? !isOffice : true;
-                re = re && !byLaw.zoneType.HasFlag(ByLawZoneType.Residential) ? !zoneData.m_AreaType.HasFlag(Game.Zones.AreaType.Residential) : true;
-                re = re && !byLaw.zoneType.HasFlag(ByLawZoneType.Commercial) ? !zoneData.m_AreaType.HasFlag(Game.Zones.AreaType.Commercial) : true;
-                re = re && !byLaw.zoneType.HasFlag(ByLawZoneType.Industrial) ? !zoneData.m_AreaType.HasFlag(Game.Zones.AreaType.Industrial) && !isOffice : true;
+                var archetypeComponents = objectData.m_Archetype.GetComponentTypes();
+                bool isOffice = archetypeComponents.Contains(ComponentType.ReadOnly<OfficeProperty>());//(zoneData.m_ZoneFlags & ZoneFlags.Office) != 0;
+                bool isIndustry = archetypeComponents.Contains(ComponentType.ReadOnly<IndustrialProperty>()); //(zoneData.m_AreaType & Game.Zones.AreaType.Industrial) != 0;                
+                bool isResidential = propertyData.m_ResidentialProperties > 0;
+                bool isCommercial = archetypeComponents.Contains(ComponentType.ReadOnly<CommercialProperty>());
+                if ((ByLawZoneType.Residential & byLaw.zoneType) == 0 && isResidential)
+                {
+                    return false;
+                }
+                if ((ByLawZoneType.Office & byLaw.zoneType) == 0 && isOffice) {
+                    return false;
+                }
+                if ((ByLawZoneType.Commercial & byLaw.zoneType) == 0 && isCommercial)
+                {
+                    return false;
+                }
+                if ((ByLawZoneType.Industrial & byLaw.zoneType) == 0 && isIndustry)
+                {
+                    return false;
+                }
+                //re = re && (ByLawZoneType.Office & byLaw.zoneType) == 0 ? !isOffice : true;
+                //re = re && (ByLawZoneType.Residential & byLaw.zoneType) == 0? !isResidential : true;
+                //re = re && (ByLawZoneType.Commercial & byLaw.zoneType) == 0 ? !isCommercial : true;
+                //re = re && (ByLawZoneType.Industrial & byLaw.zoneType) == 0 ? !isIndustry : true;
                 return re;
             }
 
@@ -424,7 +446,7 @@ namespace Trejak.ZoningByLaw
                         bool2 rhs = new bool2((subjBuildingData.m_Flags & Game.Prefabs.BuildingFlags.LeftAccess) > (Game.Prefabs.BuildingFlags)0U, (subjBuildingData.m_Flags & Game.Prefabs.BuildingFlags.RightAccess) > (Game.Prefabs.BuildingFlags)0U);
                         float bldgHeight = objGeomDataArr[i].m_Size.y;
                         if (math.all(lotSize <= maxLotSize) && bldgHeight <= maxHeight 
-                            && CompliesWithByLaw(byLawData, objGeomDataArr[i], zoneData, subjBuildingData))
+                            && CompliesWithByLaw(byLawData, objGeomDataArr[i], zoneData, subjBuildingData, buildingPropertyDataArr[i], objectdataLookup[buildingEntities[i]]))
                         {
                             BuildingPropertyData buildingPropertyData = buildingPropertyDataArr[i];
                             Game.Zones.AreaType evalAreaType = zoneDataLookup[spawnableData.m_ZonePrefab].m_AreaType; 

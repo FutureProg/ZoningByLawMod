@@ -2,23 +2,37 @@ import { Button, DropdownItem, DropdownToggle, Scrollable } from "cs2/ui"
 import styles from './mainpanel.module.scss';
 import { selectedByLawData$, setByLawData } from "./bindings";
 import { useValue } from "cs2/api";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ByLawZoneComponent, ByLawZoneType } from "./types";
 import { Bounds1 } from "cs2/bindings";
 import { Dropdown } from "cs2/ui";
 import { FOCUS_AUTO } from "cs2/input";
 import { VanillaComponentResolver } from "vanillacomponentresolver";
 
-const Bounds1Field = (props : {bounds?: Bounds1}) => {
+const Bounds1Field = (props : {bounds?: Bounds1, name: string, onChange?: (name: string, newValue: Bounds1) => void}) => {
+    let [localBounds, setLocalBounds] = useState(props.bounds);
+    let minRef = useRef<HTMLInputElement>(null);
+    let maxRef = useRef<HTMLInputElement>(null);
+    useEffect(() => {
+        console.log("Bounds: " + props.bounds?.min);
+        setLocalBounds(props.bounds);
+    }, [props.bounds, minRef, maxRef]);    
+
+    let onInputChange = () => {
+        if (props.onChange) {
+            props.onChange(props.name, {min: minRef.current?.value as any as number, max: maxRef.current?.value as any as number})
+        }
+    }
+
     return (
         <div className={styles.bounds1Field}>        
             <div>
                 <label>Min</label>
-                <input type="number" value={props.bounds?.min} />
+                <input type="number" ref={minRef} defaultValue={props.bounds?.min} />
             </div>
             <div>
                 <label>Max</label>
-                <input type="number" value={props.bounds?.max} />
+                <input type="number" ref={maxRef} defaultValue={localBounds?.max} />
             </div>        
         </div>
     )
@@ -32,7 +46,10 @@ const EnumField = <T,>(props: {enum : ByLawZoneType, onChange?: (enumValue: T) =
     )        
     let defaultState : Record<string, boolean> = {};    
     Object.entries(entries).forEach(([k,v],idx,arr) => defaultState[k] = (v & props.enum!) !== 0);    
-    
+    useEffect(() => {
+        Object.entries(entries).forEach(([k,v],idx,arr) => defaultState[k] = (v & props.enum!) !== 0);
+        setChecked(defaultState);
+    }, [props.enum]);
     const onCheckboxChange = (key: string) => (e: any) => {
         let nState = {...checked};
         nState[key] = (e as any) as boolean;         
@@ -64,7 +81,7 @@ const EnumField = <T,>(props: {enum : ByLawZoneType, onChange?: (enumValue: T) =
     )
 }
 
-export const ByLawDetailsPanel = () => {    
+export const ByLawDetailsPanel = (props: {selectedRowIndex: number}) => {    
     let byLawData = useValue(selectedByLawData$);    
     let [newByLawData, updateNewByLawData] = useState<ByLawZoneComponent>();
 
@@ -78,7 +95,13 @@ export const ByLawDetailsPanel = () => {
             ...newByLawData!,
             zoneType: newType
         });
-    } 
+    }
+    
+    const onUpdateBounds = (name: string, newValue: Bounds1) => {
+        let newData = {...newByLawData} as any;
+        newData[name] = newValue;
+        updateNewByLawData(newData);
+    }
 
     const onSave = () => {
         if (newByLawData != undefined) {
@@ -88,7 +111,7 @@ export const ByLawDetailsPanel = () => {
 
     return (
         <Scrollable className={styles.bylawDetails}>   
-            <div>
+            <div style={{display: props.selectedRowIndex == -1? 'none': 'block'}}>
                 <div className={styles.byLawDetailsTable}>
                     <tr>
                         <th>Permitted Uses</th>
@@ -96,11 +119,11 @@ export const ByLawDetailsPanel = () => {
                     </tr>
                     <tr>
                         <th>Height Constraints</th>
-                        <td><Bounds1Field bounds={newByLawData?.height} /></td>
+                        <td><Bounds1Field bounds={newByLawData?.height} name='height' onChange={onUpdateBounds} /></td>
                     </tr>
                     <tr>
                         <th>Lot Frontage Constraints</th>
-                        <td><Bounds1Field bounds={newByLawData?.frontage} /></td>
+                        <td><Bounds1Field bounds={newByLawData?.frontage} name='frontage' onChange={onUpdateBounds} /></td>
                     </tr>
                 </div>
                 <div>

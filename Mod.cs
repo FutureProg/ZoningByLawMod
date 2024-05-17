@@ -41,7 +41,7 @@ public class Mod : IMod
 
         var prefab = new ByLawZonePrefab();
         prefab.zoneType = ByLawZoneType.Residential | ByLawZoneType.Commercial | ByLawZoneType.Office;
-        prefab.height = new Bounds1(30, 100);        
+        prefab.height = new Bounds1(0, 100);        
 
         prefab.m_Office = (prefab.zoneType & ByLawZoneType.Office) != (ByLawZoneType)0;        
         prefab.m_Color = Color.red;
