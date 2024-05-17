@@ -144,7 +144,7 @@ namespace Trejak.ZoningByLaw.UI
             prefab.Remove<UIObject>();
             var newUIObj = ScriptableObject.CreateInstance<UIObject>();
             newUIObj.m_Icon = null;
-            newUIObj.name = uiObj.name.Replace("NA Residential Medium", byLawName);
+            newUIObj.name = byLawName;//uiObj.name.Replace("NA Residential Medium", byLawName);
             newUIObj.m_Priority = uiObj.m_Priority;
             newUIObj.m_Group = uiObj.m_Group;
             newUIObj.active = uiObj.active;
