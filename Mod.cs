@@ -13,7 +13,6 @@ using System.Linq;
 using Unity.Entities;
 using UnityEngine;
 using Trejak.ZoningByLaw.Prefab;
-using ZoningByLaw.Prefab;
 using Trejak.ZoningByLaw.UI;
 using Colossal.Mathematics;
 

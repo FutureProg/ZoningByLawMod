@@ -7,7 +7,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Entities.UniversalDelegates;
 
-namespace ZoningByLaw.Prefab
+namespace Trejak.ZoningByLaw.Prefab
 {
     /// <summary>
     /// Responsible for transferring the data from the prefab object to the prefab entity
