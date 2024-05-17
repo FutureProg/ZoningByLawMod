@@ -47,7 +47,7 @@ public class Mod : IMod
         prefab.m_Color = Color.red;
         prefab.m_Edge = Color.black;
         prefab.m_AreaType = Game.Zones.AreaType.Residential;
-        prefab.name = "ByLaw Zoning";
+        prefab.name = "Zoning ByLaw #0";
         prefab.isDirty = true;
         prefab.active = true;        
         prefab.components.AddRange(baseComponents);
@@ -56,7 +56,7 @@ public class Mod : IMod
         prefab.Remove<UIObject>();
         var newUIObj = ScriptableObject.CreateInstance<UIObject>();
         newUIObj.m_Icon = null;
-        newUIObj.name = uiObj.name.Replace("NA Residential Medium", "ByLaw Zone");
+        newUIObj.name = "Zoning ByLaw #0";//uiObj.name.Replace("NA Residential Medium", "ByLaw Zone");
         newUIObj.m_Priority = uiObj.m_Priority;
         newUIObj.m_Group = uiObj.m_Group;
         newUIObj.active = uiObj.active;
