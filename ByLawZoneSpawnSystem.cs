@@ -401,8 +401,13 @@ namespace Trejak.ZoningByLaw
                 var archetypeComponents = objectData.m_Archetype.GetComponentTypes();
                 bool isOffice = archetypeComponents.Contains(ComponentType.ReadOnly<OfficeProperty>());//(zoneData.m_ZoneFlags & ZoneFlags.Office) != 0;
                 bool isIndustry = archetypeComponents.Contains(ComponentType.ReadOnly<IndustrialProperty>()); //(zoneData.m_AreaType & Game.Zones.AreaType.Industrial) != 0;                
+                bool isExtractor = archetypeComponents.Contains(ComponentType.ReadOnly<ExtractorProperty>());
                 bool isResidential = propertyData.m_ResidentialProperties > 0;
                 bool isCommercial = archetypeComponents.Contains(ComponentType.ReadOnly<CommercialProperty>());
+                if (isExtractor) // extractors only function when plopped down, so won't be spawning them
+                {
+                    return false;
+                }
                 if ((ByLawZoneType.Residential & byLaw.zoneType) == 0 && isResidential)
                 {
                     return false;
