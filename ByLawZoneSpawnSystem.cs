@@ -153,7 +153,7 @@ namespace Trejak.ZoningByLaw
                 buildingChunks = _buildingsQuery.ToArchetypeChunkListAsync(base.World.UpdateAllocator.ToAllocator, out var buildingsQueryJob),
                 buildingDataHandle = GetComponentTypeHandle<BuildingData>(true),
                 buildingPropertyDataHandle = GetComponentTypeHandle<BuildingPropertyData>(true),
-                byLawZoneFlagLookup = SystemAPI.GetComponentLookup<ByLawZoneData>(true),
+                byLawZoneDataLookup = SystemAPI.GetComponentLookup<ByLawZoneData>(true),
                 curvePositionHandle = GetComponentTypeHandle<CurvePosition>(true),
                 entityHandle = GetEntityTypeHandle(),
                 groundPollutionMap = _pollutionSystem.GetMap(true, out var groundPollutionMapJob),
@@ -261,7 +261,7 @@ namespace Trejak.ZoningByLaw
             public BufferLookup<ProcessEstimate> processEstimatesLookup;
             public BufferLookup<ResourceAvailability> resourceAvailabilityLookup;
             public ComponentLookup<ZoneData> zoneDataLookup;
-            public ComponentLookup<ByLawZoneData> byLawZoneFlagLookup;
+            public ComponentLookup<ByLawZoneData> byLawZoneDataLookup;
             public ComponentLookup<Block> blockLookup;
             public ComponentLookup<LandValue> landValueLookup;
             public ComponentLookup<ResourceData> resourceDataLookup;
@@ -292,7 +292,7 @@ namespace Trejak.ZoningByLaw
                         {
                             var vacantLot = vacantLots[j];
                             var zonePrefab = this.zonePrefabs[vacantLot.m_Type];                                    
-                            if (!byLawZoneFlagLookup.HasComponent(zonePrefab))
+                            if (!byLawZoneDataLookup.TryGetComponent(zonePrefab, out var byLawData))
                             {
                                 continue;
                             }                        
@@ -301,7 +301,7 @@ namespace Trejak.ZoningByLaw
 
                             // normally is a switch here for the type of area (residential, industry, commercial)
                             float curvePosScalar = this.CalculateCurvePos(curvePos, vacantLot, block);
-                            this.TryAddLot(ref spawnLocation, ref random, owner.m_Owner, curvePosScalar, entity, vacantLot.m_Area, vacantLot.m_Flags, (int)vacantLot.m_Height, zoneData, estimates, this.industrialProcesses, true, false);
+                            this.TryAddLot(byLawData, ref spawnLocation, ref random, owner.m_Owner, curvePosScalar, entity, vacantLot.m_Area, vacantLot.m_Flags, (int)vacantLot.m_Height, zoneData, estimates, this.industrialProcesses, true, false);
                         }
                     }
                 }
@@ -331,7 +331,7 @@ namespace Trejak.ZoningByLaw
                 return math.lerp(curvePosition.m_CurvePosition.x, curvePosition.m_CurvePosition.y, s);
             }
 
-            public void TryAddLot(ref ZoneSpawnSystem.SpawnLocation bestLocation, ref Unity.Mathematics.Random random, Entity road, float curvePos,
+            public void TryAddLot(ByLawZoneData byLawData, ref ZoneSpawnSystem.SpawnLocation bestLocation, ref Unity.Mathematics.Random random, Entity road, float curvePos,
                 Entity entity, int4 area, LotFlags flags, int height, ZoneData zoneData, DynamicBuffer<ProcessEstimate> estimates,
                 NativeList<IndustrialProcessData> processes, bool normal = true, bool storage = false)
             {
@@ -364,7 +364,7 @@ namespace Trejak.ZoningByLaw
                     float2 pollution2 = new float2((float)pollution.m_Pollution, (float)(pollution.m_Pollution - pollution.m_Previous));
                     float landValue = this.landValueLookup[road].m_LandValue;
                     float maxHeight = (float)height - position.y;
-                    if (this.SelectBuilding(ref spawnLocation, ref random, availabilities, zoneData, curvePos, pollution2, landValue, maxHeight, estimates, processes, normal, storage, extractor, office)
+                    if (this.SelectBuilding(byLawData, ref spawnLocation, ref random, availabilities, zoneData, curvePos, pollution2, landValue, maxHeight, estimates, processes, normal, storage, extractor, office)
                         && spawnLocation.m_Priority > bestLocation.m_Priority)
                     {
                         bestLocation = spawnLocation;
@@ -372,11 +372,35 @@ namespace Trejak.ZoningByLaw
                 }                
             }
 
-            private bool SelectBuilding(ref ZoneSpawnSystem.SpawnLocation location, ref Unity.Mathematics.Random random, DynamicBuffer<ResourceAvailability> availabilities,
+            private bool CompliesWithByLaw(ByLawZoneData byLaw, ObjectGeometryData objGeomData, ZoneData zoneData, BuildingData buildingData)
+            {
+                bool re = true;
+
+                // Height
+                re = re && byLaw.height.min >= 0 ? objGeomData.m_Size.y >= byLaw.height.min : true;
+                re = re && byLaw.height.max >= 0 ? objGeomData.m_Size.y <= byLaw.height.max : true;
+                // Lot Frontage
+                re = re && byLaw.frontage.min >= 0 ? buildingData.m_LotSize.x >= byLaw.frontage.min : true;
+                re = re && byLaw.frontage.max >= 0 ? buildingData.m_LotSize.x <= byLaw.frontage.max : true;                
+                // Lot Size
+                var lotSize = buildingData.m_LotSize.x * buildingData.m_LotSize.y;
+                re = re && byLaw.lotSize.min >= 0 ? lotSize >= byLaw.lotSize.min : true;
+                re = re && byLaw.lotSize.max >= 0 ? lotSize <= byLaw.lotSize.max : true;
+                // TODO: Parking
+
+                // Permitted Uses
+                bool isOffice = zoneData.m_ZoneFlags.HasFlag(ZoneFlags.Office);
+                re = re && !byLaw.zoneType.HasFlag(ByLawZoneType.Office) ? !isOffice : true;
+                re = re && !byLaw.zoneType.HasFlag(ByLawZoneType.Residential) ? !zoneData.m_AreaType.HasFlag(Game.Zones.AreaType.Residential) : true;
+                re = re && !byLaw.zoneType.HasFlag(ByLawZoneType.Commercial) ? !zoneData.m_AreaType.HasFlag(Game.Zones.AreaType.Commercial) : true;
+                re = re && !byLaw.zoneType.HasFlag(ByLawZoneType.Industrial) ? !zoneData.m_AreaType.HasFlag(Game.Zones.AreaType.Industrial) && !isOffice : true;
+                return re;
+            }
+
+            private bool SelectBuilding(ByLawZoneData byLawData, ref ZoneSpawnSystem.SpawnLocation location, ref Unity.Mathematics.Random random, DynamicBuffer<ResourceAvailability> availabilities,
                 ZoneData zoneData, float curvePos, float2 pollution, float landValue, float maxHeight, DynamicBuffer<ProcessEstimate> estimates,
                 NativeList<IndustrialProcessData> processes, bool normal, bool storage, bool extractor, bool office = false)
             {
-                float min_height = 20.0f; // <=------ this is what we're testing
                 int2 maxLotSize = location.m_LotArea.yw - location.m_LotArea.xz;
                 BuildingData buildingData = default(BuildingData);
                 bool2 lhs = new bool2((location.m_LotFlags & LotFlags.CornerLeft) > (LotFlags)0, (location.m_LotFlags & LotFlags.CornerRight) > (LotFlags)0);
@@ -399,7 +423,8 @@ namespace Trejak.ZoningByLaw
                         int2 lotSize = subjBuildingData.m_LotSize;
                         bool2 rhs = new bool2((subjBuildingData.m_Flags & Game.Prefabs.BuildingFlags.LeftAccess) > (Game.Prefabs.BuildingFlags)0U, (subjBuildingData.m_Flags & Game.Prefabs.BuildingFlags.RightAccess) > (Game.Prefabs.BuildingFlags)0U);
                         float bldgHeight = objGeomDataArr[i].m_Size.y;
-                        if (math.all(lotSize <= maxLotSize) && bldgHeight <= maxHeight && bldgHeight >= min_height && bldgHeight <= 50)
+                        if (math.all(lotSize <= maxLotSize) && bldgHeight <= maxHeight 
+                            && CompliesWithByLaw(byLawData, objGeomDataArr[i], zoneData, subjBuildingData))
                         {
                             BuildingPropertyData buildingPropertyData = buildingPropertyDataArr[i];
                             Game.Zones.AreaType evalAreaType = zoneDataLookup[spawnableData.m_ZonePrefab].m_AreaType; 
