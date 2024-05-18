@@ -1,13 +1,14 @@
 import { Button, DropdownItem, DropdownToggle, Scrollable } from "cs2/ui"
 import styles from './mainpanel.module.scss';
-import { selectedByLawData$, selectedByLawName$, setByLawData, setByLawName } from "./bindings";
+import { ZONE_BORDER_IDX, ZONE_COLOR_IDX, defaultColor, selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor } from "./bindings";
 import { useValue } from "cs2/api";
 import { ChangeEvent, ChangeEventHandler, useEffect, useRef, useState } from "react";
 import { ByLawZoneComponent, ByLawZoneType } from "./types";
-import { Bounds1 } from "cs2/bindings";
+import { Bounds1, Color } from "cs2/bindings";
 import { Dropdown } from "cs2/ui";
 import { FOCUS_AUTO, InputContext } from "cs2/input";
 import { VanillaComponentResolver } from "vanillacomponentresolver";
+import { rgbaToHex } from "./utils";
 
 const Bounds1Field = (props : {bounds?: Bounds1, name: string, onChange?: (name: string, newValue: Bounds1) => void}) => {
     let [localBounds, setLocalBounds] = useState(props.bounds);
@@ -92,8 +93,11 @@ const EnumField = <T,>(props: {enum : ByLawZoneType, onChange?: (enumValue: T) =
 export const ByLawDetailsPanel = (props: {selectedRowIndex: number}) => {    
     let byLawData = useValue(selectedByLawData$);    
     let byLawName = useValue(selectedByLawName$);
+    let byLawColour = useValue(selectedByLawColor$);    
     let [newByLawData, updateNewByLawData] = useState<ByLawZoneComponent>();
     let [newByLawName, updateNewByLawName] = useState<string>();
+    let [newByLawColor, updateNewByLawColor] = useState<Color>(defaultColor);
+    let [newByLawBorder, updatenewByLawBorder] = useState<Color>(defaultColor);
 
     useEffect(() => {                
         updateNewByLawData(byLawData);
@@ -101,6 +105,20 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number}) => {
     useEffect(() => {
         updateNewByLawName(byLawName);
     }, [byLawName]);
+    useEffect(() => {
+        console.log(byLawColour);
+        updateNewByLawColor(byLawColour[ZONE_COLOR_IDX]);
+        updatenewByLawBorder(byLawColour[ZONE_BORDER_IDX]);
+    }, [byLawColour]);
+
+    const onUpdateByLawColor = (idx: number) => (color: Color) => {
+        if (idx == ZONE_COLOR_IDX) {
+            updateNewByLawColor(color);
+        }
+        else if (idx == ZONE_BORDER_IDX) {
+            updatenewByLawBorder(color);
+        }        
+    }
 
     const onUpdateZoneType = (newType: number) => {        
         updateNewByLawData({
@@ -126,6 +144,9 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number}) => {
         if (newByLawName != undefined && newByLawName !== byLawName && byLawName.length > 0) {
             setByLawName(newByLawName!);
         }
+        if (newByLawColor != undefined && (newByLawColor != byLawColour[0] || newByLawBorder != byLawColour[1])) {
+            setByLawZoneColor(newByLawColor, newByLawBorder);
+        }
     }
 
     return (
@@ -135,6 +156,20 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number}) => {
                     <tr>
                         <th>Name</th>
                         <td><input type="text" value={newByLawName} onChange={onNameChange}/></td>
+                    </tr>
+                    <tr>
+                        <th>Zone Colour</th>
+                        <td>
+                            <VanillaComponentResolver.instance.ColorField value={newByLawColor} onChange={onUpdateByLawColor(ZONE_COLOR_IDX)}/>
+                            <input type="text" readOnly={true} value={rgbaToHex(newByLawColor)} />
+                        </td>                        
+                    </tr>
+                    <tr>
+                        <th>Zone Border Colour</th>
+                        <td>
+                            <VanillaComponentResolver.instance.ColorField value={newByLawBorder} onChange={onUpdateByLawColor(ZONE_BORDER_IDX)}/>
+                            <input type="text" readOnly={true} value={rgbaToHex(newByLawBorder)} />
+                        </td>                        
                     </tr>
                     <tr>
                         <th>Permitted Uses</th>

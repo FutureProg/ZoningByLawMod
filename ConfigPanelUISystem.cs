@@ -32,6 +32,7 @@ namespace Trejak.ZoningByLaw.UI
         private ValueBinding<ByLawZoneListItem[]> _byLawZoneList;
         private ValueBinding<bool> _configPanelOpen;
         private ValueBinding<string> _selectedByLawName;
+        private ValueBinding<Color[]> _selectedByLawColour;
 
         private TriggerBinding<Entity> _setActiveByLaw;
         private TriggerBinding<ByLawZoneData> _setByLawData;
@@ -39,6 +40,7 @@ namespace Trejak.ZoningByLaw.UI
         private TriggerBinding<Entity> _deleteByLaw;
         private TriggerBinding<bool> _setConfigPanelOpen;
         private TriggerBinding<string> _setByLawName;
+        private TriggerBinding<Color, Color> _setByLawZoneColour;        
 
         const string uiGroupName = "Trejak.ZoningByLaw";
 
@@ -67,9 +69,10 @@ namespace Trejak.ZoningByLaw.UI
             GetBasePrefab();
 
             this.AddBinding(_selectedByLawData = new ValueBinding<ByLawZoneData>(uiGroupName, "SelectedByLawData", default));
-            this.AddBinding(_configPanelOpen = new ValueBinding<bool>(uiGroupName, "IsConfigPanelOpen", default));
-            this.AddBinding(_selectedByLawName = new ValueBinding<string>(uiGroupName, "SelectedByLawName", default));
+            this.AddBinding(_configPanelOpen = new ValueBinding<bool>(uiGroupName, "IsConfigPanelOpen", false));
+            this.AddBinding(_selectedByLawName = new ValueBinding<string>(uiGroupName, "SelectedByLawName", ""));
             this.AddBinding(_byLawZoneList = new ValueBinding<ByLawZoneListItem[]>(uiGroupName, "ByLawZoneList", GetByLawList(), new ArrayWriter<ByLawZoneListItem>()));
+            this.AddBinding(_selectedByLawColour = new ValueBinding<Color[]>(uiGroupName, "SelectedByLawColour", new Color[] { default, default }, new ArrayWriter<Color>()));
 
             this.AddBinding(_setActiveByLaw = new TriggerBinding<Entity>(uiGroupName, "SetActiveByLaw", SetActiveByLaw));
             this.AddBinding(_setByLawData = new TriggerBinding<ByLawZoneData>(uiGroupName, "SetByLawData", SetByLawData));
@@ -77,6 +80,19 @@ namespace Trejak.ZoningByLaw.UI
             this.AddBinding(_deleteByLaw = new TriggerBinding<Entity>(uiGroupName, "DeleteByLaw", DeleteByLaw));
             this.AddBinding(_setConfigPanelOpen = new TriggerBinding<bool>(uiGroupName, "SetConfigPanelOpen", SetConfigPanelOpen));
             this.AddBinding(_setByLawName = new TriggerBinding<string>(uiGroupName, "SetByLawName", SetByLawName));
+            this.AddBinding(_setByLawZoneColour = new TriggerBinding<Color, Color>(uiGroupName, "SetByLawZoneColour", SetByLawZoneColour));
+        }
+
+        void SetByLawZoneColour(Color zoneColour, Color borderColour)
+        {
+            if (_selectedByLaw == Entity.Null)
+            {
+                return;
+            }
+            var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(_selectedByLaw);
+            prefab.m_Color = zoneColour;
+            prefab.m_Edge = borderColour;
+            _selectedByLawColour.Update(new Color[] { zoneColour, borderColour });
         }
 
         void SetConfigPanelOpen(bool newValue)
@@ -96,8 +112,17 @@ namespace Trejak.ZoningByLaw.UI
             {
                 data = EntityManager.GetComponentData<ByLawZoneData>(entity);
             }
-            this._selectedByLawName.Update(_prefabSystem.GetPrefabName(entity));
+            bool result = _prefabSystem.TryGetPrefab<ByLawZonePrefab>(entity, out var prefab);            
             this._selectedByLawData.Update(data);
+            if (result)
+            {                
+                this._selectedByLawColour.Update(new Color[] { prefab.m_Color, prefab.m_Edge });
+                this._selectedByLawName.Update(prefab.name != null? prefab.name : "");
+            } else
+            {
+                this._selectedByLawColour.Update(new Color[] { default, default });
+                this._selectedByLawName.Update("");
+            }
         }
 
         void SetByLawData(ByLawZoneData data)

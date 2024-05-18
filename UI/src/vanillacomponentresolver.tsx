@@ -1,6 +1,7 @@
-import { Theme, UniqueFocusKey } from "cs2/bindings";
+import { Color, Theme, UniqueFocusKey } from "cs2/bindings";
+import { InputAction } from "cs2/input";
 import { ModuleRegistry } from "cs2/modding";
-import { FocusKey, PanelTheme } from "cs2/ui";
+import { BalloonDirection, FocusKey, PanelTheme } from "cs2/ui";
 import { CSSProperties, HTMLAttributes, ReactNode } from "react";
 
 // These are specific to the types of components that this mod uses.
@@ -46,6 +47,48 @@ type Checkbox = {
     theme?: any;
 } & HTMLAttributes<any>;
 
+// var C4 = function() {
+
+// Use of it 
+/** From the transport-line-item.tsx
+ *  z.jsx)("div", {
+        className: Zve.cellSingle,
+        children: (0,
+        z.jsx)(Tp, {
+            tooltip: (0,
+            z.jsx)(Zc.Transport.TOOLTIP_COLOR, {
+                hash: x
+            }),
+            children: (0,
+            z.jsx)(C4, {
+                value: n.lineData.color,
+                className: nbe.colorField,
+                onChange: f,
+                onClick: lv
+            })
+        })
+    })
+ */
+type ColorField = {
+    focusKey?: FocusKey;
+    disabled?: boolean;
+    value?: Color;
+    className?: string;
+    selectAction?: InputAction;
+    alpha?: any;
+    popupDirection?: BalloonDirection;
+    onChange?: (e: Color) => void;
+    onClick?: (e: any) => void;
+    onMouseEnter?: (e: any) => void;
+    onMouseLeave?: (e: any) => void;
+}
+
+// function P4(e) {
+// type BoundColorField = {
+//     value?: any;    
+//     disabled?: boolean;    
+// }
+
 // This is an array of the different components and sass themes that are appropriate for your UI. You need to figure out which ones you need from the registry.
 const registryIndex = {
     Section: ["game-ui/game/components/tool-options/mouse-tool-options/mouse-tool-options.tsx", "Section"],
@@ -54,7 +97,9 @@ const registryIndex = {
     Toggle: ["game-ui/common/input/toggle/toggle.tsx", "Toggle"],
     toggleTheme: ["game-ui/menu/widgets/toggle-field/toggle-field.module.scss", "classes"],
     Checkbox: ["game-ui/common/input/toggle/checkbox/checkbox.tsx", "Checkbox"],    
-    checkboxTheme: ["game-ui/common/input/toggle/checkbox/checkbox.module.scss", 'classes']
+    checkboxTheme: ["game-ui/common/input/toggle/checkbox/checkbox.module.scss", 'classes'],
+    ColorField: ["game-ui/common/input/color-picker/color-field/color-field.tsx", 'ColorField'],
+    BoundColorField: ["game-ui/common/input/color-picker/color-field/color-field.tsx", 'BoundColorField']    
 }
 
 export class VanillaComponentResolver {
@@ -82,6 +127,7 @@ export class VanillaComponentResolver {
     public get ToolButton(): (props: PropsToolButton) => JSX.Element { return this.cachedData["ToolButton"] ?? this.updateCache("ToolButton") }
     public get Toggle(): (props: ToggleProps) => JSX.Element { return this.cachedData["Toggle"] ?? this.updateCache("Toggle") }
     public get Checkbox(): (props: Checkbox) => JSX.Element { return this.cachedData["Checkbox"] ?? this.updateCache("Checkbox") }
+    public get ColorField(): (props: ColorField) => JSX.Element { return this.cachedData["ColorField"] ?? this.updateCache("ColorField") }
 
     public get toggleTheme(): Theme | any { return this.cachedData["toggleTheme"] ?? this.updateCache("toggleTheme") }
     public get checkboxTheme(): Theme | any { return this.cachedData["checkboxTheme"] ?? this.updateCache("checkboxTheme") }
