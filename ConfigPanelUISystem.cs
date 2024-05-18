@@ -24,6 +24,7 @@ namespace Trejak.ZoningByLaw.UI
     {
 
         private PrefabSystem _prefabSystem;
+        private ZoneSystem _zoneSystem;
         private EntityQuery _bylawsQuery;
         private Entity _selectedByLaw; // the prefab entity for the selected bylaw
         private PrefabBase _basePrefab; // the prefab we use to clone the zones
@@ -66,6 +67,7 @@ namespace Trejak.ZoningByLaw.UI
             _bylawsQuery = GetEntityQuery(ComponentType.ReadOnly<ByLawZoneData>());
             _selectedByLaw = Entity.Null;
             _prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
+            _zoneSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<ZoneSystem>();
             GetBasePrefab();
 
             this.AddBinding(_selectedByLawData = new ValueBinding<ByLawZoneData>(uiGroupName, "SelectedByLawData", default));
@@ -92,6 +94,7 @@ namespace Trejak.ZoningByLaw.UI
             var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(_selectedByLaw);
             prefab.m_Color = zoneColour;
             prefab.m_Edge = borderColour;
+            Traverse.Create(_zoneSystem).Field<bool>("m_UpdateColors").Value = true;
             _selectedByLawColour.Update(new Color[] { zoneColour, borderColour });
         }
 
