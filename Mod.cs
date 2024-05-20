@@ -15,6 +15,7 @@ using UnityEngine;
 using Trejak.ZoningByLaw.Prefab;
 using Trejak.ZoningByLaw.UI;
 using Colossal.Mathematics;
+using Trejak.ZoningByLaw.Systems;
 
 namespace Trejak.ZoningByLaw;
 
@@ -51,6 +52,7 @@ public class Mod : IMod
         prefab.isDirty = true;
         prefab.active = true;        
         prefab.components.AddRange(baseComponents);
+        prefab.Remove(typeof(Unlockable));
 
         var uiObj = prefab.GetComponent<UIObject>();
         prefab.Remove<UIObject>();
@@ -77,6 +79,7 @@ public class Mod : IMod
         updateSystem.UpdateAfter<ByLawZoneSpawnSystem, ZoneSpawnSystem>(SystemUpdatePhase.GameSimulation);
         updateSystem.UpdateAt<ByLawZonePrefabInitSystem>(SystemUpdatePhase.PrefabUpdate);
         updateSystem.UpdateAt<ConfigPanelUISystem>(SystemUpdatePhase.UIUpdate);
+        updateSystem.UpdateAt<ResetGameToolbarUISystem>(SystemUpdatePhase.Modification1);
 
         //m_Setting = new Setting(this);
         //m_Setting.RegisterInOptionsUI();

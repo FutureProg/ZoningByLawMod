@@ -1,6 +1,6 @@
 import { Button, DropdownItem, DropdownToggle, Scrollable } from "cs2/ui"
 import styles from './mainpanel.module.scss';
-import { ZONE_BORDER_IDX, ZONE_COLOR_IDX, defaultColor, selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor } from "./bindings";
+import { ZONE_BORDER_IDX, ZONE_COLOR_IDX, defaultColor, deleteByLaw, selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor } from "./bindings";
 import { useValue } from "cs2/api";
 import { ChangeEvent, ChangeEventHandler, useEffect, useRef, useState } from "react";
 import { ByLawZoneComponent, ByLawZoneType } from "./types";
@@ -90,7 +90,7 @@ const EnumField = <T,>(props: {enum : ByLawZoneType, onChange?: (enumValue: T) =
     )
 }
 
-export const ByLawDetailsPanel = (props: {selectedRowIndex: number}) => {    
+export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: () => void}) => {    
     let byLawData = useValue(selectedByLawData$);    
     let byLawName = useValue(selectedByLawName$);
     let byLawColour = useValue(selectedByLawColor$);    
@@ -149,49 +149,59 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number}) => {
         }
     }
 
+    const onDelete = () => {
+        deleteByLaw();
+        if (props.onDelete) {
+            props.onDelete();
+        }
+    }
+
     return (
-        <Scrollable className={styles.bylawDetails}>   
-            <div style={{display: props.selectedRowIndex == -1? 'none': 'block'}}>
-                <div className={styles.byLawDetailsTable}>
-                    <tr>
-                        <th>Name</th>
-                        <td><input type="text" value={newByLawName} onChange={onNameChange}/></td>
-                    </tr>
-                    <tr>
-                        <th>Zone Colour</th>
-                        <td>
-                            <VanillaComponentResolver.instance.ColorField value={newByLawColor} onChange={onUpdateByLawColor(ZONE_COLOR_IDX)}/>
-                            <input type="text" readOnly={true} value={rgbaToHex(newByLawColor)} />
-                        </td>                        
-                    </tr>
-                    <tr>
-                        <th>Zone Border Colour</th>
-                        <td>
-                            <VanillaComponentResolver.instance.ColorField value={newByLawBorder} onChange={onUpdateByLawColor(ZONE_BORDER_IDX)}/>
-                            <input type="text" readOnly={true} value={rgbaToHex(newByLawBorder)} />
-                        </td>                        
-                    </tr>
-                    <tr>
-                        <th>Permitted Uses</th>
-                        <td><EnumField<ByLawZoneType> enum={newByLawData != undefined? newByLawData!.zoneType : byLawData? byLawData.zoneType : 0} onChange={onUpdateZoneType} /> </td>
-                    </tr>
-                    <tr>
-                        <th>Height Constraints (metres)</th>
-                        <td><Bounds1Field bounds={newByLawData?.height} name='height' onChange={onUpdateBounds} /></td>
-                    </tr>
-                    <tr>
-                        <th>Lot Frontage Constraints (8 metre units)</th>
-                        <td><Bounds1Field bounds={newByLawData?.frontage} name='frontage' onChange={onUpdateBounds} /></td>
-                    </tr>
-                    <tr>
-                        <th>Lot Size Constraints (8 metre units squared)</th>
-                        <td><Bounds1Field bounds={newByLawData?.lotSize} name='lotSize' onChange={onUpdateBounds} /></td>
-                    </tr>
-                </div>
-                <div>
-                    <Button onClick={onSave} variant="flat">Save</Button>
-                </div>                
+        <div className={styles.bylawDetails}>
+            <Scrollable>   
+                <div style={{display: props.selectedRowIndex == -1? 'none': 'block'}}>
+                    <div className={styles.byLawDetailsTable}>
+                        <tr>
+                            <th>Name</th>
+                            <td><input type="text" value={newByLawName} onChange={onNameChange}/></td>
+                        </tr>
+                        <tr>
+                            <th>Zone Colour</th>
+                            <td>
+                                <VanillaComponentResolver.instance.ColorField value={newByLawColor} onChange={onUpdateByLawColor(ZONE_COLOR_IDX)}/>
+                                <input type="text" readOnly={true} value={rgbaToHex(newByLawColor)} />
+                            </td>                        
+                        </tr>
+                        <tr>
+                            <th>Zone Border Colour</th>
+                            <td>
+                                <VanillaComponentResolver.instance.ColorField value={newByLawBorder} onChange={onUpdateByLawColor(ZONE_BORDER_IDX)}/>
+                                <input type="text" readOnly={true} value={rgbaToHex(newByLawBorder)} />
+                            </td>                        
+                        </tr>
+                        <tr>
+                            <th>Permitted Uses</th>
+                            <td><EnumField<ByLawZoneType> enum={newByLawData != undefined? newByLawData!.zoneType : byLawData? byLawData.zoneType : 0} onChange={onUpdateZoneType} /> </td>
+                        </tr>
+                        <tr>
+                            <th>Height Constraints (metres)</th>
+                            <td><Bounds1Field bounds={newByLawData?.height} name='height' onChange={onUpdateBounds} /></td>
+                        </tr>
+                        <tr>
+                            <th>Lot Frontage Constraints (8 metre units)</th>
+                            <td><Bounds1Field bounds={newByLawData?.frontage} name='frontage' onChange={onUpdateBounds} /></td>
+                        </tr>
+                        <tr>
+                            <th>Lot Size Constraints (8 metre units squared)</th>
+                            <td><Bounds1Field bounds={newByLawData?.lotSize} name='lotSize' onChange={onUpdateBounds} /></td>
+                        </tr>
+                    </div>                               
+                </div>            
+            </Scrollable>
+            <div style={{display: props.selectedRowIndex == -1? 'none': 'block', marginTop: '8rem'}}>
+                <Button onClick={onSave} variant="flat">Save</Button>
+                <Button onClick={onDelete} variant="flat" style={{backgroundColor: 'red'}}>Delete</Button>
             </div>            
-        </Scrollable>
+        </div>
     )
 }

@@ -235,6 +235,7 @@ namespace Trejak.ZoningByLaw
             this.Dependency = spawnBuildingHandle;
         }
 
+        [BurstCompile]
         public struct EvaluateSpawnAreas : IJobChunk
         {
             public RandomSeed randomSeed;
@@ -300,10 +301,10 @@ namespace Trejak.ZoningByLaw
                         {
                             var vacantLot = vacantLots[j];
                             var zonePrefab = this.zonePrefabs[vacantLot.m_Type];                                    
-                            if (!byLawZoneDataLookup.TryGetComponent(zonePrefab, out var byLawData))
+                            if (!byLawZoneDataLookup.TryGetComponent(zonePrefab, out var byLawData) || byLawData.deleted)
                             {
                                 continue;
-                            }                        
+                            }                            
                             ZoneData zoneData = this.zoneDataLookup[zonePrefab];
                             DynamicBuffer<ProcessEstimate> estimates = this.processEstimatesLookup[zonePrefab];
 

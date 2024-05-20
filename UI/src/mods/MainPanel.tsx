@@ -41,6 +41,10 @@ export const MainPanel = () => {
         createNewByLaw(baseByLaw);
     }
 
+    const onDeleteByLaw = () => {
+        setSelectedListItem(-1);
+    }
+
     return !isPanelOpen? <></> : (
         <Panel className={styles.mainPanel} draggable={true} header={"Zoning ByLaws"} onClose={onClose} contentClassName={styles.mainPanelContentContainer}>            
             <div className={styles.mainPanelContent}>
@@ -51,7 +55,7 @@ export const MainPanel = () => {
                     <Scrollable className={styles.bylawList}>
                         {listItems}
                     </Scrollable>
-                    <ByLawDetailsPanel selectedRowIndex={selectedListItem}/>
+                    <ByLawDetailsPanel selectedRowIndex={selectedListItem} onDelete={onDeleteByLaw}/>
                 </div>
                 <div className={styles.mainPanelBottomBar}>
                 </div>

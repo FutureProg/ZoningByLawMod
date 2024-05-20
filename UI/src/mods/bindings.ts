@@ -29,8 +29,8 @@ export const createNewByLaw = (byLawData : ByLawZoneComponent) => {
     trigger(mod.fullname, "CreateNewByLaw", byLawData);
 }
 
-export const deleteByLaw = (entity: Entity) => {
-    trigger(mod.fullname, "DeleteByLaw", entity);
+export const deleteByLaw = () => {
+    trigger(mod.fullname, "DeleteByLaw");
 }
 
 export const setByLawName = (name: string) => {
