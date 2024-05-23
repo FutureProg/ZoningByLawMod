@@ -111,6 +111,7 @@ namespace Trejak.ZoningByLaw.UI
             prefab.m_Edge = borderColour;
             Traverse.Create(_zoneSystem).Field<bool>("m_UpdateColors").Value = true;
             _selectedByLawColour.Update(new Color[] { zoneColour, borderColour });
+            SaveByLawsToDisk();
         }
 
         void SetConfigPanelOpen(bool newValue)
@@ -150,6 +151,7 @@ namespace Trejak.ZoningByLaw.UI
             var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(_selectedByLaw);
             Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", data.CreateDescription());
             this._selectedByLawData.Update(data);
+            SaveByLawsToDisk();
         }
 
         void SetByLawName(string name)
@@ -164,6 +166,7 @@ namespace Trejak.ZoningByLaw.UI
             Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", _selectedByLawData.value.CreateDescription());
             _selectedByLawName.Update(name);
             UpdateByLawList();
+            SaveByLawsToDisk();
         }
 
         void GetBasePrefab()
@@ -186,52 +189,22 @@ namespace Trejak.ZoningByLaw.UI
             _basePrefab.components.CopyTo(baseComponents);
 
             var prefab = new ByLawZonePrefab();
-            string byLawName = "Zoning ByLaw #" + _bylawsQuery.CalculateEntityCount(); // TODO: make it so the player can create their own name
-            
-            // Copy over prefab data
-            prefab.zoneType = data.zoneType;
-            prefab.height = data.height;
-            prefab.lotSize = data.lotSize;
-            prefab.frontage = data.frontage;
-            prefab.parking = data.parking;
-
-            // Typical Zoning Stuff
-            prefab.m_Office = (prefab.zoneType & ByLawZoneType.Office) != (ByLawZoneType)0;
-            prefab.m_Color = Color.red;
-            prefab.m_Edge = Color.black;
-            prefab.m_AreaType = Game.Zones.AreaType.Residential;
-            prefab.name = byLawName;
-            prefab.isDirty = true;
-            prefab.active = true;
-
-            var groupAmbience = ScriptableObject.CreateInstance<GroupAmbience>();
-            groupAmbience.m_AmbienceType = Game.Simulation.GroupAmbienceType.None;
-            prefab.AddComponentFrom(groupAmbience);
-
-            var zoneProps = ScriptableObject.CreateInstance<ZoneProperties>();
-            zoneProps.m_ScaleResidentials = false;
-            prefab.components.Add(zoneProps);
-
-            //prefab.components.AddRange(baseComponents);
-
-            var uiObj = _basePrefab.GetComponent<UIObject>();
-            prefab.Remove<UIObject>();
-            var newUIObj = ScriptableObject.CreateInstance<UIObject>();
-            newUIObj.m_Icon = null;
-            newUIObj.name = byLawName;//uiObj.name.Replace("NA Residential Medium", byLawName);
-            newUIObj.m_Priority = uiObj.m_Priority;
-            newUIObj.m_Group = uiObj.m_Group;
-            newUIObj.active = uiObj.active;
-            prefab.AddComponentFrom(newUIObj);
-
+            int count = _bylawsQuery.CalculateEntityCount();
+            string byLawName = "Zoning ByLaw #" + count;
+            Utils.CreateByLawPrefabFromData(data, count, byLawName);
             if (!_prefabSystem.AddPrefab(prefab))
             {
-                Mod.log.Error($"Failed to add new zone prefab \"{byLawName}\"!");
-                return;
+                Mod.log.Error($"Failed to add new zone prefab \"{byLawName}\"!");                
             }
-            Utils.AddLocaleText($"Assets.NAME[{prefab.name}]", prefab.name);
-            Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", data.CreateDescription());
             UpdateByLawList();
+            SaveByLawsToDisk();
+        }
+
+        void SaveByLawsToDisk()
+        {
+            var entities = _bylawsQuery.ToEntityArray(Allocator.Temp);
+            Utils.SaveByLaws(entities.ToArray(), this.EntityManager);
+            entities.Dispose();
         }
 
         void DeleteByLaw()

@@ -1,4 +1,5 @@
 ﻿using Colossal.Mathematics;
+using Colossal.UI.Binding;
 using Game.Prefabs;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ using Unity.Mathematics;
 namespace Trejak.ZoningByLaw.Prefab
 {
 
-    public class ByLawZonePrefab : ZonePrefab
+    public class ByLawZonePrefab : ZonePrefab, IJsonWritable, IJsonReadable
     {
 
         public ByLawZoneType zoneType = ByLawZoneType.None;
@@ -19,6 +20,7 @@ namespace Trejak.ZoningByLaw.Prefab
         public Bounds1 lotSize = new Bounds1(-1, -1);
         public Bounds1 frontage = new Bounds1(-1, -1);
         public Bounds1 parking = new Bounds1(-1, -1);
+        public bool deleted = false;
 
         public override void GetPrefabComponents(HashSet<ComponentType> components)
         {
@@ -53,6 +55,48 @@ namespace Trejak.ZoningByLaw.Prefab
             re += $"Lot Size: Min={(lotSize.min >= 0 ? lotSize.min : "None")}, Max={(lotSize.max >= 0 ? lotSize.max : "None")}\n";
             re += $"Frontage: Min={(frontage.min >= 0 ? frontage.min : "None")}, Max={(frontage.max >= 0 ? frontage.max : "None")}\n";
             return re;
+        }
+
+        public void Write(IJsonWriter writer)
+        {
+            if (deleted)
+            {
+                return;
+            }
+            writer.TypeBegin(nameof(ByLawZonePrefab));
+            writer.PropertyName("bylawName");
+            writer.Write((string)name);
+            writer.PropertyName("zoneType");
+            writer.Write((int)zoneType);
+            writer.PropertyName("height");
+            writer.Write(height);
+            writer.PropertyName("lotSize");
+            writer.Write(lotSize);
+            writer.PropertyName("frontage");
+            writer.Write(frontage);
+            writer.PropertyName("parking");
+            writer.Write(parking);
+            writer.TypeEnd();
+        }
+
+        public void Read(IJsonReader reader)
+        {
+            reader.ReadMapBegin();
+            reader.ReadProperty("bylawName");
+            reader.Read(out string tname);
+            this.name = tname;
+            reader.ReadProperty("zoneType");
+            reader.Read(out int zoneTypeInt);
+            this.zoneType = (ByLawZoneType)zoneTypeInt;
+            reader.ReadProperty("height");
+            reader.Read(out this.height);
+            reader.ReadProperty("lotSize");
+            reader.Read(out lotSize);
+            reader.ReadProperty("frontage");
+            reader.Read(out frontage);
+            reader.ReadProperty("parking");
+            reader.Read(out this.parking);
+            reader.ReadMapEnd();
         }
     }
 

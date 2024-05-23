@@ -34,44 +34,44 @@ public class Mod : IMod
         if (GameManager.instance.modManager.TryGetExecutableAsset(this, out var asset))
             log.Info($"Current mod asset at {asset.path}");
 
-        _prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
-        var prefabs = Traverse.Create(_prefabSystem).Field<List<PrefabBase>>("m_Prefabs").Value;
-        var basePrefab = prefabs.FirstOrDefault(p => p.name == "NA Residential Medium");
-        ComponentBase[] baseComponents = new ComponentBase[basePrefab.components.Count];
-        basePrefab.components.CopyTo(baseComponents);
+        //_prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
+        //var prefabs = Traverse.Create(_prefabSystem).Field<List<PrefabBase>>("m_Prefabs").Value;
+        //var basePrefab = prefabs.FirstOrDefault(p => p.name == "NA Residential Medium");
+        //ComponentBase[] baseComponents = new ComponentBase[basePrefab.components.Count];
+        //basePrefab.components.CopyTo(baseComponents);
 
-        var prefab = new ByLawZonePrefab();
-        prefab.zoneType = ByLawZoneType.Residential | ByLawZoneType.Commercial | ByLawZoneType.Office;
-        prefab.height = new Bounds1(0, 100);        
+        //var prefab = new ByLawZonePrefab();
+        //prefab.zoneType = ByLawZoneType.Residential | ByLawZoneType.Commercial | ByLawZoneType.Office;
+        //prefab.height = new Bounds1(0, 100);        
 
-        prefab.m_Office = (prefab.zoneType & ByLawZoneType.Office) != (ByLawZoneType)0;        
-        prefab.m_Color = Color.red;
-        prefab.m_Edge = Color.black;
-        prefab.m_AreaType = Game.Zones.AreaType.Residential;
-        prefab.name = "Zoning ByLaw #0";
-        prefab.isDirty = true;
-        prefab.active = true;        
-        prefab.components.AddRange(baseComponents);
-        prefab.Remove(typeof(Unlockable));
+        //prefab.m_Office = (prefab.zoneType & ByLawZoneType.Office) != (ByLawZoneType)0;        
+        //prefab.m_Color = Color.red;
+        //prefab.m_Edge = Color.black;
+        //prefab.m_AreaType = Game.Zones.AreaType.Residential;
+        //prefab.name = "Zoning ByLaw #0";
+        //prefab.isDirty = true;
+        //prefab.active = true;        
+        //prefab.components.AddRange(baseComponents);
+        //prefab.Remove(typeof(Unlockable));
 
-        var uiObj = prefab.GetComponent<UIObject>();
-        prefab.Remove<UIObject>();
-        var newUIObj = ScriptableObject.CreateInstance<UIObject>();
-        newUIObj.m_Icon = null;
-        newUIObj.name = "Zoning ByLaw #0";//uiObj.name.Replace("NA Residential Medium", "ByLaw Zone");
-        newUIObj.m_Priority = uiObj.m_Priority;
-        newUIObj.m_Group = uiObj.m_Group;
-        newUIObj.active = uiObj.active;      
-        prefab.AddComponentFrom(newUIObj);
+        //var uiObj = prefab.GetComponent<UIObject>();
+        //prefab.Remove<UIObject>();
+        //var newUIObj = ScriptableObject.CreateInstance<UIObject>();
+        //newUIObj.m_Icon = null;
+        //newUIObj.name = "Zoning ByLaw #0";//uiObj.name.Replace("NA Residential Medium", "ByLaw Zone");
+        //newUIObj.m_Priority = uiObj.m_Priority;
+        //newUIObj.m_Group = uiObj.m_Group;
+        //newUIObj.active = uiObj.active;      
+        //prefab.AddComponentFrom(newUIObj);
 
 
-        if(!_prefabSystem.AddPrefab(prefab))
-        {
-            Mod.log.Error("Failed to add cloned zone prefab! exiting.");
-            return;
-        }
-        Utils.AddLocaleText($"Assets.NAME[{prefab.name}]", prefab.name);
-        Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", prefab.CreateDescription());
+        //if(!_prefabSystem.AddPrefab(prefab))
+        //{
+        //    Mod.log.Error("Failed to add cloned zone prefab! exiting.");
+        //    return;
+        //}
+        //Utils.AddLocaleText($"Assets.NAME[{prefab.name}]", prefab.name);
+        //Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", prefab.CreateDescription());
 
         GameManager.instance.onGameLoadingComplete += onGameLoadingComplete;
 
@@ -90,22 +90,8 @@ public class Mod : IMod
 
     private void onGameLoadingComplete(Colossal.Serialization.Entities.Purpose purpose, GameMode mode)
     {
-        if (installed)
-        {
-            return;
-        }
-        if (mode != GameMode.Game && mode != Game.GameMode.Editor)
-        {
-            return;
-        }
-
-        var prefabs = Traverse.Create(_prefabSystem).Field<List<PrefabBase>>("m_Prefabs").Value;
-        if (prefabs == null || !prefabs.Any())
-        {
-            Mod.log.Error($"Failed retrieving Prefabs list, exiting.");
-            return;
-        }
-        installed = true;
+       //TODO: remove all bylaws on simulation unload
+       //TODO: load all bylaws from file on simulation load
     }
 
     public void OnDispose()
