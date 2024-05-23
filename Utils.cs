@@ -19,6 +19,7 @@ namespace Trejak.ZoningByLaw
 
         private static PrefabBase _basePrefab;
         private static PrefabSystem _prefabSystem;
+        private static bool _initialized;
 
         public static string ContentFolder { get; }
 
@@ -26,6 +27,7 @@ namespace Trejak.ZoningByLaw
         {
             ContentFolder = Path.Combine(EnvPath.kUserDataPath, "ModsData", "Trejak.ZoningByLaw");
             Directory.CreateDirectory(ContentFolder);
+            _initialized = false;
         }          
 
         public static void AddLocaleText(string textId, string text)
@@ -35,12 +37,16 @@ namespace Trejak.ZoningByLaw
 
         public static void SaveByLaws(Entity[] bylawEntities, EntityManager em)
         {
-            var prefabSys = GetPrefabSystem();
+            if (!_initialized)
+            {
+                Mod.log.Error("Utils Data isn't initialized! Not saving.");
+                return;
+            }
             var records = new List<ByLawRecord>();
             for(int i = 0; i < bylawEntities.Length; i++)
             {
                 var entity = bylawEntities[i];
-                var zonePrefab = prefabSys.GetPrefab<ByLawZonePrefab>(entity);
+                var zonePrefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(entity);
                 var zoneData = em.GetComponentData<ByLawZoneData>(entity);
                 if (zoneData.deleted) continue;
                 records.Add(new ByLawRecord(zonePrefab.name, zoneData.CreateDescription(), zonePrefab.m_Color, zonePrefab.m_Edge, zoneData));
@@ -72,6 +78,11 @@ namespace Trejak.ZoningByLaw
 
         public static bool LoadByLaws()
         {
+            if (!_initialized)
+            {
+                Mod.log.Error("Utils Data isn't initialized! Not loading.");
+                return false;
+            }
             if (!GetByLawsFromFile(out var records))
             {
                 return false;
@@ -82,45 +93,37 @@ namespace Trejak.ZoningByLaw
                 ByLawRecord record = records[i];
                 ByLawZonePrefab re = CreateByLawPrefabFromData(record.bylawZoneData, i + 1, record.bylawName);
                 prefabs.Add(re);
-            }
-            var prefabSystem = GetPrefabSystem();
+            }            
             foreach(var prefab in prefabs)
             {
-                if (!prefabSystem.AddPrefab(prefab))
+                if (!_prefabSystem.AddPrefab(prefab))
                 {
                     Mod.log.Error($"Failed to add new zone prefab \"{prefab.name}\"!");
                     return false;
+                } else
+                {
+                    Mod.log.Info($"Added new zone prefab: \"{prefab.name}\"!");
                 }
             }            
             return true;
         }
 
-        public static PrefabBase GetBasePrefab()
+        public static void InitData(ZonePrefab basePrefab, PrefabSystem prefabSystem)
         {
-            if (_basePrefab != null)
-            {
-                return _basePrefab;
-            }
-            var prefabSystem = GetPrefabSystem();
-            var prefabs = Traverse.Create(prefabSystem).Field<List<PrefabBase>>("m_Prefabs").Value;
-            _basePrefab = prefabs.FirstOrDefault(p => p.name == "NA Residential Medium");
-            return _basePrefab;         
-        }
-
-        static PrefabSystem GetPrefabSystem()
-        {
-            if (_prefabSystem == null)
-            {
-                return World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
-            }
-            return _prefabSystem;
+            _basePrefab = basePrefab;
+            _prefabSystem = prefabSystem;
+            _initialized = true;
         }
 
         public static ByLawZonePrefab CreateByLawPrefabFromData(ByLawZoneData data, int byLawNumber, string bylawName = null)
         {
-            var basePrefab = GetBasePrefab();
-            ComponentBase[] baseComponents = new ComponentBase[basePrefab.components.Count];
-            basePrefab.components.CopyTo(baseComponents);
+            if (!_initialized)
+            {
+                Mod.log.Error("Utils Data isn't initialized! Not creating bylaw");
+                return null;
+            }
+            ComponentBase[] baseComponents = new ComponentBase[_basePrefab.components.Count];
+            _basePrefab.components.CopyTo(baseComponents);
 
             var prefab = new ByLawZonePrefab();
             string byLawName = bylawName ?? "Zoning ByLaw #" + byLawNumber;
@@ -151,7 +154,7 @@ namespace Trejak.ZoningByLaw
 
             //prefab.components.AddRange(baseComponents);
 
-            var uiObj = basePrefab.GetComponent<UIObject>();
+            var uiObj = _basePrefab.GetComponent<UIObject>();
             prefab.Remove<UIObject>();
             var newUIObj = ScriptableObject.CreateInstance<UIObject>();
             newUIObj.m_Icon = null;

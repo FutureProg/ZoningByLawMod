@@ -83,6 +83,11 @@ public class Mod : IMod
         updateSystem.UpdateAt<ConfigPanelUISystem>(SystemUpdatePhase.UIUpdate);
         updateSystem.UpdateAt<ResetGameToolbarUISystem>(SystemUpdatePhase.Modification1);
 
+        var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
+        var prefabs = Traverse.Create(prefabSystem).Field<List<PrefabBase>>("m_Prefabs").Value;
+        var basePrefab = prefabs.FirstOrDefault(p => p.name == "NA Residential Medium");
+        Utils.InitData(basePrefab as ZonePrefab, prefabSystem);
+
         //m_Setting = new Setting(this);
         //m_Setting.RegisterInOptionsUI();
         //GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(m_Setting));
@@ -93,7 +98,7 @@ public class Mod : IMod
     private void Instance_onGamePreload(Colossal.Serialization.Entities.Purpose purpose, GameMode mode)
     {
         if (mode == GameMode.Game && !installed)
-        {
+        {            
             Utils.LoadByLaws();
             installed = true;
         }        

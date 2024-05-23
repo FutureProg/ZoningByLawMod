@@ -116,6 +116,10 @@ namespace Trejak.ZoningByLaw.UI
 
         void SetConfigPanelOpen(bool newValue)
         {
+            if (newValue)
+            {
+                UpdateByLawList();
+            }
             _configPanelOpen.Update(newValue);
         }
 
@@ -187,11 +191,10 @@ namespace Trejak.ZoningByLaw.UI
             }
             ComponentBase[] baseComponents = new ComponentBase[_basePrefab.components.Count];
             _basePrefab.components.CopyTo(baseComponents);
-
-            var prefab = new ByLawZonePrefab();
+            
             int count = _bylawsQuery.CalculateEntityCount();
             string byLawName = "Zoning ByLaw #" + count;
-            Utils.CreateByLawPrefabFromData(data, count, byLawName);
+            var prefab = Utils.CreateByLawPrefabFromData(data, count, byLawName);
             if (!_prefabSystem.AddPrefab(prefab))
             {
                 Mod.log.Error($"Failed to add new zone prefab \"{byLawName}\"!");                

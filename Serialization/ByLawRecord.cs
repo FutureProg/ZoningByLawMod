@@ -21,7 +21,12 @@ namespace Trejak.ZoningByLaw.Serialization
         public string bylawDesc;
         public Color zoneColor;
         public Color edgeColor;
-        public ByLawZoneData bylawZoneData;        
+        public ByLawZoneData bylawZoneData;
+
+        public ByLawRecord()
+        {
+
+        }
 
         public ByLawRecord(string name, string description, Color zoneColor, Color edgeColor, ByLawZoneData data)
         {
@@ -30,14 +35,6 @@ namespace Trejak.ZoningByLaw.Serialization
             this.zoneColor = zoneColor;
             this.edgeColor = edgeColor;
             this.bylawDesc = description;
-        }
-
-        /// <summary>
-        /// Reads through each zoning entity and updates
-        /// </summary>
-        public void UpdateRecords()
-        {
-
         }
 
         public void Read(IJsonReader reader)
