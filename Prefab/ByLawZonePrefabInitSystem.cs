@@ -48,8 +48,9 @@ namespace Trejak.ZoningByLaw.Prefab
                 bylawData.ValueRW.height = prefab.height;
                 bylawData.ValueRW.lotSize = prefab.lotSize;
                 bylawData.ValueRW.parking = prefab.parking;
-                bylawData.ValueRW.zoneType = prefab.zoneType;
+                bylawData.ValueRW.zoneType = prefab.zoneType;                
                 SystemAPI.SetComponent(entity, bylawData.ValueRW);
+                Utils.SetPrefabText(prefab, bylawData.ValueRO);
             }
             entities.Dispose();
         }

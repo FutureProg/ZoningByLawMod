@@ -140,7 +140,7 @@ namespace Trejak.ZoningByLaw.UI
             if (result)
             {                
                 this._selectedByLawColour.Update(new Color[] { prefab.m_Color, prefab.m_Edge });
-                this._selectedByLawName.Update(prefab.name != null? prefab.name : "");
+                this._selectedByLawName.Update(prefab.bylawName != null? prefab.bylawName : "");
             } else
             {
                 this._selectedByLawColour.Update(new Color[] { default, default });
@@ -165,10 +165,10 @@ namespace Trejak.ZoningByLaw.UI
                 return;
             }            
             var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(_selectedByLaw);
-            prefab.name = name;
-            Utils.AddLocaleText($"Assets.NAME[{prefab.name}]", prefab.name);
+            prefab.bylawName = name;
+            Utils.AddLocaleText($"Assets.NAME[{prefab.name}]", prefab.bylawName);
             Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", _selectedByLawData.value.CreateDescription());
-            _selectedByLawName.Update(name);
+            _selectedByLawName.Update(prefab.bylawName);
             UpdateByLawList();
             SaveByLawsToDisk();
         }
@@ -193,8 +193,8 @@ namespace Trejak.ZoningByLaw.UI
             _basePrefab.components.CopyTo(baseComponents);
             
             int count = _bylawsQuery.CalculateEntityCount();
-            string byLawName = "Zoning ByLaw #" + count;
-            var prefab = Utils.CreateByLawPrefabFromData(data, count, byLawName);
+            string byLawName = "Zoning ByLaw " + count;
+            var prefab = Utils.CreateByLawPrefabFromData(data, count, byLawName, byLawName);
             if (!_prefabSystem.AddPrefab(prefab))
             {
                 Mod.log.Error($"Failed to add new zone prefab \"{byLawName}\"!");                
@@ -309,7 +309,7 @@ namespace Trejak.ZoningByLaw.UI
                 list.Add(new ByLawZoneListItem()
                 {
                     entity = entity,
-                    name = (counter+1) + ": " + prefab.name
+                    name = (counter+1) + ": " + prefab.bylawName
                 });
                 counter++;
             }

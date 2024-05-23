@@ -20,6 +20,8 @@ namespace Trejak.ZoningByLaw.Prefab
         public Bounds1 lotSize = new Bounds1(-1, -1);
         public Bounds1 frontage = new Bounds1(-1, -1);
         public Bounds1 parking = new Bounds1(-1, -1);
+        public string bylawName;
+
         public bool deleted = false;
 
         public override void GetPrefabComponents(HashSet<ComponentType> components)

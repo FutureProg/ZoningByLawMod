@@ -48,8 +48,9 @@ namespace Trejak.ZoningByLaw
                 var entity = bylawEntities[i];
                 var zonePrefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(entity);
                 var zoneData = em.GetComponentData<ByLawZoneData>(entity);
+                var prefabID = zonePrefab.GetPrefabID();
                 if (zoneData.deleted) continue;
-                records.Add(new ByLawRecord(zonePrefab.name, zoneData.CreateDescription(), zonePrefab.m_Color, zonePrefab.m_Edge, zoneData));
+                records.Add(new ByLawRecord(zonePrefab.bylawName, zoneData.CreateDescription(), zonePrefab.m_Color, zonePrefab.m_Edge, zoneData, prefabID));
             }
             var toDump = records.ToArray();
             var path = Path.Combine(ContentFolder, "ZoningByLaws.json");
@@ -91,20 +92,23 @@ namespace Trejak.ZoningByLaw
             for (int i = 0; i < records.Length; i++)
             {
                 ByLawRecord record = records[i];
-                ByLawZonePrefab re = CreateByLawPrefabFromData(record.bylawZoneData, i + 1, record.bylawName);
+                ByLawZonePrefab re = CreateByLawPrefabFromData(record.bylawZoneData, i + 1, record.idName, record.bylawName);
+                re.m_Edge = record.edgeColor;
+                re.m_Color = record.zoneColor;
+                re.name = record.idName;
                 prefabs.Add(re);
             }            
             foreach(var prefab in prefabs)
             {
                 if (!_prefabSystem.AddPrefab(prefab))
                 {
-                    Mod.log.Error($"Failed to add new zone prefab \"{prefab.name}\"!");
+                    Mod.log.Error($"Failed to add new zone prefab \"{prefab.bylawName}\"!");
                     return false;
                 } else
                 {
-                    Mod.log.Info($"Added new zone prefab: \"{prefab.name}\"!");
+                    Mod.log.Info($"Added new zone prefab: \"{prefab.bylawName}\"!");
                 }
-            }            
+            }
             return true;
         }
 
@@ -115,7 +119,7 @@ namespace Trejak.ZoningByLaw
             _initialized = true;
         }
 
-        public static ByLawZonePrefab CreateByLawPrefabFromData(ByLawZoneData data, int byLawNumber, string bylawName = null)
+        public static ByLawZonePrefab CreateByLawPrefabFromData(ByLawZoneData data, int byLawNumber, string idName = null, string bylawName = null)
         {
             if (!_initialized)
             {
@@ -126,7 +130,8 @@ namespace Trejak.ZoningByLaw
             _basePrefab.components.CopyTo(baseComponents);
 
             var prefab = new ByLawZonePrefab();
-            string byLawName = bylawName ?? "Zoning ByLaw #" + byLawNumber;
+            bylawName = bylawName ?? "Zoning ByLaw " + byLawNumber;
+            idName = idName ?? bylawName;
 
             // Copy over prefab data
             prefab.zoneType = data.zoneType;
@@ -134,13 +139,14 @@ namespace Trejak.ZoningByLaw
             prefab.lotSize = data.lotSize;
             prefab.frontage = data.frontage;
             prefab.parking = data.parking;
+            prefab.bylawName = bylawName;
 
             // Typical Zoning Stuff
             prefab.m_Office = (prefab.zoneType & ByLawZoneType.Office) != (ByLawZoneType)0;
             prefab.m_Color = Color.red;
             prefab.m_Edge = Color.black;
             prefab.m_AreaType = Game.Zones.AreaType.Residential;
-            prefab.name = byLawName;
+            prefab.name = idName;
             prefab.isDirty = true;
             prefab.active = true;
 
@@ -152,20 +158,25 @@ namespace Trejak.ZoningByLaw
             zoneProps.m_ScaleResidentials = false;
             prefab.components.Add(zoneProps);
 
-            //prefab.components.AddRange(baseComponents);
+            prefab.components.AddRange(baseComponents);
 
             var uiObj = _basePrefab.GetComponent<UIObject>();
             prefab.Remove<UIObject>();
             var newUIObj = ScriptableObject.CreateInstance<UIObject>();
             newUIObj.m_Icon = null;
-            newUIObj.name = byLawName;//uiObj.name.Replace("NA Residential Medium", byLawName);
+            newUIObj.name = uiObj.name.Replace("NA Residential Medium", idName);
             newUIObj.m_Priority = uiObj.m_Priority;
             newUIObj.m_Group = uiObj.m_Group;
             newUIObj.active = uiObj.active;
             prefab.AddComponentFrom(newUIObj);
-            Utils.AddLocaleText($"Assets.NAME[{prefab.name}]", prefab.name);
-            Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", data.CreateDescription());
+            SetPrefabText(prefab, data);
             return prefab;
+        }
+
+        public static void SetPrefabText(ByLawZonePrefab prefab, ByLawZoneData data)
+        {
+            Utils.AddLocaleText($"Assets.NAME[{prefab.name}]", prefab.bylawName);
+            Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", data.CreateDescription());
         }
 
     }

@@ -12,7 +12,7 @@ namespace Trejak.ZoningByLaw.Prefab
         public Bounds1 height;
         public Bounds1 lotSize;
         public Bounds1 frontage;
-        public Bounds1 parking;
+        public Bounds1 parking;    
 
         public bool deleted; // deleted bylaws shouldn't show up in the UI, and won't be serialized
 

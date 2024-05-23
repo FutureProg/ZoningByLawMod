@@ -93,14 +93,14 @@ public class Mod : IMod
         //GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(m_Setting));
 
         //AssetDatabase.global.LoadSettings(nameof(ZoningByLaw), m_Setting, new Setting(this));
+        Utils.LoadByLaws();
+        installed = true;
     }
 
     private void Instance_onGamePreload(Colossal.Serialization.Entities.Purpose purpose, GameMode mode)
     {
         if (mode == GameMode.Game && !installed)
-        {            
-            Utils.LoadByLaws();
-            installed = true;
+        {                        
         }        
     }
 
