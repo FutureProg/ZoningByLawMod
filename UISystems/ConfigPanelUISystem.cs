@@ -251,6 +251,7 @@ namespace Trejak.ZoningByLaw.UI
 
             UpdateByLawList();
             SetActiveByLaw(Entity.Null);
+            SaveByLawsToDisk();
         }
 
         public partial struct DeleteByLawJob : IJobParallelFor

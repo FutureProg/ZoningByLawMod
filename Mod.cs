@@ -25,7 +25,7 @@ public class Mod : IMod
     private Setting m_Setting;
 
     bool installed;
-    private PrefabSystem _prefabSystem;
+    //private PrefabSystem _prefabSystem;
 
     public void OnLoad(UpdateSystem updateSystem)
     {
@@ -73,7 +73,9 @@ public class Mod : IMod
         //Utils.AddLocaleText($"Assets.NAME[{prefab.name}]", prefab.name);
         //Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", prefab.CreateDescription());
 
+        installed = false;
         GameManager.instance.onGameLoadingComplete += onGameLoadingComplete;
+        GameManager.instance.onGamePreload += Instance_onGamePreload;        
 
         World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<ZoneCheckSystem>().Enabled = false;
         updateSystem.UpdateAfter<ByLawZoneSpawnSystem, ZoneSpawnSystem>(SystemUpdatePhase.GameSimulation);
@@ -88,10 +90,17 @@ public class Mod : IMod
         //AssetDatabase.global.LoadSettings(nameof(ZoningByLaw), m_Setting, new Setting(this));
     }
 
+    private void Instance_onGamePreload(Colossal.Serialization.Entities.Purpose purpose, GameMode mode)
+    {
+        if (mode == GameMode.Game && !installed)
+        {
+            Utils.LoadByLaws();
+            installed = true;
+        }        
+    }
+
     private void onGameLoadingComplete(Colossal.Serialization.Entities.Purpose purpose, GameMode mode)
     {
-       //TODO: remove all bylaws on simulation unload
-       //TODO: load all bylaws from file on simulation load
     }
 
     public void OnDispose()
