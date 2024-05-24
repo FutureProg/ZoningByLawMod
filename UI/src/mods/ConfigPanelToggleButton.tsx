@@ -4,6 +4,7 @@ import { Button } from "cs2/ui";
 import { ModuleRegistryExtend } from "cs2/modding";
 
 import styles from './configpaneltogglebutton.module.scss';
+import { VanillaComponentResolver } from "vanillacomponentresolver";
 
 export const ConfigPanelToggleButton : ModuleRegistryExtend = (Component) => {
     return (props) => {
@@ -13,11 +14,13 @@ export const ConfigPanelToggleButton : ModuleRegistryExtend = (Component) => {
             setConfigPanelOpen(!isPanelOpen);
         }
         return (
-        <>
-            <Component {...otherProps}>{children}</Component>
-            <div className={styles.container}>
-                <Button className={styles.button} variant="flat" onClick={onClick} >Zoning ByLaw Editor</Button>            
-            </div>            
+        <>            
+            <VanillaComponentResolver.instance.Section>
+                <Button className={styles.button + ' ' + VanillaComponentResolver.instance.toolButtonTheme.button} variant="flat" onClick={onClick} >Zoning ByLaw Editor</Button>            
+            </VanillaComponentResolver.instance.Section>
+            <Component {...otherProps}>                            
+                {children}
+            </Component>                        
         </>            
         )
     }    
