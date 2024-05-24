@@ -27,6 +27,9 @@ namespace Trejak.ZoningByLaw.UI
     {
 
         private PrefabSystem _prefabSystem;
+        //private ToolbarUISystem _toolbarUISystem;
+        //private RawMapBinding<Entity> _toolBarUIAssetsBinding;
+        //private Traverse _toolbarUIClearAssetSelection;
         private EndFrameBarrier _endFrameBarrier;
         private ZoneSystem _zoneSystem;
         private EntityQuery _bylawsQuery;
@@ -78,6 +81,9 @@ namespace Trejak.ZoningByLaw.UI
             eqb.Reset();
 
             _selectedByLaw = Entity.Null;
+            //_toolbarUISystem = this.World.GetOrCreateSystemManaged<ToolbarUISystem>();
+            //_toolbarUIClearAssetSelection = Traverse.Create(_toolbarUISystem).Method("ClearAssetSelection", false);
+            //_toolBarUIAssetsBinding = Traverse.Create(_toolbarUISystem).Field<RawMapBinding<Entity>>("m_AssetsBinding").Value;
             _prefabSystem = this.World.GetOrCreateSystemManaged<PrefabSystem>();
             _zoneSystem = this.World.GetOrCreateSystemManaged<ZoneSystem>();            
             _endFrameBarrier = this.World.GetOrCreateSystemManaged<EndFrameBarrier>();            
@@ -192,7 +198,7 @@ namespace Trejak.ZoningByLaw.UI
             ComponentBase[] baseComponents = new ComponentBase[_basePrefab.components.Count];
             _basePrefab.components.CopyTo(baseComponents);
             
-            int count = _bylawsQuery.CalculateEntityCount();
+            int count = _bylawsQuery.CalculateEntityCount() + 1;
             string byLawName = "Zoning ByLaw " + count;
             var prefab = Utils.CreateByLawPrefabFromData(data, count, byLawName, byLawName);
             if (!_prefabSystem.AddPrefab(prefab))
@@ -235,7 +241,10 @@ namespace Trejak.ZoningByLaw.UI
                 }
             }
             ecb.AddComponent<Updated>(entity);
-            
+            //// Update the ToolbarUI            
+            //_toolbarUIClearAssetSelection.GetValue();
+            //_toolBarUIAssetsBinding.UpdateAll();
+
             // Clear this zone from all of the existing cells
             var cellEntityArr = _zoneCellsQuery.ToEntityArray(Allocator.TempJob);
             DeleteByLawJob job = new()
@@ -254,7 +263,7 @@ namespace Trejak.ZoningByLaw.UI
 
             UpdateByLawList();
             SetActiveByLaw(Entity.Null);
-            SaveByLawsToDisk();
+            SaveByLawsToDisk();            
         }
 
         public partial struct DeleteByLawJob : IJobParallelFor

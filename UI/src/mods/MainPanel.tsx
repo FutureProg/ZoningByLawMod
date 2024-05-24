@@ -5,7 +5,7 @@ import { byLawZoneList$, createNewByLaw, isConfigPanelOpen$, setActiveByLaw, set
 import { ByLawZoneListItem } from "./types";
 import { useEffect, useState } from "react";
 import { ByLawDetailsPanel } from "./ByLawDetailsPanel";
-import { Entity } from "cs2/bindings";
+import { Entity, toolbar } from "cs2/bindings";
 import { GetDefaultByLawComponent } from "./utils";
 
 export const MainPanel = () => {
@@ -13,11 +13,30 @@ export const MainPanel = () => {
     // Cities: Skylines 2 UI is built with React and mods support outputting standard
     // React JSX elements!    
     const onClose = () => {
-        setActiveByLaw({index: 0, version: 0});
+        setActiveByLaw({index: 0, version: 0});        
         setSelectedListItem(-1);        
         setConfigPanelOpen(false);
-    }
+    }    
+    const selectedAsset = useValue(toolbar.selectedAsset$);    
+    let [prevSelectedAsset, setPrevSelectedAsset] = useState<Entity>({index: 0, version: 0});       
+    useEffect(() => {
+        if (selectedAsset.index > 0) {
+            setPrevSelectedAsset(selectedAsset);
+            console.log("New Asset Selected, id: " + selectedAsset.index);        
+        }        
+    }, [selectedAsset]) 
+
     const isPanelOpen = useValue(isConfigPanelOpen$);
+    useEffect(() => {
+        if (isPanelOpen) {
+            toolbar.clearAssetSelection();
+        } else {          
+            toolbar.selectAsset(prevSelectedAsset);
+            setPrevSelectedAsset({index: 0, version: 0});           
+        }
+    }, [isPanelOpen]);    
+    
+
     let [selectedListItem, setSelectedListItem] = useState(-1);
     const listItemOnClick = (entity: Entity) => () => {
         setSelectedListItem(entity.index);
@@ -43,6 +62,7 @@ export const MainPanel = () => {
 
     const onDeleteByLaw = () => {
         setSelectedListItem(-1);
+        toolbar.selectAsset({index: 0, version: 0});
     }
 
     return !isPanelOpen? <></> : (

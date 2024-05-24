@@ -15,7 +15,6 @@ const Bounds1Field = (props : {bounds?: Bounds1, name: string, onChange?: (name:
     let minRef = useRef<HTMLInputElement>(null);
     let maxRef = useRef<HTMLInputElement>(null);
     useEffect(() => {
-        console.log("Bounds: " + props.bounds?.min);
         setLocalBounds(props.bounds);
     }, [props.bounds, minRef, maxRef]);    
 
@@ -26,7 +25,6 @@ const Bounds1Field = (props : {bounds?: Bounds1, name: string, onChange?: (name:
             return;
         }        
         let nBounds = {min, max};
-        console.log(nBounds);
         setLocalBounds(nBounds);
         if (props.onChange) {
             props.onChange(props.name, nBounds);
@@ -106,7 +104,6 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
         updateNewByLawName(byLawName);
     }, [byLawName]);
     useEffect(() => {
-        console.log(byLawColour);
         updateNewByLawColor(byLawColour[ZONE_COLOR_IDX]);
         updatenewByLawBorder(byLawColour[ZONE_BORDER_IDX]);
     }, [byLawColour]);
