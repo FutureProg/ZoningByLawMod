@@ -172,13 +172,13 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
                                 <input type="text" readOnly={true} value={rgbaToHex(newByLawColor)} />
                             </td>                        
                         </tr>
-                        <tr>
+                        {/* <tr>
                             <th>Zone Border Colour</th>
                             <td>
                                 <VanillaComponentResolver.instance.ColorField value={newByLawBorder} onChange={onUpdateByLawColor(ZONE_BORDER_IDX)}/>
                                 <input type="text" readOnly={true} value={rgbaToHex(newByLawBorder)} />
                             </td>                        
-                        </tr>
+                        </tr> */}
                         <tr>
                             <th>Permitted Uses</th>
                             <td><EnumField<ByLawZoneType> enum={newByLawData != undefined? newByLawData!.zoneType : byLawData? byLawData.zoneType : 0} onChange={onUpdateZoneType} /> </td>

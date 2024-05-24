@@ -9,6 +9,12 @@ export const GetDefaultByLawComponent = () : ByLawZoneComponent => {return {
     zoneType: ByLawZoneType.None    
 }};
 
-export const rgbaToHex = (color: Color) => {
-    return Object.values(color).reduce((accum, curr) => curr + Number(curr).toString(16), '#');
+export const rgbaToHex = (color: Color) : string => {
+    return Object.values(color).reduce((accum, curr) => {
+        if (!isNaN(curr)) {
+            let curr255 = Math.round((curr as number) * 255);
+            return accum + curr255.toString(16).toUpperCase();
+        }        
+        return accum;
+    }, '#');
 }
