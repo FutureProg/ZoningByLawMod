@@ -1,0 +1,25 @@
+.container {
+    position: absolute;
+    height: 18.000000rem;
+    right: 0.000000px;
+    top: -25.000000rem;
+    display: flex;
+    align-items: center; 
+}
+
+.button {
+    width: auto;
+    border-radius: 4rem;    
+    margin-bottom: 2rem;
+    padding: 3rem 6rem;
+    font-size: 16rem;
+    background-color: rgba(88, 107, 134, 0.600000);
+    border-color: initial;
+    border-style: none;
+    border-width: medium;
+    border-image-source: none;
+    border-image-slice: 100.000000% 100.000000% 100.000000% 100.000000%;
+    border-image-width: 1.000000 1.000000 1.000000 1.000000;
+    border-image-outset: 0.000000 0.000000 0.000000 0.000000;
+    border-image-repeat: stretch stretch;
+}

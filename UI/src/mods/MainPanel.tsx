@@ -49,7 +49,7 @@ export const MainPanel = () => {
         <Panel className={styles.mainPanel} draggable={true} header={"Zoning ByLaws"} onClose={onClose} contentClassName={styles.mainPanelContentContainer}>            
             <div className={styles.mainPanelContent}>
                 <div className={styles.mainPanelTopBar}>
-                    <Button onClick={onCreateNewByLaw}>Add New ByLaw</Button>
+                    <Button onClick={onCreateNewByLaw} variant="default">Add New ByLaw</Button>
                 </div>
                 <div className={styles.mainPanelSections}>
                     <Scrollable className={styles.bylawList}>
