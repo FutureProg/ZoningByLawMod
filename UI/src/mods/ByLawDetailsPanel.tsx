@@ -11,21 +11,37 @@ import { VanillaComponentResolver } from "vanillacomponentresolver";
 import { rgbaToHex } from "./utils";
 
 const Bounds1Field = (props : {bounds?: Bounds1, name: string, onChange?: (name: string, newValue: Bounds1) => void}) => {
-    let [localBounds, setLocalBounds] = useState(props.bounds);
+    let [localBounds, setLocalBounds] = useState({min: String(props.bounds?.min), max: String(props.bounds?.max)});
     let minRef = useRef<HTMLInputElement>(null);
     let maxRef = useRef<HTMLInputElement>(null);
     useEffect(() => {
-        setLocalBounds(props.bounds);
+        setLocalBounds({min: String(props.bounds?.min), max: String(props.bounds?.max)});
     }, [props.bounds, minRef, maxRef]);    
 
     let onInputChange = (e: any) => {
-        let min = Number(minRef.current?.value);
-        let max = Number(maxRef.current?.value);
+        let minS = minRef.current?.value;        
+        let maxS = maxRef.current?.value;
+        setLocalBounds({min: String(minS), max: String(maxS)});
+        
+        let max = Number(maxS);
+        let min = Number(minS);
         if (isNaN(min) || isNaN(max)) {
             return;
-        }        
+        }
         let nBounds = {min, max};
-        setLocalBounds(nBounds);
+        if (props.onChange) {
+            props.onChange(props.name, nBounds);
+        }
+    }
+
+    const onClickUnset = (sender: 'min' | 'max') => () => {
+        var nBoundsText = localBounds;
+        nBoundsText[sender] = "-1";
+        setLocalBounds(nBoundsText);
+        if (isNaN(Number(nBoundsText.min)) || isNaN(Number(nBoundsText.max))) {
+            return;
+        }
+        let nBounds = {min: Number(nBoundsText.min), max: Number(nBoundsText.max)};
         if (props.onChange) {
             props.onChange(props.name, nBounds);
         }
@@ -34,11 +50,17 @@ const Bounds1Field = (props : {bounds?: Bounds1, name: string, onChange?: (name:
     return (
         <div className={styles.bounds1Field}>        
             <div>
-                <label>Min</label>
+                <div style={{display: "flex", justifyContent: "space-between"}}>
+                    <label>Min</label>
+                    <Button onClick={onClickUnset("min")}>Unset</Button>
+                </div>                
                 <input type="number" ref={minRef} value={localBounds?.min} onChange={onInputChange} />
             </div>
             <div>
-                <label>Max</label>
+                <div style={{display: "flex", justifyContent: "space-between"}}>
+                    <label>Max</label>
+                    <Button onClick={onClickUnset("max")}>Unset</Button>
+                </div>                
                 <input type="number" ref={maxRef} value={localBounds?.max} onChange={onInputChange} />
             </div>        
         </div>
@@ -185,18 +207,18 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
                             <td><Bounds1Field bounds={newByLawData?.height} name='height' onChange={onUpdateBounds} /></td>
                         </tr>
                         <tr>
-                            <th>Lot Frontage Constraints (8 metre units)</th>
+                            <th>Lot Frontage Constraints (metres)</th>
                             <td><Bounds1Field bounds={newByLawData?.frontage} name='frontage' onChange={onUpdateBounds} /></td>
                         </tr>
                         <tr>
-                            <th>Lot Size Constraints (8 metre units squared)</th>
+                            <th>Lot Size Constraints (metres)</th>
                             <td><Bounds1Field bounds={newByLawData?.lotSize} name='lotSize' onChange={onUpdateBounds} /></td>
                         </tr>
                     </div>                               
                 </div>            
             </Scrollable>
             <div style={{display: props.selectedRowIndex == -1? 'none': 'block', marginTop: '8rem'}}>
-                <Button onClick={onSave} variant="flat">Save</Button>
+                <Button onClick={onSave} variant="flat" style={{marginBottom: '16rem'}}>Save</Button>                
                 <Button onClick={onDelete} variant="flat" style={{backgroundColor: 'red'}}>Delete</Button>
             </div>            
         </div>

@@ -200,7 +200,8 @@ namespace Trejak.ZoningByLaw.UI
             
             int count = _bylawsQuery.CalculateEntityCount() + 1;
             string byLawName = "Zoning ByLaw " + count;
-            var prefab = Utils.CreateByLawPrefabFromData(data, count, byLawName, byLawName);
+            string idName = byLawName + '_' + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            var prefab = Utils.CreateByLawPrefabFromData(data, count, idName, byLawName);
             if (!_prefabSystem.AddPrefab(prefab))
             {
                 Mod.log.Error($"Failed to add new zone prefab \"{byLawName}\"!");                

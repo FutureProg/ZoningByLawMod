@@ -92,7 +92,7 @@ namespace Trejak.ZoningByLaw
             for (int i = 0; i < records.Length; i++)
             {
                 ByLawRecord record = records[i];
-                ByLawZonePrefab re = CreateByLawPrefabFromData(record.bylawZoneData, i + 1, record.idName, record.bylawName);
+                ByLawZonePrefab re = CreateByLawPrefabFromData(record.bylawZoneData, i + 1, record.idName + '_' + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), record.bylawName);
                 re.m_Edge = record.edgeColor;
                 re.m_Color = record.zoneColor;
                 re.name = record.idName;
@@ -131,7 +131,7 @@ namespace Trejak.ZoningByLaw
 
             var prefab = new ByLawZonePrefab();
             bylawName = bylawName ?? "Zoning ByLaw " + byLawNumber;
-            idName = idName ?? bylawName;
+            idName = idName ?? bylawName +'_' + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
             // Copy over prefab data
             prefab.zoneType = data.zoneType;
@@ -159,6 +159,11 @@ namespace Trejak.ZoningByLaw
             prefab.components.Add(zoneProps);
 
             prefab.components.AddRange(baseComponents);
+            prefab.GetComponent<Unlockable>().m_RequireAll = new PrefabBase[0];
+            prefab.GetComponent<Unlockable>().m_RequireAny = new PrefabBase[0];
+            prefab.GetComponent<Unlockable>().m_IgnoreDependencies = true;
+            prefab.Remove<ThemeObject>();
+
 
             var uiObj = _basePrefab.GetComponent<UIObject>();
             prefab.Remove<UIObject>();
