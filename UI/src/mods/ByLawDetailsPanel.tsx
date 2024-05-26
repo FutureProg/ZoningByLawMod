@@ -7,7 +7,7 @@ import { ByLawZoneComponent, ByLawZoneType } from "./types";
 import { Bounds1, Color } from "cs2/bindings";
 import { Dropdown } from "cs2/ui";
 import { FOCUS_AUTO, InputContext } from "cs2/input";
-import { VanillaComponentResolver } from "vanillacomponentresolver";
+import { ColorHSV, VanillaComponentResolver } from "vanillacomponentresolver";
 import { rgbaToHex } from "./utils";
 
 const Bounds1Field = (props : {bounds?: Bounds1, name: string, onChange?: (name: string, newValue: Bounds1) => void}) => {
@@ -177,7 +177,7 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
             props.onDelete();
         }
     }
-
+    
     return (
         <div className={styles.bylawDetails}>
             <Scrollable>   

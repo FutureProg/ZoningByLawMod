@@ -1,4 +1,4 @@
-import { Color, Theme, UniqueFocusKey } from "cs2/bindings";
+import { Bounds1, Color, Theme, UniqueFocusKey } from "cs2/bindings";
 import { InputAction } from "cs2/input";
 import { ModuleRegistry } from "cs2/modding";
 import { BalloonDirection, FocusKey, PanelTheme } from "cs2/ui";
@@ -83,11 +83,64 @@ type ColorField = {
     onMouseLeave?: (e: any) => void;
 }
 
+type Bounds1InputField = {
+    label: any;
+    value: Bounds1;
+    allowMinGreaterMax: boolean;
+    disabled?: boolean;
+    onChange: (bounds: Bounds1) => void;
+    onChangeStart?: (e: any) => void;
+    onChangeEnd?: (e: any) => void;
+}
+
+// jG({value: e, valueFormatter: t, inputValidator: n, inputTransformer: s=CG, inputParser: a, onChange: i, onFocus: o, onBlur: r, ...l}) 
+type HexColorInput = {
+    value: any;
+    onFocus?: any;
+    onBlur?: any;
+    onChange?: (text: string) => void;    
+}
+
 // function P4(e) {
 // type BoundColorField = {
 //     value?: any;    
 //     disabled?: boolean;    
 // }
+
+//({h: e, s: t=1, v: n=1, decimalPrecision: s=3, outerRadius: a, innerRadius: i, className: o, onChange: r, onDragStart: l, onDragEnd: c})=>{
+type RadialHuePicker = {
+    h: number, // the hue
+    s?: number,
+    v?: number,
+    decimalPrecision?: number;
+    outerRadius: number;
+    innerRadius: number;
+    className: string;
+    onChange: (e: number) => void;
+    onDragStart: (e: any) => void;
+    onDragEnd: (e: any) => void;
+}
+
+export type ColorPickerPreview = "None" | "Current" | "CurrentAndLast";
+export type ColorPickerSliderMode = "Hsv" | "RgbFloat" | "RgbByte";
+export interface ColorHSV {
+    h: number;// between 0 and 1
+    s: number;// between 0 and 1
+    v: number;// between 0 and 1
+    a?: number; // between 0 and 1
+}
+//qB = ({focusKey: e, color: t, alpha: n, colorWheel: s=!0, sliderTextInput: a=!0, preview: i=$B.None, mode: o, hexInput: r=!0, onChange: l})=>{
+type ColorPicker = {
+    focusKey?: any;
+    color: ColorHSV; // between 0 and 1
+    alpha?: number; // between 0 and 1
+    colorWheel?: boolean; // defaults to false
+    sliderTextInput?: boolean; // defaults to false
+    preview?: ColorPickerPreview;
+    mode?: ColorPickerSliderMode; // defaults to Hsv
+    hexInput?: boolean; // defaults to false
+    onChange?: (color: ColorHSV) => void;
+}
 
 // This is an array of the different components and sass themes that are appropriate for your UI. You need to figure out which ones you need from the registry.
 const registryIndex = {
@@ -99,7 +152,13 @@ const registryIndex = {
     Checkbox: ["game-ui/common/input/toggle/checkbox/checkbox.tsx", "Checkbox"],    
     checkboxTheme: ["game-ui/common/input/toggle/checkbox/checkbox.module.scss", 'classes'],
     ColorField: ["game-ui/common/input/color-picker/color-field/color-field.tsx", 'ColorField'],
-    BoundColorField: ["game-ui/common/input/color-picker/color-field/color-field.tsx", 'BoundColorField']    
+    BoundColorField: ["game-ui/common/input/color-picker/color-field/color-field.tsx", 'BoundColorField'],
+    Bounds1InputField: ["game-ui/editor/widgets/fields/bounds-field.tsx", 'Bounds1InputField'], // rB
+    HexColorInput: ["game-ui/common/input/text/hex-color-input.tsx", 'HexColorInput'], //extends jG    
+    RadialHuePicker: ["game-ui/common/input/color-picker/radial-hue-picker/radial-hue-picker.tsx", "RadialHuePicker"],
+    ColorPickerPreview: ["game-ui/common/input/color-picker/color-picker/color-picker.tsx", "ColorPickerPreview"],
+    ColorPickerSliderMode: ["game-ui/common/input/color-picker/color-picker/color-picker.tsx", "ColorPickerSliderMode"],
+    ColorPicker: ["game-ui/common/input/color-picker/color-picker/color-picker.tsx", "ColorPicker"]
 }
 
 export class VanillaComponentResolver {
@@ -128,6 +187,13 @@ export class VanillaComponentResolver {
     public get Toggle(): (props: ToggleProps) => JSX.Element { return this.cachedData["Toggle"] ?? this.updateCache("Toggle") }
     public get Checkbox(): (props: Checkbox) => JSX.Element { return this.cachedData["Checkbox"] ?? this.updateCache("Checkbox") }
     public get ColorField(): (props: ColorField) => JSX.Element { return this.cachedData["ColorField"] ?? this.updateCache("ColorField") }
+    public get HexColorInput() : (props: HexColorInput) => JSX.Element { return this.cachedData["HexColorInput"] ?? this.updateCache("HexColorInput") };
+    public get Bounds1InputField() : (props: Bounds1InputField) => JSX.Element { return this.cachedData["Bounds1InputField"] ?? this.updateCache("Bounds1InputField") };
+    public get RadialHuePicker() : (props: RadialHuePicker) => JSX.Element { return this.cachedData["RadialHuePicker"] ?? this.updateCache("RadialHuePicker") };
+
+    // Broken
+    // public get ColorPicker() : (props: ColorPicker) => JSX.Element { return this.cachedData['ColorPicker'] ?? this.updateCache("ColorPicker")};
+
 
     public get toggleTheme(): Theme | any { return this.cachedData["toggleTheme"] ?? this.updateCache("toggleTheme") }
     public get checkboxTheme(): Theme | any { return this.cachedData["checkboxTheme"] ?? this.updateCache("checkboxTheme") }
