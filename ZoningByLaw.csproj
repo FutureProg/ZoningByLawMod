@@ -95,6 +95,10 @@
 	<ItemGroup>
 	  <PackageReference Include="Lib.Harmony" Version="2.2.2" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Tools\" />
+	</ItemGroup>
 	
 	<Target Name="BuildUI" AfterTargets="AfterBuild">
 			<Exec Command="npm run build" WorkingDirectory="$(ProjectDir)/UI" />
