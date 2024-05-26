@@ -16,6 +16,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Trejak.ZoningByLaw.Prefab;
+using Trejak.ZoningByLaw.Systems;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -27,6 +28,8 @@ namespace Trejak.ZoningByLaw.UI
     {
 
         private PrefabSystem _prefabSystem;
+        private ByLawRenderToolSystem _bylawRenderSystem;
+        private ToolSystem _toolSystem;
         //private ToolbarUISystem _toolbarUISystem;
         //private RawMapBinding<Entity> _toolBarUIAssetsBinding;
         //private Traverse _toolbarUIClearAssetSelection;
@@ -49,7 +52,9 @@ namespace Trejak.ZoningByLaw.UI
         private TriggerBinding _deleteByLaw;
         private TriggerBinding<bool> _setConfigPanelOpen;
         private TriggerBinding<string> _setByLawName;
-        private TriggerBinding<Color, Color> _setByLawZoneColour;        
+        private TriggerBinding<Color, Color> _setByLawZoneColour;
+
+        private TriggerBinding _toggleByLawRenderPreview;
 
         const string uiGroupName = "Trejak.ZoningByLaw";
 
@@ -85,7 +90,9 @@ namespace Trejak.ZoningByLaw.UI
             //_toolBarUIAssetsBinding = Traverse.Create(_toolbarUISystem).Field<RawMapBinding<Entity>>("m_AssetsBinding").Value;
             _prefabSystem = this.World.GetOrCreateSystemManaged<PrefabSystem>();
             _zoneSystem = this.World.GetOrCreateSystemManaged<ZoneSystem>();            
-            _endFrameBarrier = this.World.GetOrCreateSystemManaged<EndFrameBarrier>();            
+            _endFrameBarrier = this.World.GetOrCreateSystemManaged<EndFrameBarrier>();
+            _bylawRenderSystem = this.World.GetOrCreateSystemManaged<ByLawRenderToolSystem>();
+            _toolSystem = this.World.GetOrCreateSystemManaged<ToolSystem>();
             GetBasePrefab();
 
             this.AddBinding(_selectedByLaw = new ValueBinding<Entity>(uiGroupName, "SelectedByLaw", Entity.Null));
@@ -102,8 +109,20 @@ namespace Trejak.ZoningByLaw.UI
             this.AddBinding(_setConfigPanelOpen = new TriggerBinding<bool>(uiGroupName, "SetConfigPanelOpen", SetConfigPanelOpen));
             this.AddBinding(_setByLawName = new TriggerBinding<string>(uiGroupName, "SetByLawName", SetByLawName));
             this.AddBinding(_setByLawZoneColour = new TriggerBinding<Color, Color>(uiGroupName, "SetByLawZoneColour", SetByLawZoneColour));
+            this.AddBinding(_toggleByLawRenderPreview = new TriggerBinding(uiGroupName, "ToggleByLawRenderPreview", ToggleByLawRenderPreview));
 
             eqb.Dispose();
+        }
+
+        void ToggleByLawRenderPreview()
+        {
+            if (_toolSystem.activeTool == _bylawRenderSystem)
+            {
+                _bylawRenderSystem.SetToolEnabled(false);
+            } else
+            {
+                _bylawRenderSystem.SetByLaw(_selectedByLawData.value);
+            }
         }
 
         void SetByLawZoneColour(Color zoneColour, Color borderColour)
@@ -131,7 +150,13 @@ namespace Trejak.ZoningByLaw.UI
 
         void SetActiveByLaw(Entity entity)
         {
-            Mod.log.Info("Set active by law to " + entity.Index + ", " + entity.Version);
+            if (entity != Entity.Null && !EntityManager.HasComponent<ByLawZoneData>(entity))
+            {                 
+                Mod.log.Warn("Entity " + entity.Index + ", " + entity.Version + " doesn't have the ByLawZoneData component! Clearing active bylaw.");
+                SetActiveByLaw(Entity.Null);
+                return;
+            }
+            Mod.log.Info("Set active by law to " + entity.Index + ", " + entity.Version);            
             _selectedByLaw.Update(entity);
             ByLawZoneData data;
             if (_selectedByLaw.value == Entity.Null)
