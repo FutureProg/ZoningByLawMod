@@ -1,6 +1,7 @@
 ﻿using Colossal.Mathematics;
 using Game;
 using Game.Common;
+using Game.Input;
 using Game.Prefabs;
 using Game.Rendering;
 using Game.Simulation;
@@ -11,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Trejak.ZoningByLaw.Prefab;
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -22,17 +24,38 @@ namespace Trejak.ZoningByLaw.Systems
     {
 
         public ByLawZoneData? byLawZoneData;
+        public float3? currentDrawPoint;
+
         public override string toolID => "Zoning ByLaw Render Tool";
 
         private TerrainSystem _terrainSystem;
         private OverlayRenderSystem _overlayRenderSystem;
+
+        private ProxyAction _applyAction;
 
         protected override void OnCreate()
         {
             base.OnCreate();
             _terrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
             _overlayRenderSystem = World.GetOrCreateSystemManaged<OverlayRenderSystem>();
+
+            _applyAction = InputManager.instance.FindAction("Tool", "Apply");
+
             Enabled = false;            
+        }
+
+        protected override void OnStartRunning()
+        {
+            base.OnStartRunning();
+            _applyAction.shouldBeEnabled = true;
+        }
+
+        protected override void OnStopRunning()
+        {
+            base.OnStopRunning();
+            _applyAction.shouldBeEnabled = false;
+            currentDrawPoint = null;
+            byLawZoneData = null;
         }
 
         public override PrefabBase GetPrefab()
@@ -55,20 +78,19 @@ namespace Trejak.ZoningByLaw.Systems
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             if (byLawZoneData.HasValue)
-            {
-                if (GetRaycastResult(out var hit))
+            {                                
+                if (_applyAction.WasPressedThisFrame())
                 {
-                    var hitPos = hit.m_HitPosition;
-                    var renderPreviewJob = new RenderPreviewJob()
+                    if (GetRaycastResult(out var hit))
                     {
-                        overlayBuffer = _overlayRenderSystem.GetBuffer(out var overlayDependencies),
-                        terraintPoint = hitPos,
-                        bylawData = byLawZoneData.Value
-                    };
-                    inputDeps = renderPreviewJob.Schedule(JobHandle.CombineDependencies(inputDeps, overlayDependencies));
-                    _overlayRenderSystem.AddBufferWriter(inputDeps);
-                }                
-                _terrainSystem.AddCPUHeightReader(inputDeps);
+                        currentDrawPoint = hit.m_HitPosition;                        
+                    } else
+                    {
+                        currentDrawPoint = null;
+                    }                    
+                    _terrainSystem.AddCPUHeightReader(inputDeps);
+                    Mod.log.Info("Clicked at " + (currentDrawPoint?.ToString() ?? "null"));
+                }
             }            
             return base.OnUpdate(inputDeps);
         }
@@ -91,65 +113,8 @@ namespace Trejak.ZoningByLaw.Systems
             } else if (!isEnabled && m_ToolSystem.activeTool == this)
             {
                 m_ToolSystem.selected = Entity.Null;
-                m_ToolSystem.activeTool = null;
+                m_ToolSystem.activeTool = m_DefaultToolSystem;
             }
-        }
-
-        public partial struct RenderPreviewJob : IJob
-        {
-
-            public ByLawZoneData bylawData;
-            public OverlayRenderSystem.Buffer overlayBuffer;
-            public float3 terraintPoint;
-
-            public void Execute()
-            {
-                float unitSizeMetres = 8f;
-                float maxZoneSizeUnits = 6f;
-
-                float width = math.min(unitSizeMetres * maxZoneSizeUnits, bylawData.frontage.max > 0 ? bylawData.frontage.max : unitSizeMetres * maxZoneSizeUnits);
-                float height = math.min(100.0f, bylawData.height.max > 0 ? bylawData.height.max : 100.0f);
-
-                float depth = 6 * unitSizeMetres;
-                float lotSize = depth * width;                
-                while(true)
-                {
-                    bool passMinLotSize = bylawData.lotSize.min <= 0 || bylawData.lotSize.min <= lotSize;
-                    bool passMaxLotSize = bylawData.lotSize.max <= 0 || bylawData.lotSize.max >= lotSize;
-                    if (passMinLotSize && passMaxLotSize)
-                    {
-                        break;
-                    }
-
-                    // Basically set a value that isn't possible
-                    if ((passMinLotSize || passMaxLotSize) && bylawData.lotSize.max - bylawData.lotSize.min < unitSizeMetres)
-                    {
-                        break;
-                    }
-                    if (!passMinLotSize)
-                    {
-                        depth += unitSizeMetres;
-                    }
-                    if (!passMaxLotSize)
-                    {
-                        depth -= unitSizeMetres;
-                    }
-
-                    lotSize = depth * width;
-                }
-                // x and z horizontal plane
-                float x = width / 2f - terraintPoint.x;
-                float z = depth / 2f - terraintPoint.z;
-                float y = height + terraintPoint.y;
-
-                Bounds3 bounds = new Bounds3(new float3(x, terraintPoint.y, z), new float3(x + width, y, z + depth));
-
-                // for now just draw a line of the correct height. A cube is a lot of work.
-                Color lineColor = Color.cyan;
-                float lineWidth = 0.5f;
-                overlayBuffer.DrawLine(lineColor, new Line3.Segment(terraintPoint, new float3(terraintPoint.x, y, terraintPoint.z)), lineWidth);
-
-            }
-        }
+        }        
     }
 }

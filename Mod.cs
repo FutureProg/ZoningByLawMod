@@ -16,6 +16,7 @@ using Trejak.ZoningByLaw.Prefab;
 using Trejak.ZoningByLaw.UI;
 using Colossal.Mathematics;
 using Trejak.ZoningByLaw.Systems;
+using Game.Rendering;
 
 namespace Trejak.ZoningByLaw;
 
@@ -82,6 +83,8 @@ public class Mod : IMod
         updateSystem.UpdateAt<ByLawZonePrefabInitSystem>(SystemUpdatePhase.PrefabUpdate);
         updateSystem.UpdateAt<ConfigPanelUISystem>(SystemUpdatePhase.UIUpdate);
         updateSystem.UpdateAt<ResetGameToolbarUISystem>(SystemUpdatePhase.Modification1);
+        updateSystem.UpdateAt<ByLawRenderToolSystem>(SystemUpdatePhase.ToolUpdate);
+        updateSystem.UpdateAfter<ByLawRenderOverlaySystem, AreaRenderSystem>(SystemUpdatePhase.Rendering);
 
         var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
         var prefabs = Traverse.Create(prefabSystem).Field<List<PrefabBase>>("m_Prefabs").Value;
