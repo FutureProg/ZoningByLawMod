@@ -12,6 +12,7 @@ export const isConfigPanelOpen$ = bindValue<boolean>(mod.fullname, "IsConfigPane
 export const selectedByLawName$ = bindValue<string>(mod.fullname, "SelectedByLawName", "");
 export const defaultColor = {r: 1, g: 1, b: 1, a: 1};
 export const selectedByLawColor$ = bindValue<Color[]>(mod.fullname, "SelectedByLawColour", [defaultColor, defaultColor]);
+export const selectedByLaw$ = bindValue<Entity>(mod.fullname, "SelectedByLaw");
 
 export const setConfigPanelOpen = (open : boolean) => {
     trigger(mod.fullname, "SetConfigPanelOpen", open);
@@ -39,4 +40,8 @@ export const setByLawName = (name: string) => {
 
 export const setByLawZoneColor = (zoneColor: Color, borderColor: Color) => {
     trigger(mod.fullname, "SetByLawZoneColour", zoneColor, borderColor);
+}
+
+export const toggleByLawRenderPreview = () => {
+    trigger(mod.fullname, "ToggleByLawRenderPreview");
 }

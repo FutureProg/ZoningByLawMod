@@ -1,6 +1,6 @@
 import { Button, DropdownItem, DropdownToggle, Scrollable } from "cs2/ui"
 import styles from './mainpanel.module.scss';
-import { ZONE_BORDER_IDX, ZONE_COLOR_IDX, defaultColor, deleteByLaw, selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor } from "./bindings";
+import { ZONE_BORDER_IDX, ZONE_COLOR_IDX, defaultColor, deleteByLaw, selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor, toggleByLawRenderPreview } from "./bindings";
 import { useValue } from "cs2/api";
 import { ChangeEvent, ChangeEventHandler, useEffect, useRef, useState } from "react";
 import { ByLawZoneComponent, ByLawZoneType } from "./types";
@@ -186,6 +186,9 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
                         <tr>
                             <th>Name</th>
                             <td><input type="text" value={newByLawName} onChange={onNameChange}/></td>
+                        </tr>
+                        <tr>
+                            <Button onClick={toggleByLawRenderPreview}>Preview</Button>
                         </tr>
                         <tr>
                             <th>Zone Colour</th>
