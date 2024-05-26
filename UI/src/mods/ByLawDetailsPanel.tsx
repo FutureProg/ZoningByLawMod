@@ -29,6 +29,9 @@ const Bounds1Field = (props : {bounds?: Bounds1, name: string, onChange?: (name:
             return;
         }
         let nBounds = {min, max};
+        if (nBounds.min > nBounds.max) {
+            return;
+        }
         if (props.onChange) {
             props.onChange(props.name, nBounds);
         }
