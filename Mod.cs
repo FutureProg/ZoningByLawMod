@@ -17,6 +17,7 @@ using Trejak.ZoningByLaw.UI;
 using Colossal.Mathematics;
 using Trejak.ZoningByLaw.Systems;
 using Game.Rendering;
+using System.Reflection;
 
 namespace Trejak.ZoningByLaw;
 
@@ -26,6 +27,8 @@ public class Mod : IMod
     private Setting m_Setting;
 
     bool installed;
+    private Harmony _Harmony;
+
     //private PrefabSystem _prefabSystem;
 
     public void OnLoad(UpdateSystem updateSystem)
@@ -75,16 +78,19 @@ public class Mod : IMod
         //Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", prefab.CreateDescription());
 
         installed = false;
+        ApplyPatches();
         GameManager.instance.onGameLoadingComplete += onGameLoadingComplete;
         GameManager.instance.onGamePreload += Instance_onGamePreload;        
 
         World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<ZoneCheckSystem>().Enabled = false;
         updateSystem.UpdateAfter<ByLawZoneSpawnSystem, ZoneSpawnSystem>(SystemUpdatePhase.GameSimulation);
         updateSystem.UpdateAt<ByLawZonePrefabInitSystem>(SystemUpdatePhase.PrefabUpdate);
+        updateSystem.UpdateAt<IndexBuildingsSystem>(SystemUpdatePhase.PrefabUpdate);
+
         updateSystem.UpdateAt<ConfigPanelUISystem>(SystemUpdatePhase.UIUpdate);
         updateSystem.UpdateAt<ResetGameToolbarUISystem>(SystemUpdatePhase.Modification1);
         updateSystem.UpdateAt<ByLawRenderToolSystem>(SystemUpdatePhase.ToolUpdate);
-        updateSystem.UpdateAfter<ByLawRenderOverlaySystem, AreaRenderSystem>(SystemUpdatePhase.Rendering);
+        updateSystem.UpdateAfter<ByLawRenderOverlaySystem, AreaRenderSystem>(SystemUpdatePhase.Rendering);        
 
         var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
         var prefabs = Traverse.Create(prefabSystem).Field<List<PrefabBase>>("m_Prefabs").Value;
@@ -98,6 +104,28 @@ public class Mod : IMod
         //AssetDatabase.global.LoadSettings(nameof(ZoningByLaw), m_Setting, new Setting(this));
         Utils.LoadByLaws();
         installed = true;
+    }
+
+    [HarmonyLib.HarmonyPatch(typeof(BuildingInitializeSystem), "OnUpdate")]
+    private void BuildingInitSystem_OnUpdate()
+    {
+        Mod.log.Info("BUILDING INIT SYSTEM RAN");
+    }
+
+    private void ApplyPatches()
+    {
+        Assembly assembly = Assembly.GetExecutingAssembly();
+
+        _Harmony = new Harmony(typeof(Mod).Namespace);
+        _Harmony.PatchAll(assembly);
+        var patchedMethods = _Harmony.GetPatchedMethods().ToArray<MethodBase>();
+
+        log.Info($"Made patches! Patched methods: " + patchedMethods.Length);
+
+        foreach (var patchedMethod in patchedMethods)
+        {
+            log.Info($"Patched method: {patchedMethod.Module.Name}:{patchedMethod.Name}");
+        }
     }
 
     private void Instance_onGamePreload(Colossal.Serialization.Entities.Purpose purpose, GameMode mode)

@@ -59,6 +59,8 @@ namespace Trejak.ZoningByLaw
         CityConfigurationSystem _cityConfigurationSystem;
         EndFrameBarrier _endFrameBarrier;
 
+        IndexBuildingsSystem _indexBuildingsSystem;
+
         public override int GetUpdateInterval(SystemUpdatePhase phase)
         {
             return 16;
@@ -122,6 +124,8 @@ namespace Trejak.ZoningByLaw
             _endFrameBarrier = base.World.GetOrCreateSystemManaged<EndFrameBarrier>();
             _zoneSpawnSystem = World.GetOrCreateSystemManaged<ZoneSpawnSystem>();
 
+            _indexBuildingsSystem = World.GetOrCreateSystemManaged<IndexBuildingsSystem>();
+
             this.RequireForUpdate(this._vacantLotsQuery);
             this.RequireForUpdate(_buildingsQuery);
         }
@@ -183,7 +187,9 @@ namespace Trejak.ZoningByLaw
                 entityStorageInfoLookup = GetEntityStorageInfoLookup(),
                 objectdataLookup = SystemAPI.GetComponentLookup<ObjectData>(true),
                 commercialDemands = _commercialDemandSystem.GetBuildingDemands(out var commercialDemandJob),
-                residentialDemands = _residentialDemandSystem.buildingDemand
+                residentialDemands = _residentialDemandSystem.buildingDemand,
+                buildingByLawPropertiesLookup = _indexBuildingsSystem.GetPropertiesLookup(),
+                prefabDataLookup = GetComponentLookup<PrefabData>(true)
             };            
             ZoneSpawnSystem.SpawnBuildingJob spawnBuildingJob = new()
             {
@@ -211,7 +217,7 @@ namespace Trejak.ZoningByLaw
                 m_TerrainHeightData = _terrainSystem.GetHeightData(false),
                 m_TransformData = GetComponentLookup<Game.Objects.Transform>(true),
                 m_ValidAreaData = GetComponentLookup<ValidArea>(true),
-                m_ZoneSearchTree = _searchSystem.GetSearchTree(true, out var searchTreeJob)
+                m_ZoneSearchTree = _searchSystem.GetSearchTree(true, out var searchTreeJob),                
             };
 
             var evaluationHandle = evaluateSpawnAreas.ScheduleParallel(this._vacantLotsQuery, JobUtils.CombineDependencies(buildingsQueryJob, groundPollutionMapJob,
@@ -222,6 +228,7 @@ namespace Trejak.ZoningByLaw
             _pollutionSystem.AddReader(evaluationHandle);
             _commercialDemandSystem.AddReader(evaluationHandle);
             _industrialDemandSystem.AddReader(evaluationHandle);
+            _indexBuildingsSystem.AddPropertiesReader(evaluationHandle);
 
             residentialQ.Dispose(spawnBuildingHandle);
             commercialQ.Dispose(spawnBuildingHandle);
@@ -230,7 +237,7 @@ namespace Trejak.ZoningByLaw
             _zoneSystem.AddPrefabsReader(evaluationHandle);
             _terrainSystem.AddCPUHeightReader(spawnBuildingHandle);
             _endFrameBarrier.AddJobHandleForProducer(spawnBuildingHandle);
-            _searchSystem.AddSearchTreeReader(spawnBuildingHandle);
+            _searchSystem.AddSearchTreeReader(spawnBuildingHandle);            
 
             this.Dependency = spawnBuildingHandle;
         }
@@ -274,6 +281,8 @@ namespace Trejak.ZoningByLaw
             public ComponentLookup<LandValue> landValueLookup;
             public ComponentLookup<ResourceData> resourceDataLookup;
             public ComponentLookup<ObjectData> objectdataLookup;
+            public ComponentLookup<PrefabData> prefabDataLookup;
+            public BuildingByLawPropertiesLookup buildingByLawPropertiesLookup;
 
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
             {
@@ -382,9 +391,12 @@ namespace Trejak.ZoningByLaw
                 }                
             }
 
-            private bool CompliesWithByLaw(ByLawZoneData byLaw, ObjectGeometryData objGeomData, ZoneData zoneData, BuildingData buildingData, BuildingPropertyData propertyData, ObjectData objectData)
-            {
+            private bool CompliesWithByLaw(ByLawZoneData byLaw, Entity buildingEntity, ObjectGeometryData objGeomData, ZoneData zoneData, BuildingData buildingData, BuildingPropertyData propertyData, ObjectData objectData)
+            {                
                 bool re = true;
+                PrefabData prefabData = prefabDataLookup[buildingEntity];
+                BuildingByLawProperties byLawProperties = buildingByLawPropertiesLookup[prefabData];
+                bool hasByLawProperties = byLawProperties.initialized;
 
                 //// Height
                 re = re && (byLaw.height.min >= 0 ? objGeomData.m_Size.y >= byLaw.height.min : true);
@@ -396,7 +408,15 @@ namespace Trejak.ZoningByLaw
                 var lotSize = (buildingData.m_LotSize.x * 8) * (buildingData.m_LotSize.y * 8);
                 re = re && (byLaw.lotSize.min >= 0 ? lotSize >= byLaw.lotSize.min : true);
                 re = re && (byLaw.lotSize.max >= 0 ? lotSize <= byLaw.lotSize.max : true);
-                //// TODO: Parking
+                //// Parking
+                if (byLaw.parking.min > 0)
+                {
+                    re = hasByLawProperties && byLawProperties.parkingCount >= byLaw.parking.min;
+                }
+                if (byLaw.parking.max >= 0)
+                {
+                    re = hasByLawProperties && byLawProperties.parkingCount <= byLaw.parking.max;
+                }
                 if (!re) return re;
 
                 // Permitted Uses
@@ -459,7 +479,7 @@ namespace Trejak.ZoningByLaw
                         bool2 rhs = new bool2((subjBuildingData.m_Flags & Game.Prefabs.BuildingFlags.LeftAccess) > (Game.Prefabs.BuildingFlags)0U, (subjBuildingData.m_Flags & Game.Prefabs.BuildingFlags.RightAccess) > (Game.Prefabs.BuildingFlags)0U);
                         float bldgHeight = objGeomDataArr[i].m_Size.y;
                         if (math.all(lotSize <= maxLotSize) && bldgHeight <= maxHeight 
-                            && CompliesWithByLaw(byLawData, objGeomDataArr[i], zoneData, subjBuildingData, buildingPropertyDataArr[i], objectdataLookup[buildingEntities[i]]))
+                            && CompliesWithByLaw(byLawData, buildingEntities[i], objGeomDataArr[i], zoneData, subjBuildingData, buildingPropertyDataArr[i], objectdataLookup[buildingEntities[i]]))
                         {
                             BuildingPropertyData buildingPropertyData = buildingPropertyDataArr[i];
                             Game.Zones.AreaType evalAreaType = zoneDataLookup[spawnableData.m_ZonePrefab].m_AreaType; 

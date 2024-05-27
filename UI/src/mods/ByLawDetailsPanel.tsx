@@ -29,7 +29,7 @@ const Bounds1Field = (props : {bounds?: Bounds1, name: string, onChange?: (name:
             return;
         }
         let nBounds = {min, max};
-        if (nBounds.min > nBounds.max) {
+        if (nBounds.min > nBounds.max && nBounds.max > -1) {
             return;
         }
         if (props.onChange) {
@@ -219,6 +219,10 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
                         <tr>
                             <th>Lot Size Constraints (metres)</th>
                             <td><Bounds1Field bounds={newByLawData?.lotSize} name='lotSize' onChange={onUpdateBounds} /></td>
+                        </tr>
+                        <tr>
+                            <th>Parking Constraints (count)</th>
+                            <td><Bounds1Field bounds={newByLawData?.parking} name='parking' onChange={onUpdateBounds} /></td>
                         </tr>
                     </div>                               
                 </div>            
