@@ -411,11 +411,11 @@ namespace Trejak.ZoningByLaw
                 //// Parking
                 if (byLaw.parking.min > 0)
                 {
-                    re = hasByLawProperties && byLawProperties.parkingCount >= byLaw.parking.min;
+                    re = re && hasByLawProperties && byLawProperties.parkingCount >= byLaw.parking.min;
                 }
                 if (byLaw.parking.max >= 0)
                 {
-                    re = hasByLawProperties && byLawProperties.parkingCount <= byLaw.parking.max;
+                    re = re && hasByLawProperties && byLawProperties.parkingCount <= byLaw.parking.max;
                 }
                 if (!re) return re;
 
