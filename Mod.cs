@@ -79,8 +79,6 @@ public class Mod : IMod
 
         installed = false;
         ApplyPatches();
-        GameManager.instance.onGameLoadingComplete += onGameLoadingComplete;
-        GameManager.instance.onGamePreload += Instance_onGamePreload;        
 
         World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<ZoneCheckSystem>().Enabled = false;
         updateSystem.UpdateAfter<ByLawZoneSpawnSystem, ZoneSpawnSystem>(SystemUpdatePhase.GameSimulation);
@@ -90,20 +88,27 @@ public class Mod : IMod
         updateSystem.UpdateAt<ConfigPanelUISystem>(SystemUpdatePhase.UIUpdate);
         updateSystem.UpdateAt<ResetGameToolbarUISystem>(SystemUpdatePhase.Modification1);
         updateSystem.UpdateAt<ByLawRenderToolSystem>(SystemUpdatePhase.ToolUpdate);
-        updateSystem.UpdateAfter<ByLawRenderOverlaySystem, AreaRenderSystem>(SystemUpdatePhase.Rendering);        
+        updateSystem.UpdateAfter<ByLawRenderOverlaySystem, AreaRenderSystem>(SystemUpdatePhase.Rendering);
 
         var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
         var prefabs = Traverse.Create(prefabSystem).Field<List<PrefabBase>>("m_Prefabs").Value;
         var basePrefab = prefabs.FirstOrDefault(p => p.name == "NA Residential Medium");
-        Utils.InitData(basePrefab as ZonePrefab, prefabSystem);
+        var baseCategoryPrefab = prefabs.FirstOrDefault(p => p.name.StartsWith("Zones") && p is UIAssetCategoryPrefab) as UIAssetCategoryPrefab;        
 
+        if (!Utils.InitData(basePrefab as ZonePrefab, baseCategoryPrefab, prefabSystem))
+        {
+            Mod.log.Error("Unable to initialize Zoning ByLaw Mod!");            
+        } else
+        {            
+            Utils.LoadByLaws();
+            installed = true;
+        }
         //m_Setting = new Setting(this);
         //m_Setting.RegisterInOptionsUI();
         //GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(m_Setting));
 
         //AssetDatabase.global.LoadSettings(nameof(ZoningByLaw), m_Setting, new Setting(this));
-        Utils.LoadByLaws();
-        installed = true;
+        
     }
 
     [HarmonyLib.HarmonyPatch(typeof(BuildingInitializeSystem), "OnUpdate")]
@@ -126,17 +131,6 @@ public class Mod : IMod
         {
             log.Info($"Patched method: {patchedMethod.Module.Name}:{patchedMethod.Name}");
         }
-    }
-
-    private void Instance_onGamePreload(Colossal.Serialization.Entities.Purpose purpose, GameMode mode)
-    {
-        if (mode == GameMode.Game && !installed)
-        {                        
-        }        
-    }
-
-    private void onGameLoadingComplete(Colossal.Serialization.Entities.Purpose purpose, GameMode mode)
-    {
     }
 
     public void OnDispose()

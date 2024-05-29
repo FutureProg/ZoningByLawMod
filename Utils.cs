@@ -11,6 +11,7 @@ using HarmonyLib;
 using System.Linq;
 using UnityEngine;
 using Trejak.ZoningByLaw.Serialization;
+using Game.UI.InGame;
 
 namespace Trejak.ZoningByLaw
 {
@@ -19,6 +20,7 @@ namespace Trejak.ZoningByLaw
 
         private static PrefabBase _basePrefab;
         private static PrefabSystem _prefabSystem;
+        private static UIAssetCategoryPrefab _assetCategory;
         private static bool _initialized;
 
         public static string ContentFolder { get; }
@@ -112,11 +114,47 @@ namespace Trejak.ZoningByLaw
             return true;
         }
 
-        public static void InitData(ZonePrefab basePrefab, PrefabSystem prefabSystem)
+        public static bool InitData(ZonePrefab basePrefab, UIAssetCategoryPrefab baseCategoryPrefab, PrefabSystem prefabSystem)
         {
             _basePrefab = basePrefab;
             _prefabSystem = prefabSystem;
-            _initialized = true;
+            _assetCategory = CreateAssetCategory(baseCategoryPrefab);
+            Mod.log.Info("Asset Category Name: " + _assetCategory.name);
+            _initialized = _assetCategory != null && _basePrefab != null && _prefabSystem != null;
+            return _initialized;
+        }
+
+        public static UIAssetCategoryPrefab CreateAssetCategory(UIAssetCategoryPrefab baseCategoryPrefab)
+        {
+            Mod.log.Info($"Copying UI Asset Category {baseCategoryPrefab.name}");
+            ComponentBase[] baseComponents = new ComponentBase[baseCategoryPrefab.components.Count];
+            baseCategoryPrefab.components.CopyTo(baseComponents);
+
+            UIAssetCategoryPrefab assetCategory = new UIAssetCategoryPrefab();
+            assetCategory.m_Menu = baseCategoryPrefab.m_Menu;
+            assetCategory.active = true;
+            assetCategory.isDirty = true;
+            assetCategory.name = "ByLawZones";
+            assetCategory.components.AddRange(baseComponents);
+            var baseUIObj = baseCategoryPrefab.GetComponent<UIObject>();
+            assetCategory.Remove<UIObject>();
+            var newUIObj = ScriptableObject.CreateInstance<UIObject>();
+            newUIObj.m_Priority = 60; // after extractor zones (should be end of the list)
+            newUIObj.name = "ByLawZones";
+            newUIObj.m_Icon = null;
+            newUIObj.m_Group = baseUIObj.m_Group;
+            newUIObj.active = true;
+            assetCategory.AddComponentFrom(newUIObj);
+            if (!_prefabSystem.AddPrefab(assetCategory))
+            {
+                Mod.log.Error($"Failed to add By Law Zones UI Category!");
+                return null;
+            }
+            else
+            {
+                Mod.log.Info($"Added ByLawZones UI Category with Menu {assetCategory.name}");
+                return assetCategory;
+            }
         }
 
         public static ByLawZonePrefab CreateByLawPrefabFromData(ByLawZoneData data, int byLawNumber, string idName = null, string bylawName = null)
@@ -171,8 +209,9 @@ namespace Trejak.ZoningByLaw
             newUIObj.m_Icon = null;
             newUIObj.name = uiObj.name.Replace("NA Residential Medium", idName);
             newUIObj.m_Priority = uiObj.m_Priority;
-            newUIObj.m_Group = uiObj.m_Group;
-            newUIObj.active = uiObj.active;
+            newUIObj.m_Group = _assetCategory;
+            //newUIObj.m_Group = uiObj.m_Group;
+            newUIObj.active = uiObj.active;            
             prefab.AddComponentFrom(newUIObj);
             SetPrefabText(prefab, data);
             return prefab;
