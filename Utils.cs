@@ -134,7 +134,7 @@ namespace Trejak.ZoningByLaw
             assetCategory.m_Menu = baseCategoryPrefab.m_Menu;
             assetCategory.active = true;
             assetCategory.isDirty = true;
-            assetCategory.name = "ByLawZones";
+            assetCategory.name = "ByLawZones";            
             assetCategory.components.AddRange(baseComponents);
             var baseUIObj = baseCategoryPrefab.GetComponent<UIObject>();
             assetCategory.Remove<UIObject>();
@@ -152,6 +152,8 @@ namespace Trejak.ZoningByLaw
             }
             else
             {
+                Utils.AddLocaleText($"SubServices.NAME[{assetCategory.name}]", "Zoning ByLaws");
+                Utils.AddLocaleText($"Assets.SUB_SERVICE_DESCRIPTION[{assetCategory.name}]", "Custom contraint zones created by you, the player.");
                 Mod.log.Info($"Added ByLawZones UI Category with Menu {assetCategory.name}");
                 return assetCategory;
             }

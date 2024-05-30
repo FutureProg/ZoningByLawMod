@@ -18,6 +18,10 @@ using Colossal.Mathematics;
 using Trejak.ZoningByLaw.Systems;
 using Game.Rendering;
 using System.Reflection;
+using System.IO;
+using Colossal.PSI.Environment;
+using Colossal.IO.AssetDatabase.Internal;
+using System.Text;
 
 namespace Trejak.ZoningByLaw;
 
@@ -103,12 +107,13 @@ public class Mod : IMod
             Utils.LoadByLaws();
             installed = true;
         }
+
         //m_Setting = new Setting(this);
         //m_Setting.RegisterInOptionsUI();
         //GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(m_Setting));
 
         //AssetDatabase.global.LoadSettings(nameof(ZoningByLaw), m_Setting, new Setting(this));
-        
+
     }
 
     [HarmonyLib.HarmonyPatch(typeof(BuildingInitializeSystem), "OnUpdate")]
