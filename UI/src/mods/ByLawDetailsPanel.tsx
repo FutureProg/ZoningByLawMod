@@ -187,9 +187,9 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
                             <th>Name</th>
                             <td><input type="text" value={newByLawName} onChange={onNameChange}/></td>
                         </tr>
-                        <tr>
+                        {/* <tr>
                             <Button onClick={toggleByLawRenderPreview}>Preview</Button>
-                        </tr>
+                        </tr> */}
                         <tr>
                             <th>Zone Colour</th>
                             <td>

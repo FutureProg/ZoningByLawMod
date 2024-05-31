@@ -34,6 +34,12 @@
 		<Reference Include="Colossal.Core">
 			<Private>false</Private>
 		</Reference>
+    <Reference Include="Colossal.AssetPipeline">
+			<Private>false</Private>
+		</Reference>
+    <Reference Include="Colossal.Mono.Cecil">
+			<Private>false</Private>
+		</Reference>
     <Reference Include="Colossal.PSI.Common">
       <Private>false</Private>
     </Reference>
@@ -99,9 +105,14 @@
 	<ItemGroup>
 	  <Folder Include="Tools\" />
 	</ItemGroup>
-	
+
+  <ItemGroup>
+    <_Images Include="$(ProjectDir)/Images/*.svg"/>
+  </ItemGroup>
+	  
 	<Target Name="BuildUI" AfterTargets="AfterBuild">
-			<Exec Command="npm run build" WorkingDirectory="$(ProjectDir)/UI" />
+			<Copy SourceFiles="@(_Images)" DestinationFolder="$(DeployDir)/Images/" />
+			<Exec Command="npm run build" WorkingDirectory="$(ProjectDir)/UI" />			
 	</Target>
 
 </Project>

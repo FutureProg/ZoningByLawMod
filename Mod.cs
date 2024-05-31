@@ -22,6 +22,7 @@ using System.IO;
 using Colossal.PSI.Environment;
 using Colossal.IO.AssetDatabase.Internal;
 using System.Text;
+using Colossal.UI;
 
 namespace Trejak.ZoningByLaw;
 
@@ -31,7 +32,7 @@ public class Mod : IMod
     private Setting m_Setting;
 
     bool installed;
-    private Harmony _Harmony;
+    private Harmony _Harmony;    
 
     //private PrefabSystem _prefabSystem;
 
@@ -43,6 +44,9 @@ public class Mod : IMod
             log.Info($"Current mod asset at {asset.path}");
 
         installed = false;
+
+        var path = Path.GetDirectoryName(asset.GetMeta().path);
+        UIManager.defaultUISystem.AddHostLocation("trejak_zbl", Path.Combine(path, "Images/"));
         ApplyPatches();
 
         World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<ZoneCheckSystem>().Enabled = false;
