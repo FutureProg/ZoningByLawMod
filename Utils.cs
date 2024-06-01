@@ -119,7 +119,13 @@ namespace Trejak.ZoningByLaw
             _basePrefab = basePrefab;
             _prefabSystem = prefabSystem;
             _assetCategory = CreateAssetCategory(baseCategoryPrefab);
-            Mod.log.Info("Asset Category Name: " + _assetCategory.name);
+            //if (_assetCategory != null)
+            //{
+            //    Mod.log.Info("Asset Category Name: " + _assetCategory.name);
+            //    ByLawConfigButtonPrefab prefab = ByLawConfigButtonPrefab.Create(_assetCategory, _prefabSystem);
+            //    _prefabSystem.AddPrefab(prefab);
+            //}            
+            
             _initialized = _assetCategory != null && _basePrefab != null && _prefabSystem != null;
             return _initialized;
         }
@@ -207,12 +213,12 @@ namespace Trejak.ZoningByLaw
 
             var uiObj = _basePrefab.GetComponent<UIObject>();
             prefab.Remove<UIObject>();
-            var newUIObj = ScriptableObject.CreateInstance<UIObject>();
-            newUIObj.m_Icon = null;
+            var newUIObj = ScriptableObject.CreateInstance<UIObject>();            
             newUIObj.name = uiObj.name.Replace("NA Residential Medium", idName);
             newUIObj.m_Priority = uiObj.m_Priority;
             newUIObj.m_Group = _assetCategory;
             newUIObj.m_Icon = "coui://trejak_zbl/config-icon.svg";
+            newUIObj.m_LargeIcon = "coui://trejak_zbl/config-icon.svg";
             //newUIObj.m_Group = uiObj.m_Group;
             newUIObj.active = uiObj.active;            
             prefab.AddComponentFrom(newUIObj);

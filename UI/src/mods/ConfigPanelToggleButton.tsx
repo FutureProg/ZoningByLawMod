@@ -16,7 +16,10 @@ export const ConfigPanelToggleButton : ModuleRegistryExtend = (Component) => {
         return (
         <>            
             <VanillaComponentResolver.instance.Section>
-                <Button className={styles.button + ' ' + VanillaComponentResolver.instance.toolButtonTheme.button} variant="flat" onClick={onClick} >Zoning ByLaw Editor</Button>            
+                <Button className={styles.button + ' ' + VanillaComponentResolver.instance.toolButtonTheme.button} variant="flat" onClick={onClick}>
+                    <img src="coui://trejak_zbl/config-icon.svg" />
+                    Zoning ByLaw Editor
+                </Button>            
             </VanillaComponentResolver.instance.Section>
             <Component {...otherProps}>                            
                 {children}

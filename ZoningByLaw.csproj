@@ -102,12 +102,8 @@
 	  <PackageReference Include="Lib.Harmony" Version="2.2.2" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Tools\" />
-	</ItemGroup>
-
   <ItemGroup>
-    <_Images Include="$(ProjectDir)/Images/*.svg"/>
+    <_Images Include="$(ProjectDir)/Images/*.svg" />
   </ItemGroup>
 	  
 	<Target Name="BuildUI" AfterTargets="AfterBuild">

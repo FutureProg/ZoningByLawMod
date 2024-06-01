@@ -112,7 +112,7 @@ namespace Trejak.ZoningByLaw.UI
             this.AddBinding(_toggleByLawRenderPreview = new TriggerBinding(uiGroupName, "ToggleByLawRenderPreview", ToggleByLawRenderPreview));
 
             eqb.Dispose();
-        }
+        }        
 
         void ToggleByLawRenderPreview()
         {
@@ -139,7 +139,7 @@ namespace Trejak.ZoningByLaw.UI
             SaveByLawsToDisk();
         }
 
-        void SetConfigPanelOpen(bool newValue)
+        public void SetConfigPanelOpen(bool newValue)
         {
             if (newValue)
             {

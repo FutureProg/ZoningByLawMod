@@ -6,6 +6,7 @@
 }
 
 .button {
+    position: relative;
     width: auto;
     border-radius: 4rem;    
     margin-bottom: 2rem;
@@ -19,4 +20,8 @@
     border-image-width: 1.000000 1.000000 1.000000 1.000000;
     border-image-outset: 0.000000 0.000000 0.000000 0.000000;
     border-image-repeat: stretch stretch;
+}
+
+.button img {    
+    width: 36rem;
 }
