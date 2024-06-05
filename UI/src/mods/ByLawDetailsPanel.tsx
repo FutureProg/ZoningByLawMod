@@ -9,66 +9,7 @@ import { Dropdown } from "cs2/ui";
 import { FOCUS_AUTO, InputContext } from "cs2/input";
 import { ColorHSV, VanillaComponentResolver } from "vanillacomponentresolver";
 import { rgbaToHex } from "./utils";
-
-const Bounds1Field = (props : {bounds?: Bounds1, name: string, onChange?: (name: string, newValue: Bounds1) => void}) => {
-    let [localBounds, setLocalBounds] = useState({min: String(props.bounds?.min), max: String(props.bounds?.max)});
-    let minRef = useRef<HTMLInputElement>(null);
-    let maxRef = useRef<HTMLInputElement>(null);
-    useEffect(() => {
-        setLocalBounds({min: String(props.bounds?.min), max: String(props.bounds?.max)});
-    }, [props.bounds, minRef, maxRef]);    
-
-    let onInputChange = (e: any) => {
-        let minS = minRef.current?.value;        
-        let maxS = maxRef.current?.value;
-        setLocalBounds({min: String(minS), max: String(maxS)});
-        
-        let max = Number(maxS);
-        let min = Number(minS);
-        if (isNaN(min) || isNaN(max)) {
-            return;
-        }
-        let nBounds = {min, max};
-        if (nBounds.min > nBounds.max && nBounds.max > -1) {
-            return;
-        }
-        if (props.onChange) {
-            props.onChange(props.name, nBounds);
-        }
-    }
-
-    const onClickUnset = (sender: 'min' | 'max') => () => {
-        var nBoundsText = localBounds;
-        nBoundsText[sender] = "-1";
-        setLocalBounds(nBoundsText);
-        if (isNaN(Number(nBoundsText.min)) || isNaN(Number(nBoundsText.max))) {
-            return;
-        }
-        let nBounds = {min: Number(nBoundsText.min), max: Number(nBoundsText.max)};
-        if (props.onChange) {
-            props.onChange(props.name, nBounds);
-        }
-    }
-
-    return (
-        <div className={styles.bounds1Field}>        
-            <div>
-                <div style={{display: "flex", justifyContent: "space-between"}}>
-                    <label>Min</label>
-                    <Button onClick={onClickUnset("min")}>Unset</Button>
-                </div>                
-                <input type="number" ref={minRef} value={localBounds?.min} onChange={onInputChange} />
-            </div>
-            <div>
-                <div style={{display: "flex", justifyContent: "space-between"}}>
-                    <label>Max</label>
-                    <Button onClick={onClickUnset("max")}>Unset</Button>
-                </div>                
-                <input type="number" ref={maxRef} value={localBounds?.max} onChange={onInputChange} />
-            </div>        
-        </div>
-    )
-}
+import { Bounds1Field } from "./components/Bounds1Field";
 
 const EnumField = <T,>(props: {enum : ByLawZoneType, onChange?: (enumValue: T) => any}) => {            
     type x = keyof T;

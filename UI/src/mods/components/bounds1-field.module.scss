@@ -1,0 +1,20 @@
+.bounds1Field {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 70%;
+}
+.bounds1Field > div {
+    margin-right: 16rem;
+}
+.bounds1Field input {
+    width: 60rem;    
+    border-radius: 0;
+}
+.bounds1Field .unsetButton {
+    background-color: black;
+    color: white;
+    border: none;
+    padding: 2rem 4rem;
+}

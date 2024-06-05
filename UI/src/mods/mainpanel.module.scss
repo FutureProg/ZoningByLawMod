@@ -78,20 +78,6 @@
     position: relative;
 } 
 
-.bounds1Field {
-    position: relative;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    width: 70%;
-}
-.bounds1Field > div {
-    margin-right: 16rem;
-}
-.bounds1Field input {
-    width: 100rem;    
-}
-
 .enumField {
     position: relative;
     display: flex;

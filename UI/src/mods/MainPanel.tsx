@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { ByLawDetailsPanel } from "./ByLawDetailsPanel";
 import { Entity, toolbar } from "cs2/bindings";
 import { GetDefaultByLawComponent } from "./utils";
+import { VanillaComponentResolver } from "vanillacomponentresolver";
 
 export const MainPanel = () => {
     // This is a void component that does not output anynthing.
@@ -65,6 +66,8 @@ export const MainPanel = () => {
         toolbar.selectAsset({index: 0, version: 0});
     }
 
+    let [x, setX] = useState<string | undefined | null>("");
+
     return !isPanelOpen? <></> : (
         <Panel className={styles.mainPanel} draggable={true} header={"Zoning ByLaws"} onClose={onClose} contentClassName={styles.mainPanelContentContainer}>            
             <div className={styles.mainPanelContent}>
@@ -79,7 +82,7 @@ export const MainPanel = () => {
                 </div>
                 <div className={styles.mainPanelBottomBar}>
                 </div>
-            </div>                            
+            </div>                                        
         </Panel>
     );
 }

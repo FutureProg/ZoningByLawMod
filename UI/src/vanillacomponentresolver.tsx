@@ -11,15 +11,15 @@ import { CSSProperties, HTMLAttributes, ReactNode } from "react";
 type PropsToolButton = {
     focusKey?: UniqueFocusKey | null
     src: string
-    selected : boolean
-    multiSelect : boolean
+    selected? : boolean
+    multiSelect? : boolean
     disabled?: boolean
-    tooltip?: string | null
+    tooltip?: string | JSX.Element | null
     selectSound?: any
     uiTag?: string
     className?: string
     children?: string | JSX.Element | JSX.Element[]
-    onSelect?: (x: any) => any,
+    onSelect?: (x: any) => any
 } & HTMLAttributes<any>
 
 type PropsSection = {
@@ -142,6 +142,30 @@ type ColorPicker = {
     onChange?: (color: ColorHSV) => void;
 }
 
+type DataInput = { //idk what this should be named
+    value: any;
+    valueFormatter: () => string;
+    inputValidator: (text: string) => boolean;
+    inputTransformer?: (text: string) => string;
+    inputParser: (text: string, t: number, n: number) => any;
+    onChange?: (text: string) => void;
+    onFocus?: (e: any) => void;
+    onBlur?: (e: any) => void;
+}
+
+type IntInput = {
+    min?: number;
+    max?: number;
+} & Partial<DataInput>;
+
+type BoundIntInputField = IntInput;
+
+type TextInputTheme = {
+    input: string;
+    label: string;
+    container: string;
+}
+
 // This is an array of the different components and sass themes that are appropriate for your UI. You need to figure out which ones you need from the registry.
 const registryIndex = {
     Section: ["game-ui/game/components/tool-options/mouse-tool-options/mouse-tool-options.tsx", "Section"],
@@ -158,7 +182,15 @@ const registryIndex = {
     RadialHuePicker: ["game-ui/common/input/color-picker/radial-hue-picker/radial-hue-picker.tsx", "RadialHuePicker"],
     ColorPickerPreview: ["game-ui/common/input/color-picker/color-picker/color-picker.tsx", "ColorPickerPreview"],
     ColorPickerSliderMode: ["game-ui/common/input/color-picker/color-picker/color-picker.tsx", "ColorPickerSliderMode"],
-    ColorPicker: ["game-ui/common/input/color-picker/color-picker/color-picker.tsx", "ColorPicker"]
+    ColorPicker: ["game-ui/common/input/color-picker/color-picker/color-picker.tsx", "ColorPicker"],
+    IntInput: ["game-ui/common/input/text/int-input.tsx", "IntInput"],
+    BoundIntInputField: ["game-ui/game/widgets/field/int-input-field.tsx", "BoundIntInputField"],
+    textInputTheme: ["game-ui/game/components/selected-info-panel/shared-components/text-input/text-input.module.scss", "classes"],
+    mouseToolOptionsTheme: ["game-ui/game/components/tool-options/mouse-tool-options/mouse-tool-options.module.scss", "classes"],
+
+    FOCUS_DISABLED: ["game-ui/common/focus/focus-key.ts", "FOCUS_DISABLED"],
+    FOCUS_AUTO: ["game-ui/common/focus/focus-key.ts", "FOCUS_AUTO"],
+    useUniqueFocusKey: ["game-ui/common/focus/focus-key.ts", "useUniqueFocusKey"],
 }
 
 export class VanillaComponentResolver {
@@ -190,6 +222,8 @@ export class VanillaComponentResolver {
     public get HexColorInput() : (props: HexColorInput) => JSX.Element { return this.cachedData["HexColorInput"] ?? this.updateCache("HexColorInput") };
     public get Bounds1InputField() : (props: Bounds1InputField) => JSX.Element { return this.cachedData["Bounds1InputField"] ?? this.updateCache("Bounds1InputField") };
     public get RadialHuePicker() : (props: RadialHuePicker) => JSX.Element { return this.cachedData["RadialHuePicker"] ?? this.updateCache("RadialHuePicker") };
+    public get IntInput() : (props: IntInput) => JSX.Element { return this.cachedData["IntInput"] ?? this.updateCache("IntInput") };
+    public get BoundIntInputField() : (props: BoundIntInputField) => JSX.Element { return this.cachedData["BoundIntInputField"] ?? this.updateCache("BoundIntInputField") };
 
     // Broken
     // public get ColorPicker() : (props: ColorPicker) => JSX.Element { return this.cachedData['ColorPicker'] ?? this.updateCache("ColorPicker")};
@@ -197,6 +231,12 @@ export class VanillaComponentResolver {
 
     public get toggleTheme(): Theme | any { return this.cachedData["toggleTheme"] ?? this.updateCache("toggleTheme") }
     public get checkboxTheme(): Theme | any { return this.cachedData["checkboxTheme"] ?? this.updateCache("checkboxTheme") }
+    public get mouseToolOptionsTheme(): Theme | any { return this.cachedData["mouseToolOptionsTheme"] ?? this.updateCache("mouseToolOptionsTheme") }
     public get toolButtonTheme(): Theme | any { return this.cachedData["toolButtonTheme"] ?? this.updateCache("toolButtonTheme") }
+    public get textInputTheme(): TextInputTheme | Theme | any { return this.cachedData["textInputTheme"] ?? this.updateCache("textInputTheme") }
+
+    public get FOCUS_DISABLED(): UniqueFocusKey { return this.cachedData["FOCUS_DISABLED"] ?? this.updateCache("FOCUS_DISABLED") }
+    public get FOCUS_AUTO(): UniqueFocusKey { return this.cachedData["FOCUS_AUTO"] ?? this.updateCache("FOCUS_AUTO") }
+    public get useUniqueFocusKey(): (focusKey: FocusKey, debugName: string) => UniqueFocusKey | null { return this.cachedData["useUniqueFocusKey"] ?? this.updateCache("useUniqueFocusKey") }
 
 } 
