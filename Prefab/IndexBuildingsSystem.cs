@@ -13,6 +13,7 @@ using Unity.Burst.Intrinsics;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 
 namespace Trejak.ZoningByLaw.Prefab
 {
@@ -116,7 +117,7 @@ namespace Trejak.ZoningByLaw.Prefab
 
                 for (int i = 0; i < buildingEntities.Length; i++)
                 {
-                    Entity buildingEntity = buildingEntities[i];
+                    Entity buildingEntity = buildingEntities[i];                    
                     if (!subObjectLookup.TryGetBuffer(buildingEntity, out var buildingSubObjects))
                     {
                         continue;
@@ -127,6 +128,7 @@ namespace Trejak.ZoningByLaw.Prefab
                         _properties.Add(new BuildingByLawProperties() { initialized = false });
                     }
                     int parkingCount = 0;
+                    bool hasParkingGarage = false;
                     for (int j = 0; j < buildingSubObjects.Length; j++)
                     {
                         SubObject subObj = buildingSubObjects[j];
@@ -136,14 +138,15 @@ namespace Trejak.ZoningByLaw.Prefab
                         }
                         else
                         {
-                            parkingCount += AssessSubObject(subObj, subLaneBufferLookup, parkingLaneDataLookup);
+                            parkingCount += AssessSubObject(subObj, subLaneBufferLookup, parkingLaneDataLookup, out hasParkingGarage);
                         }
                     }
                     processedEnts++;
                     _properties[prefabData.m_Index] = new BuildingByLawProperties()
                     {
                         initialized = true,
-                        parkingCount = parkingCount
+                        parkingCount = parkingCount,
+                        hasParkingGarage = hasParkingGarage
                     };
                 }
             }
@@ -175,9 +178,10 @@ namespace Trejak.ZoningByLaw.Prefab
             return new BuildingByLawPropertiesLookup(this._properties.AsArray());
         }
 
-        public int AssessSubObject(SubObject subObj, BufferLookup<SubLane> subLaneBufferLookup, ComponentLookup<ParkingLaneData> parkingLaneDataLookup)
+        public int AssessSubObject(SubObject subObj, BufferLookup<SubLane> subLaneBufferLookup, ComponentLookup<ParkingLaneData> parkingLaneDataLookup, out bool hasParkingGarage)
         {
             int re = 0;
+            hasParkingGarage = false;
             if (subLaneBufferLookup.TryGetBuffer(subObj.m_Prefab, out var subLanes))
             {
                 foreach (var lane in subLanes)
@@ -188,7 +192,89 @@ namespace Trejak.ZoningByLaw.Prefab
                     }
                 }
             }
+            if (SystemAPI.HasComponent<SpawnLocationData>(subObj.m_Prefab)) // seeing parking spawn location, seen on garages
+            {
+                var spawnLocData = SystemAPI.GetComponent<SpawnLocationData>(subObj.m_Prefab);
+                if (spawnLocData.m_ConnectionType == RouteConnectionType.Parking && spawnLocData.m_RoadTypes == Game.Net.RoadTypes.Car)
+                {
+                    re++; // garages have no capacity (that I know of)
+                    hasParkingGarage = true;
+                }
+            }
             return re;
+        }
+
+        public void AssessSubMesh(SubMesh subMesh, BuildingData buildingData, ref BuildingByLawProperties properties)
+        {            
+            if ((subMesh.m_Flags & SubMeshFlags.HasTransform) != 0 && SystemAPI.HasComponent<MeshData>(subMesh.m_SubMesh))
+            {
+                MeshData meshData = SystemAPI.GetComponent<MeshData>(subMesh.m_SubMesh);
+                if (meshData.m_DecalLayer == Game.Rendering.DecalLayers.Buildings)
+                {
+                    var originOffset = subMesh.m_Position; // relative from lot cetnre, positive Z => towards the front, positve X => towards the left
+                    var meshRotation = subMesh.m_Rotation;
+                    var rigidTransform = new RigidTransform(meshRotation, originOffset);
+                    var meshBounds = meshData.m_Bounds;
+                    var meshDimensions = new float3(
+                        math.abs(meshBounds.max.x - meshBounds.min.x),
+                        math.abs(meshBounds.max.z - meshBounds.max.z),
+                        math.abs(meshBounds.max.y) // we're just taking the height above ground
+                    );                    
+                    var dimensionsHalved = new float3(meshDimensions.x / 2f, 0, meshDimensions.z / 2f);
+                    var frontLeft = new float3(dimensionsHalved.x, dimensionsHalved.y, dimensionsHalved.z);
+                    var frontRight = new float3(-1 * dimensionsHalved.x, dimensionsHalved.y, dimensionsHalved.z);
+                    var backLeft = new float3(dimensionsHalved.x, dimensionsHalved.y, -1 * dimensionsHalved.z);
+                    var backRight = new float3(-1 * dimensionsHalved.x, dimensionsHalved.y, -1 * dimensionsHalved.z);
+                    frontLeft = math.transform(rigidTransform, frontLeft);
+                    frontRight = math.transform(rigidTransform, frontRight);
+                    backLeft = math.transform(rigidTransform, backLeft);
+                    backRight = math.transform(rigidTransform, backRight);
+
+                    const int FrontLeft = 0, FrontRight = 1, BackLeft = 2, BackRight = 3;
+                    var positions = new float3[] { frontLeft, frontRight, backLeft, backRight };
+                    float3 maxX = positions[0], maxZ = positions[0], minX = positions[0], minZ = positions[0];
+                    for(int i = 0; i < 4; i++)
+                    {
+                        var pos = positions[i];
+                        if (pos.x > maxX.x)
+                        {
+                            maxX = pos;
+                        }
+                        if (pos.x < minX.x)
+                        {
+                            minX = pos;
+                        }
+                        if (pos.z < minZ.z)
+                        {
+                            minZ = pos;
+                        }
+                        if (pos.z > maxZ.z)
+                        {
+                            maxZ = pos;
+                        }
+                    }
+                    var lotSizeMetres = new float3(buildingData.m_LotSize.x * 8f, 0, buildingData.m_LotSize.y * 8f); // just for my own sanity, putting depth on the z axis
+                    float frontSetback = math.abs((lotSizeMetres.z / 2f) - maxZ.z);                    
+                    float rearSetback = math.abs((-lotSizeMetres.z / 2f) - minZ.z);
+                    float leftSetback = math.abs((lotSizeMetres.x / 2f) - maxX.x);
+                    float rightSetback = math.abs((-lotSizeMetres.x / 2f) - minX.x);
+
+                    if (properties.checkedBuildingSetBack)
+                    {
+                        properties.buildingSetbackFront = math.min(properties.buildingSetbackFront, frontSetback);
+                        properties.buildingSetBackRear = math.min(properties.buildingSetBackRear, rearSetback);
+                        properties.buildingSetBackLeft = math.min(properties.buildingSetBackLeft, leftSetback);
+                        properties.buildingSetBackRight = math.min(properties.buildingSetBackRight, rightSetback);
+                    } else
+                    {
+                        properties.buildingSetbackFront = frontSetback;
+                        properties.buildingSetBackRear = rearSetback;
+                        properties.buildingSetBackLeft = leftSetback;
+                        properties.buildingSetBackRight = rightSetback;
+                        properties.checkedBuildingSetBack = true;
+                    }
+                }                
+            }            
         }
 
         protected override void OnDestroy()
@@ -232,5 +318,11 @@ namespace Trejak.ZoningByLaw.Prefab
     {
         public bool initialized;
         public int parkingCount;
+        public bool hasParkingGarage;
+        public bool checkedBuildingSetBack;
+        public float buildingSetbackFront;
+        public float buildingSetBackLeft;
+        public float buildingSetBackRight;
+        public float buildingSetBackRear;
     }
 }
