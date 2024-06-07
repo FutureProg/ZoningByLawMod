@@ -111,6 +111,8 @@ namespace Trejak.ZoningByLaw.Prefab
             BufferLookup<SubLane> subLaneBufferLookup = GetBufferLookup<SubLane>(true);
             ComponentLookup<ParkingLaneData> parkingLaneDataLookup = GetComponentLookup<ParkingLaneData>(true);
             ComponentLookup<PrefabData> prefabDataLookup = GetComponentLookup<PrefabData>(true);
+            BufferLookup<SubMesh> subMeshBufferLookup = GetBufferLookup<SubMesh>(true);
+            ComponentLookup<BuildingData> buildingDataLookup = GetComponentLookup<BuildingData>(true);
             foreach (ArchetypeChunk chunk in chunks)
             {
                 var buildingEntities = chunk.GetNativeArray(entityHandle);
@@ -141,13 +143,23 @@ namespace Trejak.ZoningByLaw.Prefab
                             parkingCount += AssessSubObject(subObj, subLaneBufferLookup, parkingLaneDataLookup, out hasParkingGarage);
                         }
                     }
-                    processedEnts++;
-                    _properties[prefabData.m_Index] = new BuildingByLawProperties()
+                    var props = new BuildingByLawProperties()
                     {
                         initialized = true,
                         parkingCount = parkingCount,
                         hasParkingGarage = hasParkingGarage
                     };
+
+                    if (subMeshBufferLookup.TryGetBuffer(buildingEntity, out var buildingSubMeshes))
+                    {
+                        foreach(SubMesh subMesh in buildingSubMeshes)
+                        {
+                            AssessSubMesh(subMesh, buildingDataLookup[buildingEntity], ref props);
+                        }
+                    }
+
+                    processedEnts++;
+                    _properties[prefabData.m_Index] = props;
                 }
             }
             if (processedEnts > 0)
