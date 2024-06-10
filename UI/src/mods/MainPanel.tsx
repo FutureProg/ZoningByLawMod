@@ -8,6 +8,7 @@ import { ByLawDetailsPanel } from "./ByLawDetailsPanel";
 import { Entity, toolbar } from "cs2/bindings";
 import { GetDefaultByLawComponent } from "./utils";
 import { VanillaComponentResolver } from "vanillacomponentresolver";
+import ImageLabelButton from "./atoms/ImageLabelButton";
 
 export const MainPanel = () => {
     // This is a void component that does not output anynthing.
@@ -72,7 +73,11 @@ export const MainPanel = () => {
         <Panel className={styles.mainPanel} draggable={false} header={"Zoning ByLaws"} onClose={onClose} contentClassName={styles.mainPanelContentContainer}>            
             <div className={styles.mainPanelContent}>
                 <div className={styles.mainPanelTopBar}>
-                    <Button onClick={onCreateNewByLaw} variant="default">Add New ByLaw</Button>
+                    <ImageLabelButton 
+                        src="coui://uil/Standard/Plus.svg"
+                        onClick={onCreateNewByLaw}>                                                
+                        Add New ByLaw
+                    </ImageLabelButton>
                 </div>
                 <div className={styles.mainPanelSections}>
                     <Scrollable className={styles.bylawList}>
