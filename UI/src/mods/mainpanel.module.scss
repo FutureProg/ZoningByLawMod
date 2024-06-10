@@ -1,6 +1,9 @@
-.mainPanel {
-    width: 50%;    
-    height: 50%;
+.mainPanel {        
+    height: 70%;
+    position: absolute;    
+    left: 10%;
+    right: 10%;
+    top: 10%;
 }
 .mainPanelContentContainer {
     overflow: hidden;

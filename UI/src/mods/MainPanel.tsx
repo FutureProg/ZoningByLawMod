@@ -69,7 +69,7 @@ export const MainPanel = () => {
     let [x, setX] = useState<string | undefined | null>("");
 
     return !isPanelOpen? <></> : (
-        <Panel className={styles.mainPanel} draggable={true} header={"Zoning ByLaws"} onClose={onClose} contentClassName={styles.mainPanelContentContainer}>            
+        <Panel className={styles.mainPanel} draggable={false} header={"Zoning ByLaws"} onClose={onClose} contentClassName={styles.mainPanelContentContainer}>            
             <div className={styles.mainPanelContent}>
                 <div className={styles.mainPanelTopBar}>
                     <Button onClick={onCreateNewByLaw} variant="default">Add New ByLaw</Button>
