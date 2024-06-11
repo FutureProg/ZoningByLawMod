@@ -23,3 +23,25 @@ export enum ByLawZoneType {
     Industrial = 4,
     Office = 8
 }
+
+export enum ByLawPropertyOperator {
+    None = 0,
+    Is = 1,
+    IsNot = 2
+}
+
+export enum ByLawItemType {
+    None = 0,
+    Uses,
+    Height,
+    LotWidth,
+    LotSize,
+    Parking,
+    FrontSetback,
+    LeftSetback,
+    RightSetback,
+    RearSetback,
+    AirPollutionLevel,
+    GroundPollutionLevel,
+    NoisePollutionLevel
+}

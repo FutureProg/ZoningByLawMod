@@ -73,34 +73,6 @@
     background-color: rgba($color: #2079ec, $alpha: 0.8);
 }
 
-.bylawDetails {
-    background-color: rgba($color: #000000, $alpha: 0.2);
-    height: 100%; 
-    width: 65%;   
-    margin-left: 4rem;
-}
-.byLawDetailsTable {
-    position: relative;
-    padding: 8rem 4rem;
-}
-.byLawDetailsTable > tr {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: center;    
-    justify-content: left;
-    padding: 8rem 0;
-}
-.byLawDetailsTable > tr > th {
-    font-size: 16rem;
-    font-weight: 400;
-    width: 30%;
-    margin-right: 24rem;
-}
-.byLawDetailsTable > tr > td {
-    position: relative;
-} 
-
 .enumField {
     position: relative;
     display: flex;

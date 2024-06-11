@@ -1,5 +1,5 @@
 import { Button, DropdownItem, DropdownToggle, Scrollable } from "cs2/ui"
-import styles from './mainpanel.module.scss';
+import styles from './ByLawDetailsPanel.module.scss';
 import { ZONE_BORDER_IDX, ZONE_COLOR_IDX, defaultColor, deleteByLaw, selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor, toggleByLawRenderPreview } from "./bindings";
 import { useValue } from "cs2/api";
 import { ChangeEvent, ChangeEventHandler, useEffect, useRef, useState } from "react";
@@ -10,6 +10,7 @@ import { FOCUS_AUTO, InputContext } from "cs2/input";
 import { ColorHSV, VanillaComponentResolver } from "vanillacomponentresolver";
 import { rgbaToHex } from "./utils";
 import { Bounds1Field } from "./components/Bounds1Field";
+import ByLawPropertyView from "./components/Details/ByLawPropertyView";
 
 const EnumField = <T,>(props: {enum : ByLawZoneType, onChange?: (enumValue: T) => any}) => {            
     type x = keyof T;
@@ -145,7 +146,7 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
                                 <input type="text" readOnly={true} value={rgbaToHex(newByLawBorder)} />
                             </td>                        
                         </tr> */}
-                        <tr>
+                        {/* <tr>
                             <th>Permitted Uses</th>
                             <td><EnumField<ByLawZoneType> enum={newByLawData != undefined? newByLawData!.zoneType : byLawData? byLawData.zoneType : 0} onChange={onUpdateZoneType} /> </td>
                         </tr>
@@ -164,7 +165,8 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
                         <tr>
                             <th>Parking Constraints (count)</th>
                             <td><Bounds1Field bounds={newByLawData?.parking} name='parking' onChange={onUpdateBounds} /></td>
-                        </tr>
+                        </tr> */}
+                        <ByLawPropertyView />
                     </div>                               
                 </div>            
             </Scrollable>
