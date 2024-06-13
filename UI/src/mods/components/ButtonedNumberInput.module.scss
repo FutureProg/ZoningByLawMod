@@ -1,0 +1,18 @@
+.container {
+    display: flex;
+    
+    input {
+        border-radius: 0;
+        background-color:  rgba(15, 16, 19, 0.5);//var(--panelColorDark) ;
+        backdrop-filter:  var(--panelBlur);
+        color:  var(--textColorDim); //rgba(217, 217, 217, 1);        //var(--textColorHighlight);
+        &:focus, &:hover {
+            background-color: rgba(28, 37, 52, 0.72);
+            border-top-color: rgba(255, 255, 255, 0.5);
+            border-left-color: rgba(255, 255, 255, 0.5);
+            border-right-color: rgba(255, 255, 255, 0.5);
+            border-bottom-color: rgba(255, 255, 255, 0.5);
+        }
+    }
+    
+}

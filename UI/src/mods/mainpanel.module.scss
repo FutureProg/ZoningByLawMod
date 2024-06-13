@@ -49,7 +49,7 @@
 
 .mainPanelSections {
     display: flex;    
-    flex-direction: row;
+    flex-direction: row;    
     width: 100%;    
     height: 80%;
     margin: 4rem 0;
@@ -58,7 +58,8 @@
 .bylawList {
     background-color: rgba($color: #000000, $alpha: 0.2);
     height: 100%;    
-    width: 35%;
+    width: 25%;
+    margin-right: 5%;
 }
 .bylawListItem {
     padding: 8rem 4rem;

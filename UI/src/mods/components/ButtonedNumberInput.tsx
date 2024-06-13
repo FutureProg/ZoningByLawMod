@@ -1,5 +1,7 @@
 import { ChangeEvent, ForwardedRef, MutableRefObject, RefObject, createRef, forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { VanillaComponentResolver } from "vanillacomponentresolver"
+import styles from './ButtonedNumberInput.module.scss';
+
 const couiStandard =                         "coui://uil/Standard/";
 const arrowDownSrc =         couiStandard +  "ArrowDownThickStroke.svg";
 const arrowUpSrc =           couiStandard +  "ArrowUpThickStroke.svg";
@@ -65,18 +67,21 @@ export const ButtonedNumberInput = forwardRef(({onChange, defaultValue, limit, s
     let changeValueByButton = (multiplier: number) => useCallback(() => {
         console.log(multiplier);
         let nValue = value + (multiplier * _step);
+        if (nValue % _step !== 0) {
+            nValue += (nValue % _step) * multiplier;           
+        }        
         if (limit?.max && limit.max < nValue) {
-            return;
+            nValue = limit.max;
         }        
         if (limit?.min && limit.min > nValue) {
-            return;
+            nValue = limit.min;
         }
         setValue(nValue);
         onChange?.apply(null, [nValue]);
     }, [_step, onChange, limit, value]);
 
     return (
-        <>
+        <div className={styles.container}>
             <VanillaComponentResolver.instance.ToolButton
                 className={VanillaComponentResolver.instance.mouseToolOptionsTheme.startButton}       
                 src={arrowDownSrc}
@@ -90,6 +95,6 @@ export const ButtonedNumberInput = forwardRef(({onChange, defaultValue, limit, s
                 onSelect={changeValueByButton(1)}
                 focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}
             ></VanillaComponentResolver.instance.ToolButton>
-        </>
+        </div>
     )
 });

@@ -2,9 +2,11 @@
     display: flex;
     flex-direction: column;    
     padding: 8rem 8rem;
-    border-radius: 0 8rem 8rem 0;
+    // border-radius: 0 8rem 8rem 0;
 
-    background-color: rgba(17, 17, 17, 0.8);
+    // background-color: rgba(17, 17, 17, 0.4);
+    border: 0 solid rgba(255, 255, 255, 0.5);
+    border-width: 0 0 1rem 0;
     color: white;    
     font-size: 16rem; 
     
@@ -51,10 +53,11 @@
 .editSection {
     margin-top: 8rem;
     border-top: 1rem solid rgba($color: #ffffff, $alpha: 0.75);
-    
+    // background-color: rgba($color: #ffffff, $alpha: 0.5);
     overflow: hidden;
 }
 .editSection.hidden {
     height: 0;
+    margin-top: 0;
     border: none;    
 }

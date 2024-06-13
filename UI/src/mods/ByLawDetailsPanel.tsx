@@ -129,9 +129,9 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
                             <th>Name</th>
                             <td><input type="text" value={newByLawName} onChange={onNameChange}/></td>
                         </tr>
-                        <tr>
+                        {/* <tr>
                             <Button onClick={toggleByLawRenderPreview}>Preview (very much WIP)</Button>
-                        </tr>
+                        </tr> */}
                         <tr>
                             <th>Zone Colour</th>
                             <td>
@@ -166,14 +166,16 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
                             <th>Parking Constraints (count)</th>
                             <td><Bounds1Field bounds={newByLawData?.parking} name='parking' onChange={onUpdateBounds} /></td>
                         </tr> */}
+                        <h2>Properties</h2>
+                        <ByLawPropertyView />
                         <ByLawPropertyView />
                     </div>                               
                 </div>            
             </Scrollable>
-            <div style={{display: props.selectedRowIndex == -1? 'none': 'block', marginTop: '8rem'}}>
+            {/* <div style={{display: props.selectedRowIndex == -1? 'none': 'block', marginTop: '8rem'}}>
                 <Button onClick={onSave} variant="flat" style={{marginBottom: '16rem'}}>Save</Button>                
                 <Button onClick={onDelete} variant="flat" style={{backgroundColor: 'red'}}>Delete</Button>
-            </div>            
+            </div>             */}
         </div>
     )
 }

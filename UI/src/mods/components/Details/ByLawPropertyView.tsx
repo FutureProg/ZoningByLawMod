@@ -1,8 +1,9 @@
 import { Button, Dropdown, DropdownItem, DropdownToggle, FOCUS_AUTO } from 'cs2/ui';
 import styles from './ByLawPropertyView.module.scss';
 import { useState } from 'react';
-import { ByLawItemType, ByLawPropertyOperator } from 'mods/types';
+import { ByLawConstraintType, ByLawItem, ByLawItemCategory, ByLawItemType, ByLawPropertyOperator } from 'mods/types';
 import { ButtonedNumberInput } from '../ButtonedNumberInput';
+import ByLawPropertyEditSection from './ByLawPropertyEditSection';
 
 export default () => {
     let [editing, setEditing] = useState(false);    
@@ -53,6 +54,14 @@ export default () => {
         </Dropdown>
     )
 
+    let testPropertyItem : ByLawItem = {
+        byLawConstraintType: ByLawConstraintType.Length,
+        byLawItemType: ByLawItemType.Height,
+        itemCategory: ByLawItemCategory.Building,
+        valueBounds1: {max: 0, min: 0},
+        valueByteFlag: 0
+    };
+
     return (
         <div className={styles.row}>      
             <div className={styles.topBar}>
@@ -69,7 +78,7 @@ export default () => {
                 </div>
             </div>
             <div className={styles.editSection + ' ' + (editing? '' : styles.hidden)}>
-                <ButtonedNumberInput />
+                <ByLawPropertyEditSection byLawItem={testPropertyItem} isOpen={editing} />
             </div>
         </div>
     )

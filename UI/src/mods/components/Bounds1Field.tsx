@@ -10,7 +10,13 @@ const couiStandard =                         "coui://uil/Standard/";
 
 const resetSrc =            couiStandard + "Reset.svg";
 
-export const Bounds1Field = (props : {bounds?: Bounds1, name: string, onChange?: (name: string, newValue: Bounds1) => void}) => {
+export interface Bounds1FieldProps {
+    bounds?: Bounds1, 
+    name: string, 
+    onChange?: (name: string, newValue: Bounds1) => void
+};
+
+export const Bounds1Field = (props : Bounds1FieldProps) => {
     let [localBounds, setLocalBounds] = useState({min: String(props.bounds?.min), max: String(props.bounds?.max)});
     let minRef = useRef<ButtonedNumberInputRef>(null);
     let maxRef = useRef<ButtonedNumberInputRef>(null);

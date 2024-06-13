@@ -45,3 +45,26 @@ export enum ByLawItemType {
     GroundPollutionLevel,
     NoisePollutionLevel
 }
+
+export enum ByLawConstraintType {
+    None = 0,        
+    Length,
+    Count,
+    MultiSelect
+}
+
+export enum ByLawItemCategory {
+    None = 0,
+    Building = 1,
+    Lot,
+    Pollution
+}
+
+export interface ByLawItem {
+    byLawItemType: ByLawItemType;
+    byLawConstraintType: ByLawConstraintType;
+    itemCategory: ByLawItemCategory;
+
+    valueBounds1: Bounds1;
+    valueByteFlag: number;
+}
