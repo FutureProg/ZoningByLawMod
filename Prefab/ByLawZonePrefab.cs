@@ -6,11 +6,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Trejak.ZoningByLaw.BuildingBlocks;
 using Unity.Entities;
 using Unity.Mathematics;
 
 namespace Trejak.ZoningByLaw.Prefab
-{
+{   
 
     public class ByLawZonePrefab : ZonePrefab, IJsonWritable, IJsonReadable
     {
@@ -21,6 +22,7 @@ namespace Trejak.ZoningByLaw.Prefab
         public Bounds1 frontage = new Bounds1(-1, -1);
         public Bounds1 parking = new Bounds1(-1, -1);
         public string bylawName;
+        public List<Block> blocks;
 
         public bool deleted = false;
 
@@ -99,6 +101,12 @@ namespace Trejak.ZoningByLaw.Prefab
             reader.ReadProperty("parking");
             reader.Read(out this.parking);
             reader.ReadMapEnd();
+        }
+
+        public class Block
+        {
+            ByLawBlock data;
+            List<ByLawItem> items;
         }
     }
 

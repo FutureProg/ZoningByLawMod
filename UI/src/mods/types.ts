@@ -73,3 +73,26 @@ export interface ByLawItem {
     valueByteFlag: number;
     valueNumber: number;
 }
+
+export enum BlockType
+{
+    None = 0,
+    Instruction = 1,
+    Logic = 2
+}
+
+export enum LogicOperation
+{
+    None = 0
+}
+
+export interface ByLawBlock
+{
+    blockType: BlockType ;
+    logicOperation: LogicOperation;
+    items: ByLawItem[];
+}
+
+export interface ZoningByLaw {
+    
+}
