@@ -41,7 +41,8 @@ namespace Trejak.ZoningByLaw.BuildingBlocks
         None = 0,        
         Length,
         Count,
-        MultiSelect
+        MultiSelect,
+        SingleSelect
     }
 
     public enum ByLawItemCategory : byte

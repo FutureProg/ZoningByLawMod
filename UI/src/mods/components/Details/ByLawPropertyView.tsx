@@ -5,7 +5,7 @@ import { ByLawConstraintType, ByLawItem, ByLawItemCategory, ByLawItemType, ByLaw
 import { ButtonedNumberInput } from '../ButtonedNumberInput';
 import ByLawPropertyEditSection from './ByLawPropertyEditSection';
 
-export default () => {
+export default ({byLawItem} : {byLawItem: ByLawItem}) => {
     let [editing, setEditing] = useState(false);    
 
     let operationValues = Object.entries(ByLawPropertyOperator)
@@ -54,13 +54,7 @@ export default () => {
         </Dropdown>
     )
 
-    let testPropertyItem : ByLawItem = {
-        byLawConstraintType: ByLawConstraintType.Length,
-        byLawItemType: ByLawItemType.Height,
-        itemCategory: ByLawItemCategory.Building,
-        valueBounds1: {max: 0, min: 0},
-        valueByteFlag: 0
-    };
+    
 
     return (
         <div className={styles.row}>      
@@ -78,7 +72,7 @@ export default () => {
                 </div>
             </div>
             <div className={styles.editSection + ' ' + (editing? '' : styles.hidden)}>
-                <ByLawPropertyEditSection byLawItem={testPropertyItem} isOpen={editing} />
+                <ByLawPropertyEditSection byLawItem={byLawItem} isOpen={editing} />
             </div>
         </div>
     )

@@ -50,7 +50,8 @@ export enum ByLawConstraintType {
     None = 0,        
     Length,
     Count,
-    MultiSelect
+    MultiSelect,
+    SingleSelect
 }
 
 export enum ByLawItemCategory {

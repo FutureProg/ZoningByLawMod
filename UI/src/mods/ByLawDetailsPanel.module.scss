@@ -30,3 +30,42 @@
 .byLawDetailsTable > tr > td {
     position: relative;
 } 
+
+.addPropertyButton {    
+    // background: rgba(0,0,0,0.0);//var(--activeColorDark);
+    // border: 1rem solid rgba(255, 255, 255, 0.25);
+    border-radius: 2rem;
+    color: white;        
+    margin: 8rem 20%;
+    margin-top: 16rem;
+    padding-top: 8rem;
+    padding-bottom: 8rem;    
+    backdrop-filter: brightness(60%) contrast(100%) blur(7px);//var(--menuBlur);
+}
+.addPropertyButton:hover {
+    background-color: var(--hoverColor);
+}
+.addPropertyButton:active {
+    background-color: var(--activeColor);
+}
+
+.enumField {
+    position: relative;
+    display: flex;
+    flex-direction: row;   
+    justify-content: space-between; 
+    flex-wrap: wrap;  
+    width: 70%;  
+}
+.enumField > div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    position: relative;    
+    margin-right:4rem;    
+    margin-bottom: 8rem;
+    align-items: center;
+}
+.enumField > div > label {
+    width: 35%;
+}

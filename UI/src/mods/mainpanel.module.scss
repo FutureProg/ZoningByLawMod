@@ -73,24 +73,3 @@
 .bylawListItem.selected {
     background-color: rgba($color: #2079ec, $alpha: 0.8);
 }
-
-.enumField {
-    position: relative;
-    display: flex;
-    flex-direction: row;   
-    justify-content: space-between; 
-    flex-wrap: wrap;  
-    width: 70%;  
-}
-.enumField > div {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    position: relative;    
-    margin-right:4rem;    
-    margin-bottom: 8rem;
-    align-items: center;
-}
-.enumField > div > label {
-    width: 35%;
-}

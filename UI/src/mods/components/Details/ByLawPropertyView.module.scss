@@ -35,29 +35,36 @@
         display: flex;
         flex-direction: row;
         align-items: end;
-        justify-content: flex-end;
+        justify-content: flex-end;        
 
         > * {
             margin-right: 8rem;       
             filter: brightness(0) invert(100%);
+            // border: 1rem solid white;
         }
         > *:hover {
-            filter: none;
+            //filter: none;            
+            background-color: rgba(0,0,0,0.25);
         }
-        :last-child {
-            margin-right: 0;
+        > :last-child {
+            margin-right: 0; 
+            border-color: rgba(233, 95, 74, 1);//--negativeColor;           
         }
     }
 }
 
 .editSection {
-    margin-top: 8rem;
-    border-top: 1rem solid rgba($color: #ffffff, $alpha: 0.75);
+    margin-top: 12rem;
+    // border-top: 1rem solid rgba($color: #ffffff, $alpha: 0.75);
     // background-color: rgba($color: #ffffff, $alpha: 0.5);
-    overflow: hidden;
+    overflow: hidden;   
+    transform-origin: top center; 
+    transform: scale(1);
+    transition: 0.5s;
 }
 .editSection.hidden {
     height: 0;
     margin-top: 0;
     border: none;    
+    transform: scale(0);
 }

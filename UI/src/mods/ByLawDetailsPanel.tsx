@@ -3,56 +3,13 @@ import styles from './ByLawDetailsPanel.module.scss';
 import { ZONE_BORDER_IDX, ZONE_COLOR_IDX, defaultColor, deleteByLaw, selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor, toggleByLawRenderPreview } from "./bindings";
 import { useValue } from "cs2/api";
 import { ChangeEvent, ChangeEventHandler, useEffect, useRef, useState } from "react";
-import { ByLawZoneComponent, ByLawZoneType } from "./types";
+import { ByLawConstraintType, ByLawItem, ByLawItemCategory, ByLawItemType, ByLawZoneComponent, ByLawZoneType } from "./types";
 import { Bounds1, Color } from "cs2/bindings";
 import { Dropdown } from "cs2/ui";
 import { ColorHSV, VanillaComponentResolver } from "vanillacomponentresolver";
 import { rgbaToHex } from "./utils";
 import { Bounds1Field } from "./components/Bounds1Field";
 import ByLawPropertyView from "./components/Details/ByLawPropertyView";
-
-const EnumField = <T,>(props: {enum : ByLawZoneType, onChange?: (enumValue: T) => any}) => {            
-    type x = keyof T;
-    let preEntries : [any, any][] = Object.entries(ByLawZoneType);
-    let entries : {[key: string]: number} = Object.fromEntries(
-        preEntries.filter((value, idx) => idx < preEntries.length/2 && Number(value[0]) != 0).map(([k,v]) => [v,k])
-    )        
-    let defaultState : Record<string, boolean> = {};    
-    Object.entries(entries).forEach(([k,v]) => defaultState[k] = (v & props.enum!) !== 0);        
-    const onCheckboxChange = (key: string) => (e: any) => {
-        let nState = {...checked};
-        nState[key] = (e as any) as boolean;         
-        let nEnum = 0;        
-        Object.entries(nState).forEach(([k, v], idx) => {
-            if (v) {
-                nEnum |= entries[k];
-            }
-        });
-        props.onChange? props.onChange((nEnum as any) as T) : undefined;
-        setChecked(nState);
-    };
-
-    let [checked, setChecked] = useState(defaultState);
-    useEffect(() => {
-        Object.entries(entries).forEach(([k,v]) => defaultState[k] = (v & props.enum!) !== 0);
-        setChecked(defaultState);
-    }, [props.enum]);
-    
-    const list = Object.entries(entries).map(([key, value], idx) => 
-        <div key={key}>
-            <label>{key}</label>
-            <VanillaComponentResolver.instance.Checkbox 
-                checked={checked[key]}
-                onChange={onCheckboxChange(key)} 
-                theme={VanillaComponentResolver.instance.checkboxTheme}/>            
-        </div>
-    );
-    return (
-        <div className={styles.enumField}>
-            {list}
-        </div>   
-    )
-}
 
 export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: () => void}) => {    
     let byLawData = useValue(selectedByLawData$);    
@@ -124,6 +81,25 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
         ...ellipseTextInputTheme,
         ellipsesTextInput: ellipseTextInputTheme.ellipsesTextInput + ' ' + styles.nameInput
     };
+
+    const addPropertyTheme = {
+        button: styles.addPropertyButton
+    }
+
+    let testPropertyItem : ByLawItem = {
+        byLawConstraintType: ByLawConstraintType.Length,
+        byLawItemType: ByLawItemType.Height,
+        itemCategory: ByLawItemCategory.Building,
+        valueBounds1: {max: 0, min: 0},
+        valueByteFlag: 0
+    };
+    let testPropertyItem2 : ByLawItem = {
+        byLawConstraintType: ByLawConstraintType.MultiSelect,
+        byLawItemType: ByLawItemType.Uses,
+        itemCategory: ByLawItemCategory.Lot,
+        valueBounds1: {max: 0, min: 0},
+        valueByteFlag: ByLawZoneType.Commercial | ByLawZoneType.Residential
+    };
     
     return (
         <div className={styles.bylawDetails}>
@@ -181,8 +157,9 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
                             <td><Bounds1Field bounds={newByLawData?.parking} name='parking' onChange={onUpdateBounds} /></td>
                         </tr> */}
                         <h2>Properties</h2>
-                        <ByLawPropertyView />
-                        <ByLawPropertyView />
+                        <ByLawPropertyView byLawItem={testPropertyItem}/>
+                        <ByLawPropertyView byLawItem={testPropertyItem2}/>
+                        <Button focusKey={FOCUS_AUTO} variant="flat" theme={addPropertyTheme} >Add Constraint</Button>                        
                     </div>                               
                 </div>            
             </Scrollable>

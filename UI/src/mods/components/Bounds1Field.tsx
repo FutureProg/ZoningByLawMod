@@ -73,8 +73,7 @@ export const Bounds1Field = (props : Bounds1FieldProps) => {
                     <label className={textInputTheme.label}>Min</label>
                     <Button className={styles.unsetButton} onClick={onClickUnset("min")}>Unset</Button>
                 </div>                 */}
-                <label className={textInputTheme.label}>Min</label>
-                <VanillaComponentResolver.instance.Section>
+                <VanillaComponentResolver.instance.Section title="Minimum">
                     <VanillaComponentResolver.instance.ToolButton 
                                 className={VanillaComponentResolver.instance.toolButtonTheme.button} 
                                 tooltip={"Unset"} 
@@ -86,8 +85,7 @@ export const Bounds1Field = (props : Bounds1FieldProps) => {
                 </VanillaComponentResolver.instance.Section>                
             </div>
             <div>
-                <label className={textInputTheme.label}>Max</label>
-                <VanillaComponentResolver.instance.Section>
+                <VanillaComponentResolver.instance.Section title="Maximum">
                     <VanillaComponentResolver.instance.ToolButton 
                                 className={VanillaComponentResolver.instance.toolButtonTheme.button} 
                                 tooltip={"Unset"} 
