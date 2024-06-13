@@ -27,7 +27,9 @@ export enum ByLawZoneType {
 export enum ByLawPropertyOperator {
     None = 0,
     Is = 1,
-    IsNot = 2
+    IsNot = 2,
+    AtLeastOne = 3,
+    OnlyOneOf = 4    
 }
 
 export enum ByLawItemType {
@@ -65,7 +67,9 @@ export interface ByLawItem {
     byLawItemType: ByLawItemType;
     byLawConstraintType: ByLawConstraintType;
     itemCategory: ByLawItemCategory;
+    operator: ByLawPropertyOperator;
 
     valueBounds1: Bounds1;
     valueByteFlag: number;
+    valueNumber: number;
 }

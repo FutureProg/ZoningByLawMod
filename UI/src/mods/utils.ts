@@ -1,5 +1,5 @@
 import { LocalizedNumber, UnitSystem, useLocalization } from "cs2/l10n";
-import { ByLawZoneComponent, ByLawZoneType } from "./types";
+import { ByLawConstraintType, ByLawItemType, ByLawZoneComponent, ByLawZoneType } from "./types";
 import { Bounds1, Color, Unit } from "cs2/bindings";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -47,4 +47,55 @@ export const useLocalizedMeasurement = (value: number) => {
     }, [value, unitSettings.unitSystem]);
 
     return { measurementText, valueLocalized, convertToMetric };
+}
+
+export const getMeasurementString = (itemType: ByLawItemType, constraintType: ByLawConstraintType) => {
+    switch(itemType) {        
+        case ByLawItemType.Height:
+            return "m";
+        case ByLawItemType.Uses:        
+        case ByLawItemType.LotWidth:
+        case ByLawItemType.LotSize:
+        case ByLawItemType.Parking:
+        case ByLawItemType.FrontSetback:
+        case ByLawItemType.LeftSetback:
+        case ByLawItemType.RightSetback:
+        case ByLawItemType.RearSetback:
+        case ByLawItemType.AirPollutionLevel:
+        case ByLawItemType.GroundPollutionLevel:
+        case ByLawItemType.NoisePollutionLevel:
+        case ByLawItemType.None:
+        default:
+            return "";            
+    }    
+}
+
+export const flagToStringArr = (flag: number, itemType: ByLawItemType) => {
+    let entries : [any, any][] = [];
+    switch(itemType) {
+        case ByLawItemType.Uses:
+            if (itemType == ByLawItemType.Uses) {
+                entries = Object.entries(ByLawZoneType);                            
+            }
+            break;
+        case ByLawItemType.None:        
+        case ByLawItemType.Height:
+        case ByLawItemType.LotWidth:
+        case ByLawItemType.LotSize:
+        case ByLawItemType.Parking:
+        case ByLawItemType.FrontSetback:
+        case ByLawItemType.LeftSetback:
+        case ByLawItemType.RightSetback:
+        case ByLawItemType.RearSetback:
+        case ByLawItemType.AirPollutionLevel:
+        case ByLawItemType.GroundPollutionLevel:
+        case ByLawItemType.NoisePollutionLevel:
+            return [];
+    }
+    return entries
+        .filter((value, idx) => idx < entries.length/2 && Number(value[0]) != 0).map(([k,v]) => [v,k])
+        .filter(([k, v], idx) => {            
+            return (v & flag) != 0;
+        })
+        .map(([k, v], idx) => k);
 }

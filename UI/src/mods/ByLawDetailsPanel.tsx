@@ -3,7 +3,7 @@ import styles from './ByLawDetailsPanel.module.scss';
 import { ZONE_BORDER_IDX, ZONE_COLOR_IDX, defaultColor, deleteByLaw, selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor, toggleByLawRenderPreview } from "./bindings";
 import { useValue } from "cs2/api";
 import { ChangeEvent, ChangeEventHandler, useEffect, useRef, useState } from "react";
-import { ByLawConstraintType, ByLawItem, ByLawItemCategory, ByLawItemType, ByLawZoneComponent, ByLawZoneType } from "./types";
+import { ByLawConstraintType, ByLawItem, ByLawItemCategory, ByLawItemType, ByLawPropertyOperator, ByLawZoneComponent, ByLawZoneType } from "./types";
 import { Bounds1, Color } from "cs2/bindings";
 import { Dropdown } from "cs2/ui";
 import { ColorHSV, VanillaComponentResolver } from "vanillacomponentresolver";
@@ -90,15 +90,19 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
         byLawConstraintType: ByLawConstraintType.Length,
         byLawItemType: ByLawItemType.Height,
         itemCategory: ByLawItemCategory.Building,
+        operator: ByLawPropertyOperator.Is,
         valueBounds1: {max: 0, min: 0},
-        valueByteFlag: 0
+        valueByteFlag: 0,
+        valueNumber: 0
     };
     let testPropertyItem2 : ByLawItem = {
         byLawConstraintType: ByLawConstraintType.MultiSelect,
         byLawItemType: ByLawItemType.Uses,
         itemCategory: ByLawItemCategory.Lot,
+        operator: ByLawPropertyOperator.AtLeastOne,
         valueBounds1: {max: 0, min: 0},
-        valueByteFlag: ByLawZoneType.Commercial | ByLawZoneType.Residential
+        valueByteFlag: ByLawZoneType.Commercial | ByLawZoneType.Residential,
+        valueNumber: 0
     };
     
     return (
