@@ -2,7 +2,7 @@ import { Bounds1, Color, Theme, UniqueFocusKey } from "cs2/bindings";
 import { InputAction } from "cs2/input";
 import { ModuleRegistry } from "cs2/modding";
 import { BalloonDirection, FocusKey, PanelTheme } from "cs2/ui";
-import { CSSProperties, HTMLAttributes, ReactNode } from "react";
+import { CSSProperties, EventHandler, HTMLAttributes, MouseEventHandler, MutableRefObject, ReactNode } from "react";
 
 // These are specific to the types of components that this mod uses.
 // In the UI developer tools at http://localhost:9444/ go to Sources -> Index.js. Pretty print if it is formatted in a single line.
@@ -166,6 +166,27 @@ type TextInputTheme = {
     container: string;
 }
 
+type EllipsisTextInput = {
+    value: string | undefined,
+    maxLength?: number; // default is 64
+    theme?: any;
+    className?: string;
+    vkTitle?: string;
+    placeholder?: string;
+    ref?: MutableRefObject<HTMLInputElement>;
+    focusKey?: FocusKey;
+    onClick?: MouseEventHandler;
+    onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onBlur?: () => void;    
+}
+
+type EllipsesTextInputTheme = {
+    "ellipses-text-input": string;
+    ellipsesTextInput: string;
+    input: string;
+    label: string;
+}
+
 // This is an array of the different components and sass themes that are appropriate for your UI. You need to figure out which ones you need from the registry.
 const registryIndex = {
     Section: ["game-ui/game/components/tool-options/mouse-tool-options/mouse-tool-options.tsx", "Section"],
@@ -187,6 +208,8 @@ const registryIndex = {
     BoundIntInputField: ["game-ui/game/widgets/field/int-input-field.tsx", "BoundIntInputField"],
     textInputTheme: ["game-ui/game/components/selected-info-panel/shared-components/text-input/text-input.module.scss", "classes"],
     mouseToolOptionsTheme: ["game-ui/game/components/tool-options/mouse-tool-options/mouse-tool-options.module.scss", "classes"],
+    ellipsesTextInputTheme: ["game-ui/common/input/text/ellipsis-text-input/ellipsis-text-input.module.scss", 'classes'],
+    EllipsisTextInput: ["game-ui/common/input/text/ellipsis-text-input/ellipsis-text-input.tsx", "EllipsisTextInput"],
 
     FOCUS_DISABLED: ["game-ui/common/focus/focus-key.ts", "FOCUS_DISABLED"],
     FOCUS_AUTO: ["game-ui/common/focus/focus-key.ts", "FOCUS_AUTO"],
@@ -224,6 +247,7 @@ export class VanillaComponentResolver {
     public get RadialHuePicker() : (props: RadialHuePicker) => JSX.Element { return this.cachedData["RadialHuePicker"] ?? this.updateCache("RadialHuePicker") };
     public get IntInput() : (props: IntInput) => JSX.Element { return this.cachedData["IntInput"] ?? this.updateCache("IntInput") };
     public get BoundIntInputField() : (props: BoundIntInputField) => JSX.Element { return this.cachedData["BoundIntInputField"] ?? this.updateCache("BoundIntInputField") };
+    public get EllipsisTextInput() : (props: EllipsisTextInput) => JSX.Element { return this.cachedData["EllipsisTextInput"] ?? this.updateCache("EllipsisTextInput") };
 
     // Broken
     // public get ColorPicker() : (props: ColorPicker) => JSX.Element { return this.cachedData['ColorPicker'] ?? this.updateCache("ColorPicker")};
@@ -234,6 +258,7 @@ export class VanillaComponentResolver {
     public get mouseToolOptionsTheme(): Theme | any { return this.cachedData["mouseToolOptionsTheme"] ?? this.updateCache("mouseToolOptionsTheme") }
     public get toolButtonTheme(): Theme | any { return this.cachedData["toolButtonTheme"] ?? this.updateCache("toolButtonTheme") }
     public get textInputTheme(): TextInputTheme | Theme | any { return this.cachedData["textInputTheme"] ?? this.updateCache("textInputTheme") }
+    public get ellipsesTextInputTheme(): EllipsesTextInputTheme | Theme | any { return this.cachedData["ellipsesTextInputTheme"] ?? this.updateCache("ellipsesTextInputTheme") }
 
     public get FOCUS_DISABLED(): UniqueFocusKey { return this.cachedData["FOCUS_DISABLED"] ?? this.updateCache("FOCUS_DISABLED") }
     public get FOCUS_AUTO(): UniqueFocusKey { return this.cachedData["FOCUS_AUTO"] ?? this.updateCache("FOCUS_AUTO") }

@@ -1,4 +1,4 @@
-import { Button, DropdownItem, DropdownToggle, Scrollable } from "cs2/ui"
+import { Button, DropdownItem, DropdownToggle, FOCUS_AUTO, FOCUS_DISABLED, Scrollable } from "cs2/ui"
 import styles from './ByLawDetailsPanel.module.scss';
 import { ZONE_BORDER_IDX, ZONE_COLOR_IDX, defaultColor, deleteByLaw, selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor, toggleByLawRenderPreview } from "./bindings";
 import { useValue } from "cs2/api";
@@ -6,7 +6,6 @@ import { ChangeEvent, ChangeEventHandler, useEffect, useRef, useState } from "re
 import { ByLawZoneComponent, ByLawZoneType } from "./types";
 import { Bounds1, Color } from "cs2/bindings";
 import { Dropdown } from "cs2/ui";
-import { FOCUS_AUTO, InputContext } from "cs2/input";
 import { ColorHSV, VanillaComponentResolver } from "vanillacomponentresolver";
 import { rgbaToHex } from "./utils";
 import { Bounds1Field } from "./components/Bounds1Field";
@@ -120,25 +119,40 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
         }
     }
     
+    let ellipseTextInputTheme = VanillaComponentResolver.instance.ellipsesTextInputTheme;
+    let nameInputTheme = {                
+        ...ellipseTextInputTheme,
+        ellipsesTextInput: ellipseTextInputTheme.ellipsesTextInput + ' ' + styles.nameInput
+    };
+    
     return (
         <div className={styles.bylawDetails}>
             <Scrollable>   
                 <div style={{display: props.selectedRowIndex == -1? 'none': 'block'}}>
                     <div className={styles.byLawDetailsTable}>
-                        <tr>
-                            <th>Name</th>
-                            <td><input type="text" value={newByLawName} onChange={onNameChange}/></td>
+                        <tr>                            
+                            <td><VanillaComponentResolver.instance.EllipsisTextInput 
+                                value={newByLawName} 
+                                onChange={onNameChange} 
+                                maxLength={84} 
+                                placeholder="ByLaw Name" 
+                                vkTitle="ByLaw Name"
+                                className={styles.nameInput}
+                                focusKey={FOCUS_AUTO}/>                                
+                            </td>                            
+                            {/* <td><input type="text" value={newByLawName} onChange={onNameChange}/></td> */}
                         </tr>
+                        <VanillaComponentResolver.instance.ColorField value={newByLawColor} onChange={onUpdateByLawColor(ZONE_COLOR_IDX)}/>
                         {/* <tr>
                             <Button onClick={toggleByLawRenderPreview}>Preview (very much WIP)</Button>
                         </tr> */}
-                        <tr>
+                        {/* <tr>
                             <th>Zone Colour</th>
                             <td>
-                                <VanillaComponentResolver.instance.ColorField value={newByLawColor} onChange={onUpdateByLawColor(ZONE_COLOR_IDX)}/>
+                                
                                 <input type="text" readOnly={true} value={rgbaToHex(newByLawColor)} />
                             </td>                        
-                        </tr>
+                        </tr> */}
                         {/* <tr>
                             <th>Zone Border Colour</th>
                             <td>
