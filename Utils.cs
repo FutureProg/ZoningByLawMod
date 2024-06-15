@@ -24,6 +24,8 @@ namespace Trejak.ZoningByLaw
         private static UIAssetCategoryPrefab _assetCategory;
         private static bool _initialized;
 
+        public static readonly string ByLawsJSONFileName = "ZoningByLaws.json";
+
         public static string ContentFolder { get; }
 
         static Utils()
@@ -59,13 +61,13 @@ namespace Trejak.ZoningByLaw
                 records.Add(new ByLawRecord(zonePrefab.bylawName, bylawJson.CreateDescription(), zonePrefab.m_Color, zonePrefab.m_Edge, bylawJson, prefabID));
             }
             var toDump = records.ToArray();
-            var path = Path.Combine(ContentFolder, "ZoningByLaws.json");
+            var path = Path.Combine(ContentFolder, ByLawsJSONFileName);
             File.WriteAllText(path, JSON.Dump(toDump));
         }
 
         public static bool GetByLawsFromFile(out ByLawRecord[] records)
         {
-            var path = Path.Combine(ContentFolder, "ZoningByLaws.json");
+            var path = Path.Combine(ContentFolder, ByLawsJSONFileName);
             if (!File.Exists(path))
             {
                 records = new ByLawRecord[0];
@@ -77,7 +79,7 @@ namespace Trejak.ZoningByLaw
                 return true;
             } catch (Exception ex)
             {
-                Mod.log.Error("Error reading bylaw records: " + ex.Message);               
+                Mod.log.Error("Error reading bylaw records: " + ex.Message);
             }
             records = new ByLawRecord[0];
             return false;
