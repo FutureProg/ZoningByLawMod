@@ -17,6 +17,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Trejak.ZoningByLaw.Prefab;
 using Trejak.ZoningByLaw.Systems;
+using Trejak.ZoningByLaw.UISystems;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -40,15 +41,15 @@ namespace Trejak.ZoningByLaw.UI
         private PrefabBase _basePrefab; // the prefab we use to clone the zones        
 
         private ValueBinding<Entity> _selectedByLaw; // the prefab entity for the selected bylaw
-        private ValueBinding<ByLawZoneData> _selectedByLawData;
+        private ValueBinding<ZoningByLawBinding> _selectedByLawData;
         private ValueBinding<ByLawZoneListItem[]> _byLawZoneList;
         private ValueBinding<bool> _configPanelOpen;
         private ValueBinding<string> _selectedByLawName;
         private ValueBinding<Color[]> _selectedByLawColour;
 
         private TriggerBinding<Entity> _setActiveByLaw;
-        private TriggerBinding<ByLawZoneData> _setByLawData;
-        private TriggerBinding<ByLawZoneData> _createNewByLaw;
+        private TriggerBinding<ZoningByLawBinding> _setByLawData;
+        private TriggerBinding<ZoningByLawBinding> _createNewByLaw;
         private TriggerBinding _deleteByLaw;
         private TriggerBinding<bool> _setConfigPanelOpen;
         private TriggerBinding<string> _setByLawName;
@@ -96,34 +97,35 @@ namespace Trejak.ZoningByLaw.UI
             GetBasePrefab();
 
             this.AddBinding(_selectedByLaw = new ValueBinding<Entity>(uiGroupName, "SelectedByLaw", Entity.Null));
-            this.AddBinding(_selectedByLawData = new ValueBinding<ByLawZoneData>(uiGroupName, "SelectedByLawData", default));
+            this.AddBinding(_selectedByLawData = new ValueBinding<ZoningByLawBinding>(uiGroupName, "SelectedByLawData", default));
             this.AddBinding(_configPanelOpen = new ValueBinding<bool>(uiGroupName, "IsConfigPanelOpen", false));
             this.AddBinding(_selectedByLawName = new ValueBinding<string>(uiGroupName, "SelectedByLawName", ""));
             this.AddBinding(_byLawZoneList = new ValueBinding<ByLawZoneListItem[]>(uiGroupName, "ByLawZoneList", GetByLawList(), new ArrayWriter<ByLawZoneListItem>()));
             this.AddBinding(_selectedByLawColour = new ValueBinding<Color[]>(uiGroupName, "SelectedByLawColour", new Color[] { default, default }, new ArrayWriter<Color>()));
 
             this.AddBinding(_setActiveByLaw = new TriggerBinding<Entity>(uiGroupName, "SetActiveByLaw", SetActiveByLaw));
-            this.AddBinding(_setByLawData = new TriggerBinding<ByLawZoneData>(uiGroupName, "SetByLawData", SetByLawData));
-            this.AddBinding(_createNewByLaw = new TriggerBinding<ByLawZoneData>(uiGroupName, "CreateNewByLaw", CreateNewByLaw));
+            this.AddBinding(_setByLawData = new TriggerBinding<ZoningByLawBinding>(uiGroupName, "SetByLawData", SetByLawData));
+            this.AddBinding(_createNewByLaw = new TriggerBinding<ZoningByLawBinding>(uiGroupName, "CreateNewByLaw", CreateNewByLaw));
             this.AddBinding(_deleteByLaw = new TriggerBinding(uiGroupName, "DeleteByLaw", DeleteByLaw));
             this.AddBinding(_setConfigPanelOpen = new TriggerBinding<bool>(uiGroupName, "SetConfigPanelOpen", SetConfigPanelOpen));
             this.AddBinding(_setByLawName = new TriggerBinding<string>(uiGroupName, "SetByLawName", SetByLawName));
             this.AddBinding(_setByLawZoneColour = new TriggerBinding<Color, Color>(uiGroupName, "SetByLawZoneColour", SetByLawZoneColour));
-            this.AddBinding(_toggleByLawRenderPreview = new TriggerBinding(uiGroupName, "ToggleByLawRenderPreview", ToggleByLawRenderPreview));
+            //this.AddBinding(_toggleByLawRenderPreview = new TriggerBinding(uiGroupName, "ToggleByLawRenderPreview", ToggleByLawRenderPreview));
 
             eqb.Dispose();
         }        
 
-        void ToggleByLawRenderPreview()
-        {
-            if (_toolSystem.activeTool == _bylawRenderSystem)
-            {
-                _bylawRenderSystem.SetToolEnabled(false);
-            } else
-            {
-                _bylawRenderSystem.SetByLaw(_selectedByLawData.value);
-            }
-        }
+        // TODO: this
+        //void ToggleByLawRenderPreview()
+        //{
+        //    if (_toolSystem.activeTool == _bylawRenderSystem)
+        //    {
+        //        _bylawRenderSystem.SetToolEnabled(false);
+        //    } else
+        //    {
+        //        _bylawRenderSystem.SetByLaw(_selectedByLawData.value);
+        //    }
+        //}
 
         void SetByLawZoneColour(Color zoneColour, Color borderColour)
         {
@@ -158,13 +160,13 @@ namespace Trejak.ZoningByLaw.UI
             }
             Mod.log.Info("Set active by law to " + entity.Index + ", " + entity.Version);            
             _selectedByLaw.Update(entity);
-            ByLawZoneData data;
+            ZoningByLawBinding data;
             if (_selectedByLaw.value == Entity.Null)
             {
                 data = default;
             } else
             {
-                data = EntityManager.GetComponentData<ByLawZoneData>(entity);
+                data = ZoningByLawBinding.FromEntity(entity, EntityManager);//EntityManager.GetComponentData<ByLawZoneData>(entity);
             }
             bool result = _prefabSystem.TryGetPrefab<ByLawZonePrefab>(entity, out var prefab);            
             this._selectedByLawData.Update(data);
@@ -179,12 +181,13 @@ namespace Trejak.ZoningByLaw.UI
             }
         }
 
-        void SetByLawData(ByLawZoneData data)
+        void SetByLawData(ZoningByLawBinding data)
         {
             Mod.log.Info("Set By Law Data: " + data);
-            EntityManager.SetComponentData<ByLawZoneData>(_selectedByLaw.value, data);
+            data.UpdateEntity(_selectedByLaw.value, this.EntityManager);
+            //EntityManager.SetComponentData<ByLawZoneData>(_selectedByLaw.value, data);
             var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(_selectedByLaw.value);
-            Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", data.CreateDescription());
+            Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", "Description of zoning bylaw");//TODO: change to create description data.CreateDescription());
             this._selectedByLawData.Update(data);
             SaveByLawsToDisk();
         }
@@ -214,7 +217,7 @@ namespace Trejak.ZoningByLaw.UI
         /// Called from the UI after the user hits save on a new bylaw
         /// </summary>
         /// <param name="data"></param>
-        void CreateNewByLaw(ByLawZoneData data)
+        void CreateNewByLaw(ZoningByLawBinding data)
         {            
             if (_basePrefab == null)
             {

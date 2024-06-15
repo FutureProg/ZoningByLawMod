@@ -12,6 +12,7 @@ using System.Linq;
 using UnityEngine;
 using Trejak.ZoningByLaw.Serialization;
 using Game.UI.InGame;
+using Trejak.ZoningByLaw.UISystems;
 
 namespace Trejak.ZoningByLaw
 {
@@ -53,9 +54,9 @@ namespace Trejak.ZoningByLaw
                 var prefabID = zonePrefab.GetPrefabID();
                 if (zoneData.deleted) continue;
 
-                
+                var bylawJson = ZoningByLawBinding.FromEntity(entity, em);
 
-                records.Add(new ByLawRecord(zonePrefab.bylawName, zoneData.CreateDescription(), zonePrefab.m_Color, zonePrefab.m_Edge, zoneData, prefabID));
+                records.Add(new ByLawRecord(zonePrefab.bylawName, bylawJson.CreateDescription(), zonePrefab.m_Color, zonePrefab.m_Edge, bylawJson, prefabID));
             }
             var toDump = records.ToArray();
             var path = Path.Combine(ContentFolder, "ZoningByLaws.json");
@@ -97,7 +98,7 @@ namespace Trejak.ZoningByLaw
             for (int i = 0; i < records.Length; i++)
             {
                 ByLawRecord record = records[i];
-                ByLawZonePrefab re = CreateByLawPrefabFromData(record.bylawZoneData, i + 1, record.idName + '_' + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), record.bylawName);
+                ByLawZonePrefab re = CreateByLawPrefabFromData(record.zoningByLawBinding, i + 1, record.idName + '_' + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), record.bylawName);
                 re.m_Edge = record.edgeColor;
                 re.m_Color = record.zoneColor;
                 re.name = record.idName;
@@ -168,7 +169,7 @@ namespace Trejak.ZoningByLaw
             }
         }
 
-        public static ByLawZonePrefab CreateByLawPrefabFromData(ByLawZoneData data, int byLawNumber, string idName = null, string bylawName = null)
+        public static ByLawZonePrefab CreateByLawPrefabFromData(ZoningByLawBinding data, int byLawNumber, string idName = null, string bylawName = null)
         {
             if (!_initialized)
             {
@@ -183,12 +184,13 @@ namespace Trejak.ZoningByLaw
             idName = idName ?? bylawName +'_' + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
             // Copy over prefab data
-            prefab.zoneType = data.zoneType;
-            prefab.height = data.height;
-            prefab.lotSize = data.lotSize;
-            prefab.frontage = data.frontage;
-            prefab.parking = data.parking;
+            //prefab.zoneType = data.zoneType;
+            //prefab.height = data.height;
+            //prefab.lotSize = data.lotSize;
+            //prefab.frontage = data.frontage;
+            //prefab.parking = data.parking;
             prefab.bylawName = bylawName;
+            prefab.Update(data);
 
             // Typical Zoning Stuff
             prefab.m_Office = (prefab.zoneType & ByLawZoneType.Office) != (ByLawZoneType)0;
@@ -229,7 +231,7 @@ namespace Trejak.ZoningByLaw
             return prefab;
         }
 
-        public static void SetPrefabText(ByLawZonePrefab prefab, ByLawZoneData data)
+        public static void SetPrefabText(ByLawZonePrefab prefab, ZoningByLawBinding data)
         {
             Utils.AddLocaleText($"Assets.NAME[{prefab.name}]", prefab.bylawName);
             Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", data.CreateDescription());
