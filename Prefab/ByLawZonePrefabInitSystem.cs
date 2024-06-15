@@ -5,6 +5,7 @@ using Game.Prefabs;
 using Trejak.ZoningByLaw;
 using Trejak.ZoningByLaw.BuildingBlocks;
 using Trejak.ZoningByLaw.Prefab;
+using Trejak.ZoningByLaw.UISystems;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Entities.UniversalDelegates;
@@ -47,28 +48,29 @@ namespace Trejak.ZoningByLaw.Prefab
                 var blocks = SystemAPI.GetBuffer<ByLawBlockReference>(entity);
                 ByLawZonePrefab prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(prefabData.ValueRO);
                 Mod.log.Info("Initializing Zone Prefab: " + prefab.name);
-                bylawData.ValueRW.frontage = prefab.frontage;
-                bylawData.ValueRW.height = prefab.height;
-                bylawData.ValueRW.lotSize = prefab.lotSize;
-                bylawData.ValueRW.parking = prefab.parking;
-                bylawData.ValueRW.zoneType = prefab.zoneType;                
-                SystemAPI.SetComponent(entity, bylawData.ValueRW);
-                
+                //bylawData.ValueRW.frontage = prefab.frontage;
+                //bylawData.ValueRW.height = prefab.height;
+                //bylawData.ValueRW.lotSize = prefab.lotSize;
+                //bylawData.ValueRW.parking = prefab.parking;
+                //bylawData.ValueRW.zoneType = prefab.zoneType;
+                bylawData.ValueRW.deleted = prefab.deleted;
+                SystemAPI.SetComponent(entity, bylawData.ValueRW);                               
                 // create each individual block
                 foreach(var block in prefab.blocks)
                 {
                     var blockEntity = EntityManager.CreateEntity(typeof(ByLawBlock), typeof(ByLawItem));
 
-                    SystemAPI.SetComponent(blockEntity, block.data);
+                    SystemAPI.SetComponent(blockEntity, block.blockData);
                     DynamicBuffer<ByLawItem> itemsBuffer = SystemAPI.GetBuffer<ByLawItem>(blockEntity);
-                    foreach(var bylawItem in block.items)
+                    foreach(var bylawItem in block.itemData)
                     {
                         itemsBuffer.Add(bylawItem);
                     }
                     blocks.Add(new() { block = blockEntity });
                 }
-
-                Utils.SetPrefabText(prefab, bylawData.ValueRO);
+                var binding = ZoningByLawBinding.FromEntity(entity, this.EntityManager);
+                prefab.Update(binding);
+                Utils.SetPrefabText(prefab, binding);
             }
             entities.Dispose();
         }

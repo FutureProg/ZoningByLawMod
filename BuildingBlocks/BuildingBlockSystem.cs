@@ -49,40 +49,35 @@ namespace ZoningByLaw.BuildingBlocks
             switch(item.byLawItemType)
             {
                 case ByLawItemType.Uses:
-                    return EvalLandUse(building, propertyData, item, job);
+                    return EvalLandUse(building, properties, item, job);
                 default:
                     return false;
             }
         }
 
-        public static bool EvalLandUse(Entity building, BuildingPropertyData propertyData, ByLawItem item, ByLawZoneSpawnSystem.EvaluateSpawnAreas job)
+        public static bool EvalLandUse(Entity building, BuildingByLawProperties properties, ByLawItem item, ByLawZoneSpawnSystem.EvaluateSpawnAreas job)
         {
             var objectData = job.objectdataLookup[building];            
-            var archetypeComponents = objectData.m_Archetype.GetComponentTypes();
-            bool isOffice = archetypeComponents.Contains(ComponentType.ReadOnly<OfficeProperty>());//(zoneData.m_ZoneFlags & ZoneFlags.Office) != 0;
-            bool isIndustry = archetypeComponents.Contains(ComponentType.ReadOnly<IndustrialProperty>()); //(zoneData.m_AreaType & Game.Zones.AreaType.Industrial) != 0;                
-            bool isExtractor = archetypeComponents.Contains(ComponentType.ReadOnly<ExtractorProperty>());
-            bool isResidential = propertyData.m_ResidentialProperties > 0;
-            bool isCommercial = archetypeComponents.Contains(ComponentType.ReadOnly<CommercialProperty>());
+                        
 
             var flag = (ByLawZoneType) item.valueByteFlag;
-            if (isExtractor) // extractors only function when plopped down, so won't be spawning them
+            if (properties.isExtractor) // extractors only function when plopped down, so won't be spawning them
             {
                 return false;
             }
-            if ((ByLawZoneType.Residential & flag) == 0 && isResidential)
+            if ((ByLawZoneType.Residential & flag) == 0 && properties.isResidential)
             {
                 return false;
             }
-            if ((ByLawZoneType.Office & flag) == 0 && isOffice)
+            if ((ByLawZoneType.Office & flag) == 0 && properties.isOffice)
             {
                 return false;
             }
-            if ((ByLawZoneType.Commercial & flag) == 0 && isCommercial)
+            if ((ByLawZoneType.Commercial & flag) == 0 && properties.isCommercial)
             {
                 return false;
             }
-            if ((ByLawZoneType.Industrial & flag) == 0 && isIndustry)
+            if ((ByLawZoneType.Industrial & flag) == 0 && properties.isIndustry)
             {
                 return false;
             }

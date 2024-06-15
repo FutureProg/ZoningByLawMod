@@ -55,7 +55,7 @@ namespace Trejak.ZoningByLaw.UI
         private TriggerBinding<string> _setByLawName;
         private TriggerBinding<Color, Color> _setByLawZoneColour;
 
-        private TriggerBinding _toggleByLawRenderPreview;
+        //private TriggerBinding _toggleByLawRenderPreview;
 
         const string uiGroupName = "Trejak.ZoningByLaw";
 

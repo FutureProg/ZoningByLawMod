@@ -1,8 +1,11 @@
 ﻿using Colossal.Collections;
 using Colossal.Serialization.Entities;
 using Game;
+using Game.Areas;
+using Game.Buildings;
 using Game.Common;
 using Game.Prefabs;
+using Game.Rendering;
 using Game.UI.Editor;
 using System;
 using System.Collections.Generic;
@@ -145,12 +148,20 @@ namespace Trejak.ZoningByLaw.Prefab
                         }
                     }
                     ObjectGeometryData objGeom = objectGeomDataLookup[buildingEntity];
+                    ObjectData objData = SystemAPI.GetComponent<ObjectData>(buildingEntity);
+                    var archetypeComponents = objData.m_Archetype.GetComponentTypes();
+                    var propertyData = SystemAPI.GetComponent<BuildingPropertyData>(buildingEntity);
                     var props = new BuildingByLawProperties()
                     {
                         initialized = true,
                         parkingCount = parkingCount,
                         hasParkingGarage = hasParkingGarage,
-                        buildingHeight = objGeom.m_Size.y
+                        buildingHeight = objGeom.m_Size.y,
+                        isOffice = archetypeComponents.Contains(ComponentType.ReadOnly<OfficeProperty>()),
+                        isIndustry = archetypeComponents.Contains(ComponentType.ReadOnly<IndustrialProperty>()),
+                        isExtractor = archetypeComponents.Contains(ComponentType.ReadOnly<ExtractorProperty>()),
+                        isResidential = propertyData.m_ResidentialProperties > 0,
+                        isCommercial = archetypeComponents.Contains(ComponentType.ReadOnly<CommercialProperty>())
                     };
 
                     if (subMeshBufferLookup.TryGetBuffer(buildingEntity, out var buildingSubMeshes))
@@ -335,6 +346,12 @@ namespace Trejak.ZoningByLaw.Prefab
         public int parkingCount;
         public bool hasParkingGarage;
         public bool checkedBuildingSetBack;
+        public bool isResidential;
+        public bool isCommercial;
+        public bool isOffice;
+        public bool isIndustry;
+        public bool isExtractor;
+
         public float buildingSetbackFront;
         public float buildingSetBackLeft;
         public float buildingSetBackRight;
