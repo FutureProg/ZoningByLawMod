@@ -113,6 +113,7 @@ namespace Trejak.ZoningByLaw.Prefab
             ComponentLookup<PrefabData> prefabDataLookup = GetComponentLookup<PrefabData>(true);
             BufferLookup<SubMesh> subMeshBufferLookup = GetBufferLookup<SubMesh>(true);
             ComponentLookup<BuildingData> buildingDataLookup = GetComponentLookup<BuildingData>(true);
+            ComponentLookup<ObjectGeometryData> objectGeomDataLookup = GetComponentLookup<ObjectGeometryData>(true);
             foreach (ArchetypeChunk chunk in chunks)
             {
                 var buildingEntities = chunk.GetNativeArray(entityHandle);
@@ -143,11 +144,13 @@ namespace Trejak.ZoningByLaw.Prefab
                             parkingCount += AssessSubObject(subObj, subLaneBufferLookup, parkingLaneDataLookup, out hasParkingGarage);
                         }
                     }
+                    ObjectGeometryData objGeom = objectGeomDataLookup[buildingEntity];
                     var props = new BuildingByLawProperties()
                     {
                         initialized = true,
                         parkingCount = parkingCount,
-                        hasParkingGarage = hasParkingGarage
+                        hasParkingGarage = hasParkingGarage,
+                        buildingHeight = objGeom.m_Size.y
                     };
 
                     if (subMeshBufferLookup.TryGetBuffer(buildingEntity, out var buildingSubMeshes))
@@ -336,5 +339,6 @@ namespace Trejak.ZoningByLaw.Prefab
         public float buildingSetBackLeft;
         public float buildingSetBackRight;
         public float buildingSetBackRear;
+        public float buildingHeight;
     }
 }

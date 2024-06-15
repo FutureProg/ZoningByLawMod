@@ -31,6 +31,7 @@ using static Game.Simulation.ServiceCoverageSystem;
 using BuildingData = Game.Prefabs.BuildingData;
 using Game.Buildings;
 using System.Security.AccessControl;
+using Trejak.ZoningByLaw.BuildingBlocks;
 
 namespace Trejak.ZoningByLaw
 {
@@ -284,6 +285,10 @@ namespace Trejak.ZoningByLaw
             public ComponentLookup<PrefabData> prefabDataLookup;
             public BuildingByLawPropertiesLookup buildingByLawPropertiesLookup;
 
+            public ComponentLookup<ByLawBlock> bylawBlockLookup;
+            public BufferLookup<ByLawBlockReference> bylawBlockRefLookup;
+            public BufferLookup<ByLawItem> bylawItemLookup;
+
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
             {
                 Unity.Mathematics.Random random = this.randomSeed.GetRandom(unfilteredChunkIndex);
@@ -392,6 +397,15 @@ namespace Trejak.ZoningByLaw
             }
 
             private bool CompliesWithByLaw(ByLawZoneData byLaw, Entity buildingEntity, ObjectGeometryData objGeomData, ZoneData zoneData, BuildingData buildingData, BuildingPropertyData propertyData, ObjectData objectData)
+            {
+                if (byLaw.deleted) return false;
+                var blockRefBuffer = bylawBlockRefLookup[byLaw];
+                //TODO: finish this tomorrow
+                return true;
+            }
+
+            [Obsolete]
+            private bool CompliesWithByLaw(int x, ByLawZoneData byLaw, Entity buildingEntity, ObjectGeometryData objGeomData, ZoneData zoneData, BuildingData buildingData, BuildingPropertyData propertyData, ObjectData objectData)
             {                
                 bool re = true;
                 PrefabData prefabData = prefabDataLookup[buildingEntity];
