@@ -65,9 +65,9 @@ export enum ByLawItemCategory {
 
 export interface ByLawItem {
     byLawItemType: ByLawItemType;
-    byLawConstraintType: ByLawConstraintType;
+    constraintType: ByLawConstraintType;
     itemCategory: ByLawItemCategory;
-    operator: ByLawPropertyOperator;
+    propertyOperator: ByLawPropertyOperator;
 
     valueBounds1: Bounds1;
     valueByteFlag: number;
@@ -90,7 +90,6 @@ export interface ByLawBlock
 {
     blockType: BlockType ;
     logicOperation: LogicOperation;
-    items: ByLawItem[];
 }
 
 export interface ByLawBlockBinding {

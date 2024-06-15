@@ -3,11 +3,11 @@ import styles from './ByLawDetailsPanel.module.scss';
 import { ZONE_BORDER_IDX, ZONE_COLOR_IDX, defaultColor, deleteByLaw, selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor, toggleByLawRenderPreview } from "./bindings";
 import { useValue } from "cs2/api";
 import { ChangeEvent, ChangeEventHandler, useEffect, useRef, useState } from "react";
-import { ByLawConstraintType, ByLawItem, ByLawItemCategory, ByLawItemType, ByLawPropertyOperator, ByLawZoneComponent, ByLawZoneType } from "./types";
+import { ByLawConstraintType, ByLawItem, ByLawItemCategory, ByLawItemType, ByLawPropertyOperator, ByLawZoneComponent, ByLawZoneType, ZoningByLawBinding } from "./types";
 import { Bounds1, Color } from "cs2/bindings";
 import { Dropdown } from "cs2/ui";
 import { ColorHSV, VanillaComponentResolver } from "vanillacomponentresolver";
-import { rgbaToHex } from "./utils";
+import { GetDefaultByLawItem, rgbaToHex } from "./utils";
 import { Bounds1Field } from "./components/Bounds1Field";
 import ByLawPropertyView from "./components/Details/ByLawPropertyView";
 
@@ -15,7 +15,7 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
     let byLawData = useValue(selectedByLawData$);    
     let byLawName = useValue(selectedByLawName$);
     let byLawColour = useValue(selectedByLawColor$);    
-    let [newByLawData, updateNewByLawData] = useState<ByLawZoneComponent>();
+    let [newByLawData, updateNewByLawData] = useState<ZoningByLawBinding>();
     let [newByLawName, updateNewByLawName] = useState<string>();
     let [newByLawColor, updateNewByLawColor] = useState<Color>(defaultColor);
     let [newByLawBorder, updatenewByLawBorder] = useState<Color>(defaultColor);
@@ -43,7 +43,7 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
     const onUpdateZoneType = (newType: number) => {        
         updateNewByLawData({
             ...newByLawData!,
-            zoneType: newType
+            // zoneType: newType
         });
     }
     
@@ -85,21 +85,25 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
     const addPropertyTheme = {
         button: styles.addPropertyButton
     }
+    
+    const onAddProperty = () => {
+        newByLawData?.blocks[0].itemData.push(GetDefaultByLawItem());
+    }
 
     let testPropertyItem : ByLawItem = {
-        byLawConstraintType: ByLawConstraintType.Length,
+        constraintType: ByLawConstraintType.Length,
         byLawItemType: ByLawItemType.Height,
         itemCategory: ByLawItemCategory.Building,
-        operator: ByLawPropertyOperator.Is,
+        propertyOperator: ByLawPropertyOperator.Is,
         valueBounds1: {max: 0, min: 0},
         valueByteFlag: 0,
         valueNumber: 0
     };
     let testPropertyItem2 : ByLawItem = {
-        byLawConstraintType: ByLawConstraintType.MultiSelect,
+        constraintType: ByLawConstraintType.MultiSelect,
         byLawItemType: ByLawItemType.Uses,
         itemCategory: ByLawItemCategory.Lot,
-        operator: ByLawPropertyOperator.AtLeastOne,
+        propertyOperator: ByLawPropertyOperator.AtLeastOne,
         valueBounds1: {max: 0, min: 0},
         valueByteFlag: ByLawZoneType.Commercial | ByLawZoneType.Residential,
         valueNumber: 0
@@ -123,6 +127,10 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
                             {/* <td><input type="text" value={newByLawName} onChange={onNameChange}/></td> */}
                         </tr>
                         <VanillaComponentResolver.instance.ColorField value={newByLawColor} onChange={onUpdateByLawColor(ZONE_COLOR_IDX)}/>
+                        <h2>Properties</h2>
+                        <ByLawPropertyView byLawItem={testPropertyItem}/>
+                        <ByLawPropertyView byLawItem={testPropertyItem2}/>
+                        <Button focusKey={FOCUS_AUTO} variant="flat" theme={addPropertyTheme} >Add Constraint</Button>                        
                         {/* <tr>
                             <Button onClick={toggleByLawRenderPreview}>Preview (very much WIP)</Button>
                         </tr> */}
@@ -159,11 +167,7 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
                         <tr>
                             <th>Parking Constraints (count)</th>
                             <td><Bounds1Field bounds={newByLawData?.parking} name='parking' onChange={onUpdateBounds} /></td>
-                        </tr> */}
-                        <h2>Properties</h2>
-                        <ByLawPropertyView byLawItem={testPropertyItem}/>
-                        <ByLawPropertyView byLawItem={testPropertyItem2}/>
-                        <Button focusKey={FOCUS_AUTO} variant="flat" theme={addPropertyTheme} >Add Constraint</Button>                        
+                        </tr> */}                        
                     </div>                               
                 </div>            
             </Scrollable>

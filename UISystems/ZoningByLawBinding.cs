@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Trejak.ZoningByLaw.BuildingBlocks;
 using Trejak.ZoningByLaw.Prefab;
+using Unity.Collections;
 using Unity.Entities;
 
 namespace Trejak.ZoningByLaw.UISystems
@@ -70,7 +71,7 @@ namespace Trejak.ZoningByLaw.UISystems
         {
             reader.ReadMapBegin();
             ArrayReader<ByLawBlockBinding> arrReader = new ArrayReader<ByLawBlockBinding>();
-            reader.ReadProperty(nameof(blocks));
+            reader.ReadProperty(nameof(blocks));            
             arrReader.Read(reader, out this.blocks);
             reader.ReadProperty(nameof(deleted));            
             reader.Read(out this.deleted);
@@ -145,7 +146,7 @@ namespace Trejak.ZoningByLaw.UISystems
             return new ByLawBlockBinding()
             {
                 blockData = em.GetComponentData<ByLawBlock>(blockEntity),
-                itemData = em.GetBuffer<ByLawItem>(blockEntity).ToArray()
+                itemData = em.GetBuffer<ByLawItem>(blockEntity).ToNativeArray(Allocator.Persistent).ToArray()
             };            
         }
 

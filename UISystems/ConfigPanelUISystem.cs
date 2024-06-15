@@ -187,7 +187,9 @@ namespace Trejak.ZoningByLaw.UI
             data.UpdateEntity(_selectedByLaw.value, this.EntityManager);
             //EntityManager.SetComponentData<ByLawZoneData>(_selectedByLaw.value, data);
             var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(_selectedByLaw.value);
-            Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", "Description of zoning bylaw");//TODO: change to create description data.CreateDescription());
+            prefab.Update(data);
+            Utils.SetPrefabText(prefab, data);
+            //Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", "Description of zoning bylaw");//TODO: change to create description data.CreateDescription());
             this._selectedByLawData.Update(data);
             SaveByLawsToDisk();
         }

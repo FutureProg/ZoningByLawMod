@@ -19,7 +19,7 @@ export default ({byLawItem, isOpen, onChange: onChangeCallback}: Props) : JSX.El
         return (<></>);
     }
 
-    let {byLawConstraintType: constraintType, byLawItemType: itemType} = byLawItem;
+    let {constraintType: constraintType, byLawItemType: itemType} = byLawItem;
 
     let [localByLawItem, updateLocalByLawItem] = useState(byLawItem); 
 
@@ -48,7 +48,7 @@ export default ({byLawItem, isOpen, onChange: onChangeCallback}: Props) : JSX.El
         }
 
         return ByLawItemEnumEditor({
-            constraintType: localByLawItem.byLawConstraintType,
+            constraintType: localByLawItem.constraintType,
             itemType: localByLawItem.byLawItemType,
             itemValue: localByLawItem.valueByteFlag,
             onChange

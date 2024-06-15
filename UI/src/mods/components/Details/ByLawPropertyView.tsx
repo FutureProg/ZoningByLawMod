@@ -57,7 +57,7 @@ export default ({byLawItem} : {byLawItem: ByLawItem}) => {
         </Dropdown>
     )
 
-    let operatorName = splitByUpperCase(ByLawPropertyOperator[_byLawItem.operator]);
+    let operatorName = splitByUpperCase(ByLawPropertyOperator[_byLawItem.propertyOperator]);
     let propName = splitByUpperCase(ByLawItemType[_byLawItem.byLawItemType]);
 
     return (
@@ -84,8 +84,8 @@ export default ({byLawItem} : {byLawItem: ByLawItem}) => {
 
 const ByLawItemDescription = ({item} : {item: ByLawItem}) => {
     let txt = "";
-    let measure = getMeasurementString(item.byLawItemType, item.byLawConstraintType);
-    switch(item.byLawConstraintType) {        
+    let measure = getMeasurementString(item.byLawItemType, item.constraintType);
+    switch(item.constraintType) {        
         case ByLawConstraintType.Length:            
             txt = `Between ${item.valueBounds1.min}${measure} and ${item.valueBounds1.max}${measure}`;
             break;                      

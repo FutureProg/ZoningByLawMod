@@ -6,7 +6,7 @@ import { ByLawZoneListItem } from "./types";
 import { useEffect, useState } from "react";
 import { ByLawDetailsPanel } from "./ByLawDetailsPanel";
 import { Entity, toolbar } from "cs2/bindings";
-import { GetDefaultByLawComponent } from "./utils";
+import { GetDefaultByLawComponent, GetDefaultZoningByLawBinding } from "./utils";
 import { VanillaComponentResolver } from "vanillacomponentresolver";
 import ImageLabelButton from "./atoms/ImageLabelButton";
 
@@ -58,7 +58,7 @@ export const MainPanel = () => {
     );
 
     const onCreateNewByLaw = () => {
-        const baseByLaw = GetDefaultByLawComponent();
+        const baseByLaw = GetDefaultZoningByLawBinding();
         createNewByLaw(baseByLaw);
     }
 

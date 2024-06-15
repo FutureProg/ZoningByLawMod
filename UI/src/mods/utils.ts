@@ -1,5 +1,5 @@
 import { LocalizedNumber, UnitSystem, useLocalization } from "cs2/l10n";
-import { ByLawConstraintType, ByLawItemType, ByLawZoneComponent, ByLawZoneType } from "./types";
+import { BlockType, ByLawConstraintType, ByLawItem, ByLawItemCategory, ByLawItemType, ByLawPropertyOperator, ByLawZoneComponent, ByLawZoneType, LogicOperation, ZoningByLawBinding } from "./types";
 import { Bounds1, Color, Unit } from "cs2/bindings";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -10,6 +10,34 @@ export const GetDefaultByLawComponent = () : ByLawZoneComponent => {return {
     parking: {max: -1, min: -1},
     zoneType: ByLawZoneType.None    
 }};
+
+export const GetDefaultByLawItem = () : ByLawItem => ({
+    constraintType: ByLawConstraintType.None,
+    byLawItemType: ByLawItemType.None,
+    itemCategory: ByLawItemCategory.None,
+    propertyOperator: ByLawPropertyOperator.None,
+    valueBounds1: {max: 0, min: 0},
+    valueByteFlag: 0,
+    valueNumber: 0
+});
+
+export const GetDefaultZoningByLawBinding = () : ZoningByLawBinding => ({
+    blocks: [{
+        blockData: {
+            blockType: BlockType.Instruction,
+            logicOperation: LogicOperation.None            
+        },
+        itemData: [{
+            ...GetDefaultByLawItem(),
+            byLawItemType: ByLawItemType.Uses,
+            constraintType: ByLawConstraintType.MultiSelect,
+            propertyOperator: ByLawPropertyOperator.AtLeastOne,
+            itemCategory: ByLawItemCategory.Lot,
+            valueByteFlag: 0                 
+        }]
+    }],
+    deleted: false
+});
 
 export const rgbaToHex = (color: Color) : string => {
     return Object.values(color).reduce((accum, curr) => {
