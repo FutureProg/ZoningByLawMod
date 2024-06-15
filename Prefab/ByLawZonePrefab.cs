@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Trejak.ZoningByLaw.BuildingBlocks;
+using Trejak.ZoningByLaw.UISystems;
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -22,14 +23,22 @@ namespace Trejak.ZoningByLaw.Prefab
         public Bounds1 frontage = new Bounds1(-1, -1);
         public Bounds1 parking = new Bounds1(-1, -1);
         public string bylawName;
-        public List<Block> blocks;
+        public List<ByLawBlockBinding> blocks;
 
         public bool deleted = false;
 
         public override void GetPrefabComponents(HashSet<ComponentType> components)
         {
             base.GetPrefabComponents(components);
+            components.Add(ComponentType.ReadWrite<ByLawBlockReference>());
             components.Add(ComponentType.ReadWrite<ByLawZoneData>());
+        }
+
+        public void Update(ZoningByLawBinding binding)
+        {
+            this.blocks.Clear();
+            this.blocks.AddRange(binding.blocks);
+            this.deleted = binding.deleted;
         }
 
         public string CreateDescription()
@@ -103,11 +112,6 @@ namespace Trejak.ZoningByLaw.Prefab
             reader.ReadMapEnd();
         }
 
-        public class Block
-        {
-            ByLawBlock data;
-            List<ByLawItem> items;
-        }
     }
 
     public enum ByLawZoneType : byte

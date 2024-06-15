@@ -1,6 +1,6 @@
 import { bindValue, trigger } from "cs2/api";
 import mod from '../../mod.json';
-import { ByLawZoneComponent, ByLawZoneData, ByLawZoneListItem } from "./types";
+import { ByLawZoneComponent, ByLawZoneListItem } from "./types";
 import { Color, Entity } from "cs2/bindings";
 
 export const ZONE_COLOR_IDX = 0;

@@ -1,7 +1,9 @@
-﻿using Game;
+﻿using Colossal.Mono.CompilerServices.SymbolWriter;
+using Game;
 using Game.Common;
 using Game.Prefabs;
 using Trejak.ZoningByLaw;
+using Trejak.ZoningByLaw.BuildingBlocks;
 using Trejak.ZoningByLaw.Prefab;
 using Unity.Collections;
 using Unity.Entities;
@@ -42,6 +44,7 @@ namespace Trejak.ZoningByLaw.Prefab
                 var entity = entities[i];
                 var bylawData = SystemAPI.GetComponentRW<ByLawZoneData>(entity);
                 var prefabData = SystemAPI.GetComponentRO<PrefabData>(entity);
+                var blocks = SystemAPI.GetBuffer<ByLawBlockReference>(entity);
                 ByLawZonePrefab prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(prefabData.ValueRO);
                 Mod.log.Info("Initializing Zone Prefab: " + prefab.name);
                 bylawData.ValueRW.frontage = prefab.frontage;
@@ -50,6 +53,21 @@ namespace Trejak.ZoningByLaw.Prefab
                 bylawData.ValueRW.parking = prefab.parking;
                 bylawData.ValueRW.zoneType = prefab.zoneType;                
                 SystemAPI.SetComponent(entity, bylawData.ValueRW);
+                
+                // create each individual block
+                foreach(var block in prefab.blocks)
+                {
+                    var blockEntity = EntityManager.CreateEntity(typeof(ByLawBlock), typeof(ByLawItem));
+
+                    SystemAPI.SetComponent(blockEntity, block.data);
+                    DynamicBuffer<ByLawItem> itemsBuffer = SystemAPI.GetBuffer<ByLawItem>(blockEntity);
+                    foreach(var bylawItem in block.items)
+                    {
+                        itemsBuffer.Add(bylawItem);
+                    }
+                    blocks.Add(new() { block = blockEntity });
+                }
+
                 Utils.SetPrefabText(prefab, bylawData.ValueRO);
             }
             entities.Dispose();

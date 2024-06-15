@@ -93,6 +93,12 @@ export interface ByLawBlock
     items: ByLawItem[];
 }
 
-export interface ZoningByLaw {
-    
+export interface ByLawBlockBinding {
+    blockData: ByLawBlock;
+    itemData: ByLawItem[];
+}
+
+export interface ZoningByLawBinding {    
+    blocks: ByLawBlockBinding[];
+    deleted: boolean;
 }

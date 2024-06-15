@@ -13,10 +13,10 @@ namespace Trejak.ZoningByLaw.BuildingBlocks
     // attached to the same entity as ByLawZoneData
     public struct ByLawBlockReference: IBufferElementData
     {
-        Entity block;
+        public Entity block;
     }
 
-    public struct ByLawBlock : IBufferElementData, IJsonReadable, IJsonWritable
+    public struct ByLawBlock : IComponentData, IJsonReadable, IJsonWritable
     {
         public BlockType blockType;
         public LogicOperation logicOperation;        

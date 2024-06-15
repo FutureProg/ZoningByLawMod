@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Trejak.ZoningByLaw.Prefab;
+using Trejak.ZoningByLaw.UISystems;
 using Unity.Collections;
 using UnityEngine;
 
@@ -23,13 +24,15 @@ namespace Trejak.ZoningByLaw.Serialization
         public string bylawDesc;
         public Color zoneColor;
         public Color edgeColor;
-        public ByLawZoneData bylawZoneData;        
+        public ByLawZoneData bylawZoneData;
+        public ZoningByLawBinding zoningByLawBinding;
 
         public ByLawRecord()
         {
 
         }
 
+        [Obsolete]
         public ByLawRecord(string name, string description, Color zoneColor, Color edgeColor, ByLawZoneData data, PrefabID prefabID)
         {
             this.bylawZoneData = data;
@@ -39,5 +42,16 @@ namespace Trejak.ZoningByLaw.Serialization
             this.bylawDesc = description;
             this.idName = prefabID.GetName();
         }
+
+        public ByLawRecord(string name, string description, Color zoneColor, Color edgeColor, ZoningByLawBinding data, PrefabID prefabID)
+        {
+            this.zoningByLawBinding = data;
+            this.bylawName = name;
+            this.zoneColor = zoneColor;
+            this.edgeColor = edgeColor;
+            this.bylawDesc = description;
+            this.idName = prefabID.GetName();
+        }
+
     }
 }

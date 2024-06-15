@@ -9,13 +9,17 @@ namespace Trejak.ZoningByLaw.Prefab
 {
     public struct ByLawZoneData : IComponentData, IJsonWritable, IJsonReadable
     {
-
+        [Obsolete]
         public ByLawZoneType zoneType;
+        [Obsolete]
         public Bounds1 height;
+        [Obsolete]
         public Bounds1 lotSize;
+        [Obsolete]
         public Bounds1 frontage;
+        [Obsolete]
         public Bounds1 parking;
-        public NativeList<ByLawBlock> blocks;
+        
 
 
         public bool deleted; // deleted bylaws shouldn't show up in the UI, and won't be serialized
@@ -33,18 +37,7 @@ namespace Trejak.ZoningByLaw.Prefab
             reader.ReadProperty("frontage");
             reader.Read(out frontage);
             reader.ReadProperty("parking");
-            reader.Read(out this.parking);
-            reader.ReadProperty("blocks");
-            ulong blockLength = reader.ReadArrayBegin();
-            this.blocks = new NativeList<ByLawBlock>((int) blockLength, Allocator.Persistent);
-            var blockReader = ValueReaders.Create<ByLawBlock>();
-            for(ulong i = 0; i < blockLength; i++)
-            {
-                reader.ReadArrayElement(i);
-                blockReader.Read(reader, out var block);
-                this.blocks[(int)i] = block;
-            }
-            reader.ReadArrayEnd();
+            reader.Read(out this.parking);           
             reader.ReadMapEnd();
         }
 

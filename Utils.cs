@@ -52,6 +52,9 @@ namespace Trejak.ZoningByLaw
                 var zoneData = em.GetComponentData<ByLawZoneData>(entity);
                 var prefabID = zonePrefab.GetPrefabID();
                 if (zoneData.deleted) continue;
+
+                
+
                 records.Add(new ByLawRecord(zonePrefab.bylawName, zoneData.CreateDescription(), zonePrefab.m_Color, zonePrefab.m_Edge, zoneData, prefabID));
             }
             var toDump = records.ToArray();
