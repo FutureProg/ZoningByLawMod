@@ -40,6 +40,7 @@ export default ({byLawItem, onChange: onChangeCallback} : {byLawItem: ByLawItem,
             ...GetDefaultByLawItem(),
             byLawItemType: num
         });
+        onChangeCallback(_byLawItem);
     }
 
     let dropdownItems = nameValues.map((item, idx) => (
@@ -54,7 +55,7 @@ export default ({byLawItem, onChange: onChangeCallback} : {byLawItem: ByLawItem,
     let itemTypeDropdown = (
         <Dropdown theme={DropdownDefaultStyle} focusKey={FOCUS_AUTO} content={dropdownContent}>
             <DropdownToggle style={{width: '80%'}}>
-                Height
+                {splitByUpperCase(ByLawItemType[_byLawItem.byLawItemType])}
             </DropdownToggle>            
         </Dropdown>
     );
@@ -65,6 +66,7 @@ export default ({byLawItem, onChange: onChangeCallback} : {byLawItem: ByLawItem,
             ..._byLawItem,
             propertyOperator: opType
         });
+        onChangeCallback(_byLawItem);
     }
 
     dropdownItems = operationValues.map((item, idx) => (
@@ -78,13 +80,14 @@ export default ({byLawItem, onChange: onChangeCallback} : {byLawItem: ByLawItem,
     let operationsDropdown = (
         <Dropdown theme={DropdownDefaultStyle} focusKey={FOCUS_AUTO} content={dropdownContent}>
             <DropdownToggle style={{width: '80%'}}>
-                Is
+                {splitByUpperCase(ByLawPropertyOperator[_byLawItem.propertyOperator])}
             </DropdownToggle>            
         </Dropdown>
     )
 
     let onPropertyValueChange = (item: ByLawItem) => {                
         setByLawItem(item);
+        onChangeCallback?.call(null, item);
     }
 
     let operatorName = splitByUpperCase(ByLawPropertyOperator[_byLawItem.propertyOperator]);
@@ -101,8 +104,11 @@ export default ({byLawItem, onChange: onChangeCallback} : {byLawItem: ByLawItem,
                 </div>
                 <div className={styles.description}><ByLawItemDescription item={_byLawItem}/></div>
                 <div className={styles.buttons}>
-                    <Button onSelect={() => setEditing(!editing)} variant='icon' src='coui://uil/Colored/Pencil.svg' />
-                    <Button variant='icon' src='coui://uil/Colored/Trash.svg' />                
+                    <Button 
+                        onSelect={() => setEditing(!editing)} 
+                        variant='icon' 
+                        src={'coui://uil/Colored/' + (!editing? 'Pencil.svg' : 'Checkmark.svg')} />
+                    <Button variant='icon' src='coui://uil/Colored/Trash.svg' /> 
                 </div>
             </div>
             <div className={styles.editSection + ' ' + (editing? '' : styles.hidden)}>

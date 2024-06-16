@@ -91,9 +91,13 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
         updateNewByLawData(newByLawData);
     }
 
-    let propertyViews = newByLawData?.blocks[0].itemData.forEach((item, index) => {
+    let onPropertyViewChange = (item: ByLawItem) => {
+        
+    }
+
+    let propertyViews = newByLawData?.blocks[0].itemData.map((item, index) => {
         return (
-            <ByLawPropertyView byLawItem={item} key={index} />
+            <ByLawPropertyView byLawItem={item} key={index} onChange={onPropertyViewChange} />
         )
     });
     
@@ -116,8 +120,7 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
                         </tr>
                         <VanillaComponentResolver.instance.ColorField value={newByLawColor} onChange={onUpdateByLawColor(ZONE_COLOR_IDX)}/>
                         <h2>Properties</h2>
-                        <ByLawPropertyView byLawItem={testPropertyItem}/>
-                        <ByLawPropertyView byLawItem={testPropertyItem2}/>
+                        {propertyViews}
                         <Button focusKey={FOCUS_AUTO} variant="flat" theme={addPropertyTheme} >Add Constraint</Button>                        
                         {/* <tr>
                             <Button onClick={toggleByLawRenderPreview}>Preview (very much WIP)</Button>
