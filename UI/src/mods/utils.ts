@@ -127,3 +127,82 @@ export const flagToStringArr = (flag: number, itemType: ByLawItemType) => {
         })
         .map(([k, v], idx) => k);
 }
+
+export const getOperationTypes = (item: ByLawItem) : ByLawPropertyOperator[] => {
+    let re : ByLawPropertyOperator[] = [];
+    switch(item.byLawItemType) {
+        case ByLawItemType.Uses:
+            re.push(ByLawPropertyOperator.AtLeastOne);
+        case ByLawItemType.Height:
+        case ByLawItemType.LotWidth:
+        case ByLawItemType.LotSize:
+        case ByLawItemType.Parking:
+        case ByLawItemType.FrontSetback:
+        case ByLawItemType.LeftSetback:
+        case ByLawItemType.RightSetback:
+        case ByLawItemType.RearSetback:                
+            re.push(ByLawPropertyOperator.Is);                                   
+        case ByLawItemType.NoisePollutionLevel:
+        case ByLawItemType.GroundPollutionLevel:
+        case ByLawItemType.AirPollutionLevel:
+            re.push(ByLawPropertyOperator.Is);
+        case ByLawItemType.None:
+        default:
+            re.push(ByLawPropertyOperator.None);
+    }
+    return re;
+}
+
+export const getConstraintTypes = (item: ByLawItem) : ByLawConstraintType[] => {
+    let re : ByLawConstraintType[] = [];
+    switch(item.byLawItemType) {
+        case ByLawItemType.Uses:
+            re.push(ByLawConstraintType.MultiSelect);
+        case ByLawItemType.Height:
+        case ByLawItemType.LotWidth:
+        case ByLawItemType.LotSize:
+        case ByLawItemType.Parking:
+        case ByLawItemType.FrontSetback:
+        case ByLawItemType.LeftSetback:
+        case ByLawItemType.RightSetback:
+        case ByLawItemType.RearSetback:                
+            re.push(ByLawConstraintType.Length);                                   
+
+        case ByLawItemType.NoisePollutionLevel:
+        case ByLawItemType.GroundPollutionLevel:
+        case ByLawItemType.AirPollutionLevel:
+            re.push(ByLawConstraintType.MultiSelect);
+
+        case ByLawItemType.None:
+        default:
+            re.push(ByLawConstraintType.None);
+    }
+    return re;
+};
+
+export const getItemCategories = (itemType: ByLawItemType) : ByLawItemCategory => {
+    switch (itemType)
+    {
+        case ByLawItemType.Uses:
+        case ByLawItemType.LotWidth:
+        case ByLawItemType.LotSize:
+        case ByLawItemType.Parking:
+            return ByLawItemCategory.Lot;
+    
+        case ByLawItemType.Height:               
+        case ByLawItemType.FrontSetback:
+        case ByLawItemType.LeftSetback:
+        case ByLawItemType.RightSetback:
+        case ByLawItemType.RearSetback:
+            return ByLawItemCategory.Building;
+    
+        case ByLawItemType.NoisePollutionLevel:
+        case ByLawItemType.GroundPollutionLevel:
+        case ByLawItemType.AirPollutionLevel:
+            return ByLawItemCategory.Pollution;
+    
+        case ByLawItemType.None:
+        default:
+            return ByLawItemCategory.None;
+    }
+}

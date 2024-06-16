@@ -4,9 +4,15 @@ import { useState } from 'react';
 import { ByLawConstraintType, ByLawItem, ByLawItemCategory, ByLawItemType, ByLawPropertyOperator, ByLawZoneType } from 'mods/types';
 import { ButtonedNumberInput } from '../ButtonedNumberInput';
 import ByLawPropertyEditSection from './ByLawPropertyEditSection';
-import { getMeasurementString, flagToStringArr } from 'mods/utils';
+import { getMeasurementString, flagToStringArr, GetDefaultByLawItem } from 'mods/utils';
+import { Theme } from 'cs2/bindings';
+import { getModule } from 'cs2/modding';
 
-export default ({byLawItem} : {byLawItem: ByLawItem}) => {
+const DropdownDefaultStyle: Theme | any = getModule("game-ui/common/input/dropdown/themes/default.module.scss", "classes");
+
+const DropdownStyle: Theme | any = getModule("game-ui/menu/themes/dropdown.module.scss", "classes");
+
+export default ({byLawItem, onChange: onChangeCallback} : {byLawItem: ByLawItem, onChange: (item: ByLawItem) => void}) => {
     let [editing, setEditing] = useState(false);    
     let [_byLawItem, setByLawItem] = useState(byLawItem);
 
@@ -27,35 +33,59 @@ export default ({byLawItem} : {byLawItem: ByLawItem}) => {
             return {key: splitByUpperCase(key as string), value}
         });
 
+    
+    let onItemTypeChange = (value: string) => {
+        let num : ByLawItemType = Number(value);        
+        setByLawItem({
+            ...GetDefaultByLawItem(),
+            byLawItemType: num
+        });
+    }
 
     let dropdownItems = nameValues.map((item, idx) => (
-        <DropdownItem key={idx} value={item.value}>{item.key}</DropdownItem>
+        <DropdownItem key={idx} value={item.value} onChange={onItemTypeChange} closeOnSelect={true}>
+            {item.key}
+        </DropdownItem>
     ));
     let dropdownContent = (
         <div>{dropdownItems}</div>
     );
 
-    let nameDropdown = (
-        <Dropdown focusKey={FOCUS_AUTO} content={dropdownContent}>
+    let itemTypeDropdown = (
+        <Dropdown theme={DropdownDefaultStyle} focusKey={FOCUS_AUTO} content={dropdownContent}>
             <DropdownToggle style={{width: '80%'}}>
                 Height
             </DropdownToggle>            
         </Dropdown>
     );
 
+    let onOperationTypeChange = (value: string) => {
+        let opType : ByLawPropertyOperator = Number(value); 
+        setByLawItem({
+            ..._byLawItem,
+            propertyOperator: opType
+        });
+    }
+
     dropdownItems = operationValues.map((item, idx) => (
-        <DropdownItem key={idx} value={item.value}>{item.key}</DropdownItem>
+        <DropdownItem key={idx} value={item.value} onChange={onOperationTypeChange} closeOnSelect={true}>
+            {item.key}
+        </DropdownItem>
     ));
     dropdownContent = (
         <div>{dropdownItems}</div>
     );
     let operationsDropdown = (
-        <Dropdown focusKey={FOCUS_AUTO} content={dropdownContent}>
+        <Dropdown theme={DropdownDefaultStyle} focusKey={FOCUS_AUTO} content={dropdownContent}>
             <DropdownToggle style={{width: '80%'}}>
                 Is
             </DropdownToggle>            
         </Dropdown>
     )
+
+    let onPropertyValueChange = (item: ByLawItem) => {                
+        setByLawItem(item);
+    }
 
     let operatorName = splitByUpperCase(ByLawPropertyOperator[_byLawItem.propertyOperator]);
     let propName = splitByUpperCase(ByLawItemType[_byLawItem.byLawItemType]);
@@ -64,7 +94,7 @@ export default ({byLawItem} : {byLawItem: ByLawItem}) => {
         <div className={styles.row}>      
             <div className={styles.topBar}>
                 <div className={styles.propertyName}>                
-                    {!editing? propName : nameDropdown}
+                    {!editing? propName : itemTypeDropdown}
                 </div>
                 <div className={styles.operation}>
                     {!editing? operatorName : operationsDropdown}
@@ -76,7 +106,7 @@ export default ({byLawItem} : {byLawItem: ByLawItem}) => {
                 </div>
             </div>
             <div className={styles.editSection + ' ' + (editing? '' : styles.hidden)}>
-                <ByLawPropertyEditSection byLawItem={_byLawItem} isOpen={editing} />
+                <ByLawPropertyEditSection byLawItem={_byLawItem} isOpen={editing} onChange={onPropertyValueChange} />
             </div>
         </div>
     )

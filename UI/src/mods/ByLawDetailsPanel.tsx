@@ -88,26 +88,14 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
     
     const onAddProperty = () => {
         newByLawData?.blocks[0].itemData.push(GetDefaultByLawItem());
+        updateNewByLawData(newByLawData);
     }
 
-    let testPropertyItem : ByLawItem = {
-        constraintType: ByLawConstraintType.Length,
-        byLawItemType: ByLawItemType.Height,
-        itemCategory: ByLawItemCategory.Building,
-        propertyOperator: ByLawPropertyOperator.Is,
-        valueBounds1: {max: 0, min: 0},
-        valueByteFlag: 0,
-        valueNumber: 0
-    };
-    let testPropertyItem2 : ByLawItem = {
-        constraintType: ByLawConstraintType.MultiSelect,
-        byLawItemType: ByLawItemType.Uses,
-        itemCategory: ByLawItemCategory.Lot,
-        propertyOperator: ByLawPropertyOperator.AtLeastOne,
-        valueBounds1: {max: 0, min: 0},
-        valueByteFlag: ByLawZoneType.Commercial | ByLawZoneType.Residential,
-        valueNumber: 0
-    };
+    let propertyViews = newByLawData?.blocks[0].itemData.forEach((item, index) => {
+        return (
+            <ByLawPropertyView byLawItem={item} key={index} />
+        )
+    });
     
     return (
         <div className={styles.bylawDetails}>
@@ -133,41 +121,7 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
                         <Button focusKey={FOCUS_AUTO} variant="flat" theme={addPropertyTheme} >Add Constraint</Button>                        
                         {/* <tr>
                             <Button onClick={toggleByLawRenderPreview}>Preview (very much WIP)</Button>
-                        </tr> */}
-                        {/* <tr>
-                            <th>Zone Colour</th>
-                            <td>
-                                
-                                <input type="text" readOnly={true} value={rgbaToHex(newByLawColor)} />
-                            </td>                        
-                        </tr> */}
-                        {/* <tr>
-                            <th>Zone Border Colour</th>
-                            <td>
-                                <VanillaComponentResolver.instance.ColorField value={newByLawBorder} onChange={onUpdateByLawColor(ZONE_BORDER_IDX)}/>
-                                <input type="text" readOnly={true} value={rgbaToHex(newByLawBorder)} />
-                            </td>                        
-                        </tr> */}
-                        {/* <tr>
-                            <th>Permitted Uses</th>
-                            <td><EnumField<ByLawZoneType> enum={newByLawData != undefined? newByLawData!.zoneType : byLawData? byLawData.zoneType : 0} onChange={onUpdateZoneType} /> </td>
-                        </tr>
-                        <tr>
-                            <th>Height Constraints (metres)</th>
-                            <td><Bounds1Field bounds={newByLawData?.height} name='height' onChange={onUpdateBounds} /></td>
-                        </tr>
-                        <tr>
-                            <th>Lot Frontage Constraints (metres)</th>
-                            <td><Bounds1Field bounds={newByLawData?.frontage} name='frontage' onChange={onUpdateBounds} /></td>
-                        </tr>
-                        <tr>
-                            <th>Lot Size Constraints (metres)</th>
-                            <td><Bounds1Field bounds={newByLawData?.lotSize} name='lotSize' onChange={onUpdateBounds} /></td>
-                        </tr>
-                        <tr>
-                            <th>Parking Constraints (count)</th>
-                            <td><Bounds1Field bounds={newByLawData?.parking} name='parking' onChange={onUpdateBounds} /></td>
-                        </tr> */}                        
+                        </tr> */}                                      
                     </div>                               
                 </div>            
             </Scrollable>
