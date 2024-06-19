@@ -32,7 +32,7 @@ export default <T,>(props: EnumFieldCheckboxesProps) => {
                 nEnum |= entries[k];
             }
         });
-        props.onChange? props.onChange(nEnum) : undefined;
+        props.onChange?.call(null, nEnum);
         setChecked(nState);
     };
 

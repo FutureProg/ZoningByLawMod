@@ -47,6 +47,17 @@
     margin: 4rem 0;
 }
 
+.topLeftSection {
+    width: 25%;
+    margin-right: 5%;
+}
+.topRightSection {
+    width: 65%;
+}
+.saveButton {
+    width: 200rem;
+}
+
 .mainPanelSections {
     display: flex;    
     flex-direction: row;    

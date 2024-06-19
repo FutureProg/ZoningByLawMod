@@ -1,4 +1,4 @@
-import { Button, Panel, Scrollable } from "cs2/ui";
+import { Button, FOCUS_AUTO, Panel, Scrollable } from "cs2/ui";
 import styles from './mainpanel.module.scss';
 import { useValue } from "cs2/api";
 import { byLawZoneList$, createNewByLaw, isConfigPanelOpen$, setActiveByLaw, setConfigPanelOpen } from "./bindings";
@@ -69,15 +69,30 @@ export const MainPanel = () => {
 
     let [x, setX] = useState<string | undefined | null>("");
 
+    let topRightSection = (
+        <>
+        <Button 
+            className={styles.saveButton} 
+            focusKey={FOCUS_AUTO} 
+            variant="flat">Save</Button>
+        </>
+    )
+
     return !isPanelOpen? <></> : (
         <Panel className={styles.mainPanel} draggable={false} header={"Zoning ByLaws"} onClose={onClose} contentClassName={styles.mainPanelContentContainer}>            
             <div className={styles.mainPanelContent}>
                 <div className={styles.mainPanelTopBar}>
-                    <ImageLabelButton 
-                        src="coui://uil/Standard/Plus.svg"
-                        onClick={onCreateNewByLaw}>                                                
-                        Add New ByLaw
-                    </ImageLabelButton>
+                    <div className={styles.topLeftSection}>
+                        <ImageLabelButton 
+                            src="coui://uil/Standard/Plus.svg"
+                            onClick={onCreateNewByLaw}>                                                
+                            Add New ByLaw
+                        </ImageLabelButton>                                        
+                    </div>   
+                    <div className={styles.topRightSection}>
+                        { selectedListItem >= 0? topRightSection: <></>}
+                        
+                    </div>                 
                 </div>
                 <div className={styles.mainPanelSections}>
                     <Scrollable className={styles.bylawList}>

@@ -21,15 +21,16 @@ export default ({byLawItem, isOpen, onChange: onChangeCallback}: Props) : JSX.El
 
     let {constraintType: constraintType, byLawItemType: itemType} = byLawItem;
 
-    let [localByLawItem, updateLocalByLawItem] = useState(byLawItem); 
-
+    // let [localByLawItem, updateLocalByLawItem] = useState(byLawItem); 
+    
     if (constraintType == ByLawConstraintType.Length || constraintType == ByLawConstraintType.Count) {
         let onChange = (name: string, newValue: Bounds1) => {
-            updateLocalByLawItem({
-                ...localByLawItem,
+            let nItemVal = {
+                ...byLawItem,
                 valueBounds1: newValue                
-            });
-            onChangeCallback?.call(null, localByLawItem);
+            };
+            // updateLocalByLawItem(nItemVal);            
+            onChangeCallback?.call(null, nItemVal);
         }
         return ByLawItemBounds1Editor({
             name: ByLawItemType[byLawItem.byLawItemType], 
@@ -40,17 +41,18 @@ export default ({byLawItem, isOpen, onChange: onChangeCallback}: Props) : JSX.El
 
     if (constraintType == ByLawConstraintType.MultiSelect || constraintType == ByLawConstraintType.SingleSelect) {
         let onChange = (nValue: number) => {
-            updateLocalByLawItem({
-                ...localByLawItem,
+            let nItemVal = {
+                ...byLawItem,
                 valueByteFlag: nValue
-            });
-            onChangeCallback?.call(null, localByLawItem);
+            }
+            // updateLocalByLawItem(nItemVal);            
+            onChangeCallback?.call(null, nItemVal);
         }
 
         return ByLawItemEnumEditor({
-            constraintType: localByLawItem.constraintType,
-            itemType: localByLawItem.byLawItemType,
-            itemValue: localByLawItem.valueByteFlag,
+            constraintType: byLawItem.constraintType,
+            itemType: byLawItem.byLawItemType,
+            itemValue: byLawItem.valueByteFlag,
             onChange
         });
     }

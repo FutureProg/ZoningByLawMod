@@ -29,7 +29,7 @@ export const GetDefaultZoningByLawBinding = () : ZoningByLawBinding => ({
         },
         itemData: [{
             ...GetDefaultByLawItem(),
-            byLawItemType: ByLawItemType.Uses,
+            byLawItemType: ByLawItemType.LandUse,
             constraintType: ByLawConstraintType.MultiSelect,
             propertyOperator: ByLawPropertyOperator.AtLeastOne,
             itemCategory: ByLawItemCategory.Lot,
@@ -81,7 +81,7 @@ export const getMeasurementString = (itemType: ByLawItemType, constraintType: By
     switch(itemType) {        
         case ByLawItemType.Height:
             return "m";
-        case ByLawItemType.Uses:        
+        case ByLawItemType.LandUse:        
         case ByLawItemType.LotWidth:
         case ByLawItemType.LotSize:
         case ByLawItemType.Parking:
@@ -101,8 +101,8 @@ export const getMeasurementString = (itemType: ByLawItemType, constraintType: By
 export const flagToStringArr = (flag: number, itemType: ByLawItemType) => {
     let entries : [any, any][] = [];
     switch(itemType) {
-        case ByLawItemType.Uses:
-            if (itemType == ByLawItemType.Uses) {
+        case ByLawItemType.LandUse:
+            if (itemType == ByLawItemType.LandUse) {
                 entries = Object.entries(ByLawZoneType);                            
             }
             break;
@@ -131,8 +131,11 @@ export const flagToStringArr = (flag: number, itemType: ByLawItemType) => {
 export const getOperationTypes = (item: ByLawItem) : ByLawPropertyOperator[] => {
     let re : ByLawPropertyOperator[] = [];
     switch(item.byLawItemType) {
-        case ByLawItemType.Uses:
+        case ByLawItemType.LandUse:
             re.push(ByLawPropertyOperator.AtLeastOne);
+            re.push(ByLawPropertyOperator.OnlyOneOf);
+            re.push(ByLawPropertyOperator.IsNot);
+            return re;
         case ByLawItemType.Height:
         case ByLawItemType.LotWidth:
         case ByLawItemType.LotSize:
@@ -141,11 +144,15 @@ export const getOperationTypes = (item: ByLawItem) : ByLawPropertyOperator[] => 
         case ByLawItemType.LeftSetback:
         case ByLawItemType.RightSetback:
         case ByLawItemType.RearSetback:                
-            re.push(ByLawPropertyOperator.Is);                                   
+            re.push(ByLawPropertyOperator.Is); 
+            re.push(ByLawPropertyOperator.IsNot);                                   
+            return re;
         case ByLawItemType.NoisePollutionLevel:
         case ByLawItemType.GroundPollutionLevel:
         case ByLawItemType.AirPollutionLevel:
             re.push(ByLawPropertyOperator.Is);
+            re.push(ByLawPropertyOperator.IsNot);
+            return re;
         case ByLawItemType.None:
         default:
             re.push(ByLawPropertyOperator.None);
@@ -156,7 +163,7 @@ export const getOperationTypes = (item: ByLawItem) : ByLawPropertyOperator[] => 
 export const getConstraintTypes = (item: ByLawItem) : ByLawConstraintType[] => {
     let re : ByLawConstraintType[] = [];
     switch(item.byLawItemType) {
-        case ByLawItemType.Uses:
+        case ByLawItemType.LandUse:
             re.push(ByLawConstraintType.MultiSelect);
         case ByLawItemType.Height:
         case ByLawItemType.LotWidth:
@@ -183,7 +190,7 @@ export const getConstraintTypes = (item: ByLawItem) : ByLawConstraintType[] => {
 export const getItemCategories = (itemType: ByLawItemType) : ByLawItemCategory => {
     switch (itemType)
     {
-        case ByLawItemType.Uses:
+        case ByLawItemType.LandUse:
         case ByLawItemType.LotWidth:
         case ByLawItemType.LotSize:
         case ByLawItemType.Parking:

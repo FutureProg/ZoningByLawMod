@@ -34,7 +34,7 @@ export enum ByLawPropertyOperator {
 
 export enum ByLawItemType {
     None = 0,
-    Uses,
+    LandUse,
     Height,
     LotWidth,
     LotSize,

@@ -7,7 +7,7 @@ import { ByLawConstraintType, ByLawItem, ByLawItemCategory, ByLawItemType, ByLaw
 import { Bounds1, Color } from "cs2/bindings";
 import { Dropdown } from "cs2/ui";
 import { ColorHSV, VanillaComponentResolver } from "vanillacomponentresolver";
-import { GetDefaultByLawItem, rgbaToHex } from "./utils";
+import { GetDefaultByLawItem, getConstraintTypes, rgbaToHex } from "./utils";
 import { Bounds1Field } from "./components/Bounds1Field";
 import ByLawPropertyView from "./components/Details/ByLawPropertyView";
 
@@ -87,19 +87,42 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
     }
     
     const onAddProperty = () => {
-        newByLawData?.blocks[0].itemData.push(GetDefaultByLawItem());
-        updateNewByLawData(newByLawData);
+        // let nItemData = [newByLawData?.blocks[0].itemData];
+        if (newByLawData) {
+            newByLawData?.blocks[0].itemData.push(GetDefaultByLawItem());         
+            updateNewByLawData({...newByLawData});
+        }        
     }
 
-    let onPropertyViewChange = (item: ByLawItem) => {
-        
+    const onDeleteProperty = (index: number) => () => {
+        if (newByLawData) {
+            newByLawData!.blocks[0].itemData = newByLawData?.blocks[0].itemData.filter((_, idx, _1) => idx != index);
+            updateNewByLawData({...newByLawData});
+        }
     }
 
-    let propertyViews = newByLawData?.blocks[0].itemData.map((item, index) => {
+    let onPropertyViewChange = (blockIndex: number, itemIndex: number) => (item: ByLawItem) => {
+        if (newByLawData) {
+            let oldItem = newByLawData.blocks[blockIndex].itemData[itemIndex];
+            let newItem = {
+                ...item
+            };
+            if (oldItem.byLawItemType !== item.byLawItemType) {
+                newItem.constraintType = getConstraintTypes(item)[0];
+                newItem.valueBounds1 = {min: 0, max: 0};
+                newItem.valueByteFlag = 0;
+                newItem.valueNumber = 0;
+                newItem.propertyOperator = ByLawPropertyOperator.AtLeastOne;
+            }
+            newByLawData.blocks[blockIndex].itemData[itemIndex] = newItem;            
+        }
+    }
+    
+    let propertyViews = newByLawData && newByLawData.blocks? newByLawData?.blocks[0]?.itemData.map((item, index) => {
         return (
-            <ByLawPropertyView byLawItem={item} key={index} onChange={onPropertyViewChange} />
+            <ByLawPropertyView byLawItem={item} key={index} onDelete={onDeleteProperty(index)} onChange={onPropertyViewChange(0, index)} />
         )
-    });
+    }) : <></>;
     
     return (
         <div className={styles.bylawDetails}>
@@ -118,10 +141,10 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
                             </td>                            
                             {/* <td><input type="text" value={newByLawName} onChange={onNameChange}/></td> */}
                         </tr>
-                        <VanillaComponentResolver.instance.ColorField value={newByLawColor} onChange={onUpdateByLawColor(ZONE_COLOR_IDX)}/>
-                        <h2>Properties</h2>
+                        <VanillaComponentResolver.instance.ColorField value={newByLawColor} onChange={onUpdateByLawColor(ZONE_COLOR_IDX)}/>                        
+                        <h2>Constraints</h2>
                         {propertyViews}
-                        <Button focusKey={FOCUS_AUTO} variant="flat" theme={addPropertyTheme} >Add Constraint</Button>                        
+                        <Button focusKey={FOCUS_AUTO} variant="flat" onSelect={onAddProperty} theme={addPropertyTheme} >Add Constraint</Button>                        
                         {/* <tr>
                             <Button onClick={toggleByLawRenderPreview}>Preview (very much WIP)</Button>
                         </tr> */}                                      

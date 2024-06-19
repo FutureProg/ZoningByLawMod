@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { ByLawConstraintType, ByLawItem, ByLawItemCategory, ByLawItemType, ByLawPropertyOperator, ByLawZoneType } from 'mods/types';
 import { ButtonedNumberInput } from '../ButtonedNumberInput';
 import ByLawPropertyEditSection from './ByLawPropertyEditSection';
-import { getMeasurementString, flagToStringArr, GetDefaultByLawItem } from 'mods/utils';
+import { getMeasurementString, flagToStringArr, GetDefaultByLawItem, getConstraintTypes, getOperationTypes } from 'mods/utils';
 import { Theme } from 'cs2/bindings';
 import { getModule } from 'cs2/modding';
 
@@ -12,7 +12,13 @@ const DropdownDefaultStyle: Theme | any = getModule("game-ui/common/input/dropdo
 
 const DropdownStyle: Theme | any = getModule("game-ui/menu/themes/dropdown.module.scss", "classes");
 
-export default ({byLawItem, onChange: onChangeCallback} : {byLawItem: ByLawItem, onChange: (item: ByLawItem) => void}) => {
+interface _Props {
+    byLawItem: ByLawItem;
+    onChange: (item: ByLawItem) => void;
+    onDelete: () => void;
+}
+
+export default ({byLawItem, onChange: onChangeCallback, onDelete: onDeleteCallback} : _Props) => {
     let [editing, setEditing] = useState(false);    
     let [_byLawItem, setByLawItem] = useState(byLawItem);
 
@@ -21,6 +27,10 @@ export default ({byLawItem, onChange: onChangeCallback} : {byLawItem: ByLawItem,
         .filter(([value, key]) => {
             return !isNaN(Number(value)) && Number(value) > 0;
         })
+        .filter(([value, key]) => {
+            let x : ByLawPropertyOperator = Number(value);            
+            return getOperationTypes(_byLawItem).indexOf(x) >= 0; 
+        })
         .map(([value, key], index) => {        
             return {key: splitByUpperCase(key as string), value}
         });
@@ -28,19 +38,21 @@ export default ({byLawItem, onChange: onChangeCallback} : {byLawItem: ByLawItem,
     let nameValues = Object.entries(ByLawItemType)
         .filter(([value, key]) => {
             return !isNaN(Number(value)) && Number(value) > 0;
-        })
+        })        
         .map(([value, key], index) => {        
             return {key: splitByUpperCase(key as string), value}
-        });
+        })
 
     
-    let onItemTypeChange = (value: string) => {
-        let num : ByLawItemType = Number(value);        
-        setByLawItem({
+    let onItemTypeChange = (value: string) => {        
+        let num : ByLawItemType = Number(value);         
+        let nItem = {
             ...GetDefaultByLawItem(),
-            byLawItemType: num
-        });
-        onChangeCallback(_byLawItem);
+            byLawItemType: num            
+        };
+        nItem.constraintType = getConstraintTypes(nItem)[0];
+        setByLawItem(nItem);        
+        onChangeCallback(nItem);
     }
 
     let dropdownItems = nameValues.map((item, idx) => (
@@ -53,7 +65,7 @@ export default ({byLawItem, onChange: onChangeCallback} : {byLawItem: ByLawItem,
     );
 
     let itemTypeDropdown = (
-        <Dropdown theme={DropdownDefaultStyle} focusKey={FOCUS_AUTO} content={dropdownContent}>
+        <Dropdown theme={DropdownStyle} focusKey={FOCUS_AUTO} content={dropdownContent}>
             <DropdownToggle style={{width: '80%'}}>
                 {splitByUpperCase(ByLawItemType[_byLawItem.byLawItemType])}
             </DropdownToggle>            
@@ -62,11 +74,12 @@ export default ({byLawItem, onChange: onChangeCallback} : {byLawItem: ByLawItem,
 
     let onOperationTypeChange = (value: string) => {
         let opType : ByLawPropertyOperator = Number(value); 
-        setByLawItem({
+        let nItemVal = {
             ..._byLawItem,
             propertyOperator: opType
-        });
-        onChangeCallback(_byLawItem);
+        };
+        setByLawItem(nItemVal);
+        onChangeCallback(nItemVal);
     }
 
     dropdownItems = operationValues.map((item, idx) => (
@@ -78,14 +91,14 @@ export default ({byLawItem, onChange: onChangeCallback} : {byLawItem: ByLawItem,
         <div>{dropdownItems}</div>
     );
     let operationsDropdown = (
-        <Dropdown theme={DropdownDefaultStyle} focusKey={FOCUS_AUTO} content={dropdownContent}>
+        <Dropdown theme={DropdownStyle} focusKey={FOCUS_AUTO} content={dropdownContent}>
             <DropdownToggle style={{width: '80%'}}>
                 {splitByUpperCase(ByLawPropertyOperator[_byLawItem.propertyOperator])}
             </DropdownToggle>            
         </Dropdown>
     )
 
-    let onPropertyValueChange = (item: ByLawItem) => {                
+    let onPropertyValueChange = (item: ByLawItem) => {                  
         setByLawItem(item);
         onChangeCallback?.call(null, item);
     }
@@ -108,7 +121,7 @@ export default ({byLawItem, onChange: onChangeCallback} : {byLawItem: ByLawItem,
                         onSelect={() => setEditing(!editing)} 
                         variant='icon' 
                         src={'coui://uil/Colored/' + (!editing? 'Pencil.svg' : 'Checkmark.svg')} />
-                    <Button variant='icon' src='coui://uil/Colored/Trash.svg' /> 
+                    <Button variant='icon' src='coui://uil/Colored/Trash.svg' onSelect={onDeleteCallback} /> 
                 </div>
             </div>
             <div className={styles.editSection + ' ' + (editing? '' : styles.hidden)}>
@@ -120,7 +133,7 @@ export default ({byLawItem, onChange: onChangeCallback} : {byLawItem: ByLawItem,
 
 const ByLawItemDescription = ({item} : {item: ByLawItem}) => {
     let txt = "";
-    let measure = getMeasurementString(item.byLawItemType, item.constraintType);
+    let measure = getMeasurementString(item.byLawItemType, item.constraintType);    
     switch(item.constraintType) {        
         case ByLawConstraintType.Length:            
             txt = `Between ${item.valueBounds1.min}${measure} and ${item.valueBounds1.max}${measure}`;

@@ -27,7 +27,7 @@ export default (props: ByLawItemEnumEditorProps) => {
     };
     let field = useMemo(()=>{
         switch(props.itemType) {
-            case ByLawItemType.Uses:
+            case ByLawItemType.LandUse:
                 return EnumFieldCheckboxes<ByLawZoneType>({
                     enum: editorValue as ByLawZoneType,
                     enumEntries: Object.entries(ByLawZoneType),
