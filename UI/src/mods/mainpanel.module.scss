@@ -55,7 +55,17 @@
     width: 65%;
 }
 .saveButton {
-    width: 200rem;
+    width: 32rem;
+    height: 32rem;
+    img {
+        filter: invert(1);
+    }
+    
+    background-color: rgba($color: #000, $alpha: 0.3);
+    
+    &:hover {
+        background-color: rgba($color: #000, $alpha: 0.5);
+    }
 }
 
 .mainPanelSections {

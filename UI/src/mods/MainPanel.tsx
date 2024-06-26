@@ -3,17 +3,16 @@ import styles from './mainpanel.module.scss';
 import { useValue } from "cs2/api";
 import { byLawZoneList$, createNewByLaw, isConfigPanelOpen$, setActiveByLaw, setConfigPanelOpen } from "./bindings";
 import { ByLawZoneListItem } from "./types";
-import { useEffect, useState } from "react";
-import { ByLawDetailsPanel } from "./ByLawDetailsPanel";
+import { useEffect, useRef, useState } from "react";
+import { ByLawDetailsPanel, DetailsPanelRef } from "./ByLawDetailsPanel";
 import { Entity, toolbar } from "cs2/bindings";
 import { GetDefaultByLawComponent, GetDefaultZoningByLawBinding } from "./utils";
 import { VanillaComponentResolver } from "vanillacomponentresolver";
 import ImageLabelButton from "./atoms/ImageLabelButton";
 
-export const MainPanel = () => {
-    // This is a void component that does not output anynthing.
-    // Cities: Skylines 2 UI is built with React and mods support outputting standard
-    // React JSX elements!    
+export const MainPanel = () => {   
+    let detailPanelRef = useRef<DetailsPanelRef>(null);
+
     const onClose = () => {
         setActiveByLaw({index: 0, version: 0});        
         setSelectedListItem(-1);        
@@ -70,11 +69,13 @@ export const MainPanel = () => {
     let [x, setX] = useState<string | undefined | null>("");
 
     let topRightSection = (
-        <>
-        <Button 
-            className={styles.saveButton} 
-            focusKey={FOCUS_AUTO} 
-            variant="flat">Save</Button>
+        <>            
+            <Button 
+                onSelect={detailPanelRef.current?.saveChanges}
+                className={styles.saveButton} 
+                focusKey={FOCUS_AUTO} 
+                src="Media/Glyphs/Save.svg"
+                variant="icon"/>
         </>
     )
 
@@ -98,7 +99,7 @@ export const MainPanel = () => {
                     <Scrollable className={styles.bylawList}>
                         {listItems}
                     </Scrollable>
-                    <ByLawDetailsPanel selectedRowIndex={selectedListItem} onDelete={onDeleteByLaw}/>
+                    <ByLawDetailsPanel ref={detailPanelRef} selectedRowIndex={selectedListItem} onDelete={onDeleteByLaw}/>
                 </div>
                 <div className={styles.mainPanelBottomBar}>
                 </div>

@@ -2,7 +2,7 @@ import { Button, DropdownItem, DropdownToggle, FOCUS_AUTO, FOCUS_DISABLED, Scrol
 import styles from './ByLawDetailsPanel.module.scss';
 import { ZONE_BORDER_IDX, ZONE_COLOR_IDX, defaultColor, deleteByLaw, selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor, toggleByLawRenderPreview } from "./bindings";
 import { useValue } from "cs2/api";
-import { ChangeEvent, ChangeEventHandler, useEffect, useRef, useState } from "react";
+import { ChangeEvent, ChangeEventHandler, forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { ByLawConstraintType, ByLawItem, ByLawItemCategory, ByLawItemType, ByLawPropertyOperator, ByLawZoneComponent, ByLawZoneType, ZoningByLawBinding } from "./types";
 import { Bounds1, Color } from "cs2/bindings";
 import { Dropdown } from "cs2/ui";
@@ -11,7 +11,14 @@ import { GetDefaultByLawItem, getConstraintTypes, rgbaToHex } from "./utils";
 import { Bounds1Field } from "./components/Bounds1Field";
 import ByLawPropertyView from "./components/Details/ByLawPropertyView";
 
-export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: () => void}) => {    
+interface _Props {
+    selectedRowIndex: number;
+    onDelete?: () => void;
+}
+export interface DetailsPanelRef {
+    saveChanges: () => void;
+}
+export const ByLawDetailsPanel = forwardRef<DetailsPanelRef,_Props>((props, ref) => {    
     let byLawData = useValue(selectedByLawData$);    
     let byLawName = useValue(selectedByLawName$);
     let byLawColour = useValue(selectedByLawColor$);    
@@ -19,6 +26,22 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
     let [newByLawName, updateNewByLawName] = useState<string>();
     let [newByLawColor, updateNewByLawColor] = useState<Color>(defaultColor);
     let [newByLawBorder, updatenewByLawBorder] = useState<Color>(defaultColor);
+
+    const onSave = () => {
+        if (newByLawData != undefined) {
+            setByLawData(newByLawData!);
+        }
+        if (newByLawName != undefined && newByLawName !== byLawName && byLawName.length > 0) {
+            setByLawName(newByLawName!);
+        }
+        if (newByLawColor != undefined && (newByLawColor != byLawColour[0] || newByLawBorder != byLawColour[1])) {
+            setByLawZoneColor(newByLawColor, newByLawBorder);
+        }
+    }
+
+    useImperativeHandle(ref, () => ({
+        saveChanges: onSave
+    }), [newByLawData, newByLawName, newByLawColor, newByLawBorder]);
 
     useEffect(() => {                
         updateNewByLawData(byLawData);
@@ -56,19 +79,7 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
     const onNameChange = (e: ChangeEvent<HTMLInputElement>) => {
         updateNewByLawName(e.target.value);        
     }
-
-    const onSave = () => {
-        if (newByLawData != undefined) {
-            setByLawData(newByLawData!);
-        }
-        if (newByLawName != undefined && newByLawName !== byLawName && byLawName.length > 0) {
-            setByLawName(newByLawName!);
-        }
-        if (newByLawColor != undefined && (newByLawColor != byLawColour[0] || newByLawBorder != byLawColour[1])) {
-            setByLawZoneColor(newByLawColor, newByLawBorder);
-        }
-    }
-
+    
     const onDelete = () => {
         deleteByLaw();
         if (props.onDelete) {
@@ -157,4 +168,4 @@ export const ByLawDetailsPanel = (props: {selectedRowIndex: number, onDelete?: (
             </div>             */}
         </div>
     )
-}
+});
