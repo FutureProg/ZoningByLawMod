@@ -380,7 +380,7 @@ namespace Trejak.ZoningByLaw
                     spawnLocation.m_ZoneType = zoneData.m_ZoneType;
                     spawnLocation.m_AreaType = zoneData.m_AreaType;
                     spawnLocation.m_LotFlags = flags;
-                    bool office = false;// let's just do residential for now zoneData.m_AreaType == Game.Zones.AreaType.Industrial && estimates.Length == 0;
+                    bool office = zoneData.m_AreaType == Game.Zones.AreaType.Industrial && estimates.Length == 0;
                     DynamicBuffer<ResourceAvailability> availabilities = this.resourceAvailabilityLookup[road];
                     if (!this.blockLookup.HasComponent(spawnLocation.m_Entity))
                     {
