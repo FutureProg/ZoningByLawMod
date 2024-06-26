@@ -57,29 +57,47 @@ namespace ZoningByLaw.BuildingBlocks
 
         public static bool EvalLandUse(Entity building, BuildingByLawProperties properties, ByLawItem item, ByLawZoneSpawnSystem.EvaluateSpawnAreas job)
         {
-            var objectData = job.objectdataLookup[building];            
-                        
+            var objectData = job.objectdataLookup[building];
 
-            var flag = (ByLawZoneType) item.valueByteFlag;
+            int matchCount = 0;
+            int missCount = 0;
+            var flag = (ByLawZoneType) item.valueByteFlag;            
             if (properties.isExtractor) // extractors only function when plopped down, so won't be spawning them
             {
                 return false;
             }
             if ((ByLawZoneType.Residential & flag) == 0 && properties.isResidential)
             {
-                return false;
+                missCount++;
             }
             if ((ByLawZoneType.Office & flag) == 0 && properties.isOffice)
             {
-                return false;
+                missCount++;
             }
             if ((ByLawZoneType.Commercial & flag) == 0 && properties.isCommercial)
             {
-                return false;
+                missCount++;
             }
             if ((ByLawZoneType.Industrial & flag) == 0 && properties.isIndustry)
             {
-                return false;
+                missCount++;
+            }
+
+            matchCount += (ByLawZoneType.Residential & flag) != 0 && properties.isResidential ? 1 : 0;
+            matchCount += (ByLawZoneType.Office & flag) != 0 && properties.isOffice ? 1 : 0;
+            matchCount += (ByLawZoneType.Industrial & flag) != 0 && properties.isIndustry ? 1 : 0;
+            matchCount += (ByLawZoneType.Residential & flag) != 0 && properties.isResidential ? 1 : 0;
+
+            switch (item.propertyOperator)
+            {
+                case ByLawPropertyOperator.AtLeastOne:
+                    return matchCount >= 1;
+                case ByLawPropertyOperator.OnlyOneOf:
+                    return matchCount == 1;
+                case ByLawPropertyOperator.IsNot:
+                    return matchCount == 0;
+                case ByLawPropertyOperator.Is:
+                    return matchCount > 0 && missCount == 0;
             }
             return true;
         }
