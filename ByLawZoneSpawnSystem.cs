@@ -420,8 +420,6 @@ namespace Trejak.ZoningByLaw
                         }
                     }                    
                 }
-
-                //TODO: finish this tomorrow
                 return true;
             }
 
