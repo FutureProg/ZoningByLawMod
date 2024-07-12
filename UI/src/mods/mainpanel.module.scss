@@ -61,10 +61,13 @@
         filter: invert(1);
     }
     
-    background-color: rgba($color: #000, $alpha: 0.3);
+    background-color: rgba($color: #FFF, $alpha: 0.3);
     
     &:hover {
-        background-color: rgba($color: #000, $alpha: 0.5);
+        background-color: rgba($color: #FFF, $alpha: 0.5);
+    }
+    &:active {
+        background-color: rgba($color: #FFF, $alpha: 0.8);
     }
 }
 

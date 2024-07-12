@@ -75,7 +75,7 @@ namespace Trejak.ZoningByLaw.BuildingBlocks
         }
     }
 
-    public enum ByLawItemType : uint
+    public enum ByLawItemType : int
     {
         None = 0,
         Uses,
@@ -92,7 +92,7 @@ namespace Trejak.ZoningByLaw.BuildingBlocks
         NoisePollutionLevel
     }
 
-    public enum ByLawConstraintType : byte
+    public enum ByLawConstraintType : int
     {
         None = 0,        
         Length = 1,
@@ -101,7 +101,7 @@ namespace Trejak.ZoningByLaw.BuildingBlocks
         SingleSelect = 4
     }
 
-    public enum ByLawItemCategory : byte
+    public enum ByLawItemCategory : int
     {
         None = 0,
         Building = 1,
@@ -109,7 +109,7 @@ namespace Trejak.ZoningByLaw.BuildingBlocks
         Pollution = 3
     }
 
-    public enum ByLawPropertyOperator : uint
+    public enum ByLawPropertyOperator : int
     {
         None = 0,
         Is = 1,

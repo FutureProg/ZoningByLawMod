@@ -58,6 +58,7 @@ export const MainPanel = () => {
 
     const onCreateNewByLaw = () => {
         const baseByLaw = GetDefaultZoningByLawBinding();
+        console.log("CREATE NEW BYLAW", baseByLaw);
         createNewByLaw(baseByLaw);
     }
 

@@ -11,12 +11,12 @@ export const GetDefaultByLawComponent = () : ByLawZoneComponent => {return {
     zoneType: ByLawZoneType.None    
 }};
 
-export const GetDefaultByLawItem = () : ByLawItem => ({
-    constraintType: ByLawConstraintType.None,
+export const GetDefaultByLawItem = () : ByLawItem => ({    
     byLawItemType: ByLawItemType.None,
+    constraintType: ByLawConstraintType.None,
     itemCategory: ByLawItemCategory.None,
     propertyOperator: ByLawPropertyOperator.None,
-    valueBounds1: {max: 0, min: 0},
+    valueBounds1: {max: 0, min: 0} as Bounds1,
     valueByteFlag: 0,
     valueNumber: 0
 });
@@ -165,6 +165,7 @@ export const getConstraintTypes = (item: ByLawItem) : ByLawConstraintType[] => {
     switch(item.byLawItemType) {
         case ByLawItemType.LandUse:
             re.push(ByLawConstraintType.MultiSelect);
+            break;
         case ByLawItemType.Height:
         case ByLawItemType.LotWidth:
         case ByLawItemType.LotSize:
@@ -174,15 +175,16 @@ export const getConstraintTypes = (item: ByLawItem) : ByLawConstraintType[] => {
         case ByLawItemType.RightSetback:
         case ByLawItemType.RearSetback:                
             re.push(ByLawConstraintType.Length);                                   
-
+            break;
         case ByLawItemType.NoisePollutionLevel:
         case ByLawItemType.GroundPollutionLevel:
         case ByLawItemType.AirPollutionLevel:
             re.push(ByLawConstraintType.MultiSelect);
-
+            break;
         case ByLawItemType.None:
         default:
             re.push(ByLawConstraintType.None);
+            break;
     }
     return re;
 };

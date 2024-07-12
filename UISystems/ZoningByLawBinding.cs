@@ -13,7 +13,7 @@ using Unity.Entities;
 
 namespace Trejak.ZoningByLaw.UISystems
 {
-    public struct ZoningByLawBinding : IJsonWritable, IJsonReadable
+    public struct ZoningByLawBinding //: IJsonWritable, IJsonReadable
     {
         public ByLawBlockBinding[] blocks;
         public bool deleted;
@@ -67,26 +67,26 @@ namespace Trejak.ZoningByLaw.UISystems
             return "Test Description";
         }
 
-        public void Read(IJsonReader reader)
-        {
-            reader.ReadMapBegin();
-            ArrayReader<ByLawBlockBinding> arrReader = new ArrayReader<ByLawBlockBinding>();
-            reader.ReadProperty(nameof(blocks));            
-            arrReader.Read(reader, out this.blocks);
-            reader.ReadProperty(nameof(deleted));            
-            reader.Read(out this.deleted);
-            reader.ReadMapEnd();
-        }
+        //public void Read(IJsonReader reader)
+        //{
+        //    reader.ReadMapBegin();
+        //    ArrayReader<ByLawBlockBinding> arrReader = new ArrayReader<ByLawBlockBinding>();
+        //    reader.ReadProperty(nameof(blocks));            
+        //    arrReader.Read(reader, out this.blocks);
+        //    reader.ReadProperty(nameof(deleted));            
+        //    reader.Read(out this.deleted);
+        //    reader.ReadMapEnd();
+        //}
 
-        public void Write(IJsonWriter writer)
-        {
-            writer.TypeBegin(GetType().FullName);
-            writer.PropertyName(nameof(blocks));
-            writer.Write(blocks);
-            writer.PropertyName(nameof(deleted));
-            writer.Write(deleted);
-            writer.TypeEnd();
-        }        
+        //public void Write(IJsonWriter writer)
+        //{
+        //    writer.TypeBegin(GetType().FullName);
+        //    writer.PropertyName(nameof(blocks));
+        //    writer.Write(blocks);
+        //    writer.PropertyName(nameof(deleted));
+        //    writer.Write(deleted);
+        //    writer.TypeEnd();
+        //}        
 
         public struct Buffer
         {
@@ -135,7 +135,7 @@ namespace Trejak.ZoningByLaw.UISystems
         }
     }
 
-    public struct ByLawBlockBinding : IJsonWritable, IJsonReadable
+    public struct ByLawBlockBinding// : IJsonWritable, IJsonReadable
     {
         
         public ByLawBlock blockData;
@@ -167,7 +167,8 @@ namespace Trejak.ZoningByLaw.UISystems
             writer.PropertyName(nameof(blockData));
             writer.Write(blockData);
             writer.PropertyName(nameof(itemData));
-            writer.Write(itemData);
+            GenericUIWriter<ByLawItem[]> genericWriter = new GenericUIWriter<ByLawItem[]>();
+            genericWriter.Write(writer, itemData);
             writer.TypeEnd();
         }
     }

@@ -43,14 +43,14 @@ namespace Trejak.ZoningByLaw.BuildingBlocks
         }
     }    
 
-    public enum BlockType : uint
+    public enum BlockType : int
     {
         None = 0,
         Instruction = 1,
         Logic = 2
     }
 
-    public enum LogicOperation : byte
+    public enum LogicOperation : int
     {
         None = 0
     }

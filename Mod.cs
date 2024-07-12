@@ -28,6 +28,7 @@ namespace Trejak.ZoningByLaw;
 
 public class Mod : IMod
 {
+    public static string Id = "Trejak.ZoningByLaw";
     public static ILog log = LogManager.GetLogger($"{nameof(ZoningByLaw)}.{nameof(Mod)}").SetShowsErrorsInUI(false);
     private Setting m_Setting;
 

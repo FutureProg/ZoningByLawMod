@@ -7,7 +7,7 @@ import { ByLawConstraintType, ByLawItem, ByLawItemCategory, ByLawItemType, ByLaw
 import { Bounds1, Color } from "cs2/bindings";
 import { Dropdown } from "cs2/ui";
 import { ColorHSV, VanillaComponentResolver } from "vanillacomponentresolver";
-import { GetDefaultByLawItem, getConstraintTypes, rgbaToHex } from "./utils";
+import { GetDefaultByLawItem, GetDefaultZoningByLawBinding, getConstraintTypes, rgbaToHex } from "./utils";
 import { Bounds1Field } from "./components/Bounds1Field";
 import ByLawPropertyView from "./components/Details/ByLawPropertyView";
 
@@ -27,21 +27,25 @@ export const ByLawDetailsPanel = forwardRef<DetailsPanelRef,_Props>((props, ref)
     let [newByLawColor, updateNewByLawColor] = useState<Color>(defaultColor);
     let [newByLawBorder, updatenewByLawBorder] = useState<Color>(defaultColor);
 
-    const onSave = () => {
-        if (newByLawData != undefined) {
-            setByLawData(newByLawData!);
-        }
-        if (newByLawName != undefined && newByLawName !== byLawName && byLawName.length > 0) {
-            setByLawName(newByLawName!);
-        }
-        if (newByLawColor != undefined && (newByLawColor != byLawColour[0] || newByLawBorder != byLawColour[1])) {
-            setByLawZoneColor(newByLawColor, newByLawBorder);
-        }
-    }
-
-    useImperativeHandle(ref, () => ({
-        saveChanges: onSave
-    }), [newByLawData, newByLawName, newByLawColor, newByLawBorder]);
+    useImperativeHandle(ref, () => {  
+        console.log("Update ref with new bylaw data");
+        console.log(newByLawData);      
+        return {
+            saveChanges: () => {
+                if (newByLawData != undefined) {
+                    console.log("Will save the following");
+                    console.log(newByLawData);
+                    setByLawData(newByLawData);            
+                }
+                if (newByLawName != undefined && newByLawName !== byLawName && byLawName.length > 0) {
+                    setByLawName(newByLawName!);
+                }
+                if (newByLawColor != undefined && (newByLawColor != byLawColour[0] || newByLawBorder != byLawColour[1])) {
+                    setByLawZoneColor(newByLawColor, newByLawBorder);
+                }
+            }
+        };
+    }, [newByLawData, newByLawName, newByLawColor, newByLawBorder]);
 
     useEffect(() => {                
         updateNewByLawData(byLawData);
@@ -100,34 +104,51 @@ export const ByLawDetailsPanel = forwardRef<DetailsPanelRef,_Props>((props, ref)
     const onAddProperty = () => {
         // let nItemData = [newByLawData?.blocks[0].itemData];
         if (newByLawData) {
-            newByLawData?.blocks[0].itemData.push(GetDefaultByLawItem());         
-            updateNewByLawData({...newByLawData});
+            let nData = {...newByLawData}
+            if (nData.blocks.length == 0) {
+                nData.blocks = [...GetDefaultZoningByLawBinding().blocks];
+                nData.blocks[0].itemData = [];
+            }
+            nData!.blocks[0].itemData.push({...GetDefaultByLawItem()});         
+            updateNewByLawData({...nData});
         }        
     }
 
     const onDeleteProperty = (index: number) => () => {
         if (newByLawData) {
-            newByLawData!.blocks[0].itemData = newByLawData?.blocks[0].itemData.filter((_, idx, _1) => idx != index);
-            updateNewByLawData({...newByLawData});
+            let nData = {...newByLawData}
+            nData!.blocks[0].itemData = nData?.blocks[0].itemData.filter((_, idx, _1) => idx != index);
+            updateNewByLawData(nData);
         }
     }
 
     let onPropertyViewChange = (blockIndex: number, itemIndex: number) => (item: ByLawItem) => {
         if (newByLawData) {
-            let oldItem = newByLawData.blocks[blockIndex].itemData[itemIndex];
+            let oldItem = newByLawData.blocks[blockIndex].itemData[itemIndex];            
             let newItem = {
                 ...item
             };
             if (oldItem.byLawItemType !== item.byLawItemType) {
-                newItem.constraintType = getConstraintTypes(item)[0];
-                newItem.valueBounds1 = {min: 0, max: 0};
-                newItem.valueByteFlag = 0;
-                newItem.valueNumber = 0;
-                newItem.propertyOperator = ByLawPropertyOperator.AtLeastOne;
+                newItem = {
+                    ...GetDefaultByLawItem(),
+                    ...item,
+                    constraintType: getConstraintTypes(item)[0]
+                };                
+                // newItem.valueBounds1 = {min: 0, max: 0};
+                // newItem.valueByteFlag = 0;
+                // newItem.valueNumber = 0;
+                // newItem.propertyOperator = ByLawPropertyOperator.AtLeastOne;
             }
-            newByLawData.blocks[blockIndex].itemData[itemIndex] = newItem;            
+            let newData = {
+                ...newByLawData,                          
+            } as ZoningByLawBinding;
+            newData.blocks[blockIndex].itemData[itemIndex] = newItem; 
+            updateNewByLawData(newData);
+            console.log("Property view changed data:");
+            console.log(newData);
         }
     }
+    console.log(newByLawData);
     
     let propertyViews = newByLawData && newByLawData.blocks? newByLawData?.blocks[0]?.itemData.map((item, index) => {
         return (

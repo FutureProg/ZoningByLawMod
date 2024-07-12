@@ -118,10 +118,11 @@ export default ({byLawItem, onChange: onChangeCallback, onDelete: onDeleteCallba
                 <div className={styles.description}><ByLawItemDescription item={_byLawItem}/></div>
                 <div className={styles.buttons}>
                     <Button 
+                        focusKey={FOCUS_AUTO}
                         onSelect={() => setEditing(!editing)} 
                         variant='icon' 
                         src={'coui://uil/Colored/' + (!editing? 'Pencil.svg' : 'Checkmark.svg')} />
-                    <Button variant='icon' src='coui://uil/Colored/Trash.svg' onSelect={onDeleteCallback} /> 
+                    <Button focusKey={FOCUS_AUTO} variant='icon' src='coui://uil/Colored/Trash.svg' onSelect={onDeleteCallback} /> 
                 </div>
             </div>
             <div className={styles.editSection + ' ' + (editing? '' : styles.hidden)}>

@@ -22,7 +22,7 @@ export const setActiveByLaw = (entity: Entity) => {
     trigger(mod.fullname, "SetActiveByLaw", entity);
 }
 
-export const setByLawData = (byLawData: ZoningByLawBinding) => {
+export const setByLawData = (byLawData: ZoningByLawBinding) => {    
     trigger(mod.fullname, "SetByLawData", byLawData);
 }
 

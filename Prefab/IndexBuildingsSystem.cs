@@ -148,12 +148,16 @@ namespace Trejak.ZoningByLaw.Prefab
                         }
                     }
                     ObjectGeometryData objGeom = objectGeomDataLookup[buildingEntity];
-                    ObjectData objData = SystemAPI.GetComponent<ObjectData>(buildingEntity);                    
-                    var archetypeComponents = objData.m_Archetype.Valid? objData.m_Archetype.GetComponentTypes(Allocator.Temp) : new NativeArray<ComponentType>(0, Allocator.Temp);
-                    if (archetypeComponents.Length == 0)
+                    ObjectData objData = SystemAPI.GetComponent<ObjectData>(buildingEntity);     
+                    if (!objData.m_Archetype.Valid)
                     {
-                        Mod.log.Warn($"Object Archetype is empty for prefab with index {prefabData.m_Index}");
+                        continue;
                     }
+                    var archetypeComponents = objData.m_Archetype.Valid? objData.m_Archetype.GetComponentTypes(Allocator.Temp) : new NativeArray<ComponentType>(0, Allocator.Temp);
+                    //if (archetypeComponents.Length == 0)
+                    //{
+                    //    Mod.log.Warn($"Object Archetype is empty for prefab with index {prefabData.m_Index}");
+                    //}
                     var propertyData = SystemAPI.GetComponent<BuildingPropertyData>(buildingEntity);
                     var props = new BuildingByLawProperties()
                     {
