@@ -18,17 +18,17 @@ export const setConfigPanelOpen = (open : boolean) => {
     trigger(mod.fullname, "SetConfigPanelOpen", open);
 }
 
-export const setActiveByLaw = (entity: Entity) => {
+export let setActiveByLaw = (entity: Entity) => {    
     trigger(mod.fullname, "SetActiveByLaw", entity);
 }
 
-export const setByLawData = (byLawData: ZoningByLawBinding) => {    
+export let setByLawData = (byLawData: ZoningByLawBinding) => {    
+    console.log("SetByLawData: ", byLawData);
     trigger(mod.fullname, "SetByLawData", byLawData);
 }
 
-export const createNewByLaw = (byLawData : ZoningByLawBinding) => {
-    console.log(byLawData);
-    trigger(mod.fullname, "CreateNewByLaw", byLawData);
+export let createNewByLaw = () => {    
+    trigger(mod.fullname, "CreateNewByLaw");
 }
 
 export const deleteByLaw = () => {

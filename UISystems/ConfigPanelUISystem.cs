@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Trejak.ZoningByLaw.BuildingBlocks;
 using Trejak.ZoningByLaw.Prefab;
 using Trejak.ZoningByLaw.Systems;
 using Trejak.ZoningByLaw.UISystems;
@@ -49,7 +50,7 @@ namespace Trejak.ZoningByLaw.UI
 
         private TriggerBinding<Entity> _setActiveByLaw;
         private TriggerBinding<ZoningByLawBinding> _setByLawData;
-        private TriggerBinding<ZoningByLawBinding> _createNewByLaw;
+        private TriggerBinding _createNewByLaw;
         private TriggerBinding _deleteByLaw;
         private TriggerBinding<bool> _setConfigPanelOpen;
         private TriggerBinding<string> _setByLawName;
@@ -59,20 +60,10 @@ namespace Trejak.ZoningByLaw.UI
 
         const string uiGroupName = "Trejak.ZoningByLaw";
 
-        struct ByLawZoneListItem : IJsonWritable
+        struct ByLawZoneListItem
         {
             public Entity entity;
             public string name;
-
-            public void Write(IJsonWriter writer)
-            {
-                writer.TypeBegin(GetType().FullName);
-                writer.PropertyName("entity");
-                writer.Write(entity);
-                writer.PropertyName("name");
-                writer.Write(name);
-                writer.TypeEnd();
-            }
         }
 
         protected override void OnCreate()
@@ -106,7 +97,7 @@ namespace Trejak.ZoningByLaw.UI
 
             this.AddBinding(_setActiveByLaw = new TriggerBinding<Entity>(uiGroupName, "SetActiveByLaw", SetActiveByLaw));
             _setByLawData = CreateTrigger<ZoningByLawBinding>("SetByLawData", SetByLawData);
-            _createNewByLaw =  CreateTrigger<ZoningByLawBinding>("CreateNewByLaw", CreateNewByLaw);            
+            _createNewByLaw =  CreateTrigger("CreateNewByLaw", CreateNewByLaw);            
             this.AddBinding(_deleteByLaw = new TriggerBinding(uiGroupName, "DeleteByLaw", DeleteByLaw));
             this.AddBinding(_setConfigPanelOpen = new TriggerBinding<bool>(uiGroupName, "SetConfigPanelOpen", SetConfigPanelOpen));
             this.AddBinding(_setByLawName = new TriggerBinding<string>(uiGroupName, "SetByLawName", SetByLawName));
@@ -167,7 +158,7 @@ namespace Trejak.ZoningByLaw.UI
                 data = default;
             } else
             {
-                data = ZoningByLawBinding.FromEntity(entity, EntityManager);//EntityManager.GetComponentData<ByLawZoneData>(entity);
+                data = ZoningByLawBinding.FromEntity(entity, EntityManager);
             }
             bool result = _prefabSystem.TryGetPrefab<ByLawZonePrefab>(entity, out var prefab);            
             this._selectedByLawData.Value = data;
@@ -185,12 +176,10 @@ namespace Trejak.ZoningByLaw.UI
         void SetByLawData(ZoningByLawBinding data)
         {
             Mod.log.Info("Set By Law Data: " + data);
-            data.UpdateEntity(_selectedByLaw.value, this.EntityManager);
-            //EntityManager.SetComponentData<ByLawZoneData>(_selectedByLaw.value, data);
-            var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(_selectedByLaw.value);
-            prefab.Update(data);
-            Utils.SetPrefabText(prefab, data);
-            //Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", "Description of zoning bylaw");//TODO: change to create description data.CreateDescription());
+            data.UpdateEntity(_selectedByLaw.value, this.EntityManager);            
+            var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(_selectedByLaw.value);            
+            prefab.Update(data);            
+            Utils.SetPrefabText(prefab, data);            
             this._selectedByLawData.Value = data;
             SaveByLawsToDisk();
         }
@@ -220,15 +209,33 @@ namespace Trejak.ZoningByLaw.UI
         /// Called from the UI after the user hits save on a new bylaw
         /// </summary>
         /// <param name="data"></param>
-        void CreateNewByLaw(ZoningByLawBinding data)
-        {            
-            if (_basePrefab == null)
+        void CreateNewByLaw()
+        {
+            ZoningByLawBinding data = new ZoningByLawBinding()
             {
-                GetBasePrefab();
-            }
-            ComponentBase[] baseComponents = new ComponentBase[_basePrefab.components.Count];
-            _basePrefab.components.CopyTo(baseComponents);
-            
+                deleted = false,
+                blocks = new ByLawBlockBinding[]
+                {
+                    new()
+                    {
+                        blockData = new BuildingBlocks.ByLawBlock()
+                        {
+                            blockType = BuildingBlocks.BlockType.Instruction
+                        },
+                        itemData = new BuildingBlocks.ByLawItem[]
+                        {
+                            new BuildingBlocks.ByLawItem()
+                            {
+                                byLawItemType = BuildingBlocks.ByLawItemType.Uses,
+                                constraintType = BuildingBlocks.ByLawConstraintType.MultiSelect,
+                                propertyOperator = BuildingBlocks.ByLawPropertyOperator.AtLeastOne,
+                                itemCategory = BuildingBlocks.ByLawItemCategory.Lot,
+                                valueByteFlag = 0
+                            }
+                        }
+                    }
+                }
+            };
             int count = _bylawsQuery.CalculateEntityCount() + 1;
             string byLawName = "Zoning ByLaw " + count;
             string idName = byLawName + '_' + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();

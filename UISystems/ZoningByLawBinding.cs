@@ -61,7 +61,7 @@ namespace Trejak.ZoningByLaw.UISystems
                 blockRefBuffer.Add(new() {  block = e });
             }
         }    
-        
+
         public string CreateDescription()
         {
             return "Test Description";

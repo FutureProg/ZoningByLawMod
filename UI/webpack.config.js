@@ -92,7 +92,7 @@ module.exports = {
     publicPath: `coui://ui-mods/`,
   },
   optimization: {
-    minimize: true,
+    minimize: false,
     minimizer: [
       new TerserPlugin({
         extractComments: {

@@ -1,17 +1,15 @@
 import { Button, FOCUS_AUTO, Panel, Scrollable } from "cs2/ui";
 import styles from './mainpanel.module.scss';
 import { useValue } from "cs2/api";
-import { byLawZoneList$, createNewByLaw, isConfigPanelOpen$, setActiveByLaw, setConfigPanelOpen } from "./bindings";
+import { byLawZoneList$, createNewByLaw, deleteByLaw, isConfigPanelOpen$, setActiveByLaw, setConfigPanelOpen } from "./bindings";
 import { ByLawZoneListItem } from "./types";
 import { useEffect, useRef, useState } from "react";
-import { ByLawDetailsPanel, DetailsPanelRef } from "./ByLawDetailsPanel";
+import { ByLawDetailsPanel } from "./ByLawDetailsPanel";
 import { Entity, toolbar } from "cs2/bindings";
-import { GetDefaultByLawComponent, GetDefaultZoningByLawBinding } from "./utils";
-import { VanillaComponentResolver } from "vanillacomponentresolver";
+import { GetDefaultZoningByLawBinding } from "./utils";
 import ImageLabelButton from "./atoms/ImageLabelButton";
 
 export const MainPanel = () => {   
-    let detailPanelRef = useRef<DetailsPanelRef>(null);
 
     const onClose = () => {
         setActiveByLaw({index: 0, version: 0});        
@@ -59,23 +57,22 @@ export const MainPanel = () => {
     const onCreateNewByLaw = () => {
         const baseByLaw = GetDefaultZoningByLawBinding();
         console.log("CREATE NEW BYLAW", baseByLaw);
-        createNewByLaw(baseByLaw);
+        createNewByLaw();
     }
 
     const onDeleteByLaw = () => {
+        deleteByLaw();
         setSelectedListItem(-1);
         toolbar.selectAsset({index: 0, version: 0});
     }
 
-    let [x, setX] = useState<string | undefined | null>("");
-
     let topRightSection = (
         <>            
             <Button 
-                onSelect={detailPanelRef.current?.saveChanges}
+                onSelect={onDeleteByLaw}
                 className={styles.saveButton} 
                 focusKey={FOCUS_AUTO} 
-                src="Media/Glyphs/Save.svg"
+                src="Media/Glyphs/Trash.svg"
                 variant="icon"/>
         </>
     )
@@ -100,7 +97,7 @@ export const MainPanel = () => {
                     <Scrollable className={styles.bylawList}>
                         {listItems}
                     </Scrollable>
-                    <ByLawDetailsPanel ref={detailPanelRef} selectedRowIndex={selectedListItem} onDelete={onDeleteByLaw}/>
+                    <ByLawDetailsPanel selectedRowIndex={selectedListItem} onDelete={onDeleteByLaw}/>
                 </div>
                 <div className={styles.mainPanelBottomBar}>
                 </div>

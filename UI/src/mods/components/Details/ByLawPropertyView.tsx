@@ -100,7 +100,7 @@ export default ({byLawItem, onChange: onChangeCallback, onDelete: onDeleteCallba
 
     let onPropertyValueChange = (item: ByLawItem) => {                  
         setByLawItem(item);
-        onChangeCallback?.call(null, item);
+        onChangeCallback(item);
     }
 
     let operatorName = splitByUpperCase(ByLawPropertyOperator[_byLawItem.propertyOperator]);

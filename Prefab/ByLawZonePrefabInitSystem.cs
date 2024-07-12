@@ -48,31 +48,42 @@ namespace Trejak.ZoningByLaw.Prefab
                 var blocks = SystemAPI.GetBuffer<ByLawBlockReference>(entity);
                 ByLawZonePrefab prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(prefabData.ValueRO);
                 Mod.log.Info("Initializing Zone Prefab: " + prefab.name);
-                //bylawData.ValueRW.frontage = prefab.frontage;
-                //bylawData.ValueRW.height = prefab.height;
-                //bylawData.ValueRW.lotSize = prefab.lotSize;
-                //bylawData.ValueRW.parking = prefab.parking;
-                //bylawData.ValueRW.zoneType = prefab.zoneType;
                 bylawData.ValueRW.deleted = prefab.deleted;
-                SystemAPI.SetComponent(entity, bylawData.ValueRW);                               
+                SystemAPI.SetComponent(entity, bylawData.ValueRW);
                 // create each individual block
-                foreach(var block in prefab.blocks)
-                {
-                    var blockEntity = EntityManager.CreateEntity(typeof(ByLawBlock), typeof(ByLawItem));
-
-                    SystemAPI.SetComponent(blockEntity, block.blockData);
-                    DynamicBuffer<ByLawItem> itemsBuffer = SystemAPI.GetBuffer<ByLawItem>(blockEntity);
-                    foreach(var bylawItem in block.itemData)
-                    {
-                        itemsBuffer.Add(bylawItem);
-                    }
-                    blocks.Add(new() { block = blockEntity });
-                }
+                SetupByLawBlocks(blocks, prefab);
                 var binding = ZoningByLawBinding.FromEntity(entity, this.EntityManager);
-                prefab.Update(binding);
-                Utils.SetPrefabText(prefab, binding);
+                UpdatePrefabFromBinding(binding, prefab);
             }
             entities.Dispose();
+        }
+
+        void UpdatePrefabFromBinding(ZoningByLawBinding binding, ByLawZonePrefab prefab)
+        {
+            prefab.Update(binding);
+            Utils.SetPrefabText(prefab, binding);
+        }
+
+        void SetupByLawBlocks(DynamicBuffer<ByLawBlockReference> blockRefs, ByLawZonePrefab prefab)
+        {
+            foreach (var block in prefab.blocks)
+            {
+                var blockEntity = CreateByLawBlockEntity(block);
+                blockRefs.Add(new() { block = blockEntity });
+            }
+        }
+
+        Entity CreateByLawBlockEntity(ByLawBlockBinding block)
+        {
+            var blockEntity = EntityManager.CreateEntity(typeof(ByLawBlock), typeof(ByLawItem));
+
+            SystemAPI.SetComponent(blockEntity, block.blockData);
+            DynamicBuffer<ByLawItem> itemsBuffer = SystemAPI.GetBuffer<ByLawItem>(blockEntity);
+            foreach (var bylawItem in block.itemData)
+            {
+                itemsBuffer.Add(bylawItem);
+            }            
+            return blockEntity;
         }
 
     }
