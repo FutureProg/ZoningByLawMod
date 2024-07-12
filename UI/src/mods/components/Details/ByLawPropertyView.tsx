@@ -1,6 +1,6 @@
 import { Button, Dropdown, DropdownItem, DropdownToggle, FOCUS_AUTO } from 'cs2/ui';
 import styles from './ByLawPropertyView.module.scss';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ByLawConstraintType, ByLawItem, ByLawItemCategory, ByLawItemType, ByLawPropertyOperator, ByLawZoneType } from 'mods/types';
 import { ButtonedNumberInput } from '../ButtonedNumberInput';
 import ByLawPropertyEditSection from './ByLawPropertyEditSection';
@@ -21,6 +21,11 @@ interface _Props {
 export default ({byLawItem, onChange: onChangeCallback, onDelete: onDeleteCallback} : _Props) => {
     let [editing, setEditing] = useState(false);    
     let [_byLawItem, setByLawItem] = useState(byLawItem);
+
+    // when the parent bylaw item changes, update
+    useEffect(() => {
+        setByLawItem(byLawItem)
+    }, [byLawItem]);
 
     let splitByUpperCase = (txt: string) => txt.split(/(?=[A-Z])/).join(' ');
     let operationValues = Object.entries(ByLawPropertyOperator)

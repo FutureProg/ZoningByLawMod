@@ -2,7 +2,7 @@ import { Button, DropdownItem, DropdownToggle, FOCUS_AUTO, FOCUS_DISABLED, Scrol
 import styles from './ByLawDetailsPanel.module.scss';
 import { ZONE_BORDER_IDX, ZONE_COLOR_IDX, defaultColor, deleteByLaw, selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor, toggleByLawRenderPreview } from "./bindings";
 import { useValue } from "cs2/api";
-import { ChangeEvent, ChangeEventHandler, forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { ChangeEvent, ChangeEventHandler, forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { ByLawConstraintType, ByLawItem, ByLawItemCategory, ByLawItemType, ByLawPropertyOperator, ByLawZoneComponent, ByLawZoneType, ZoningByLawBinding } from "./types";
 import { Bounds1, Color } from "cs2/bindings";
 import { Dropdown } from "cs2/ui";
@@ -21,7 +21,7 @@ export const ByLawDetailsPanel = (props: _Props) => {
     let byLawColour = useValue(selectedByLawColor$);    
 
     useEffect(() => {
-        console.log("Updated ByLawData: ", byLawData);
+        console.log("Updated ByLawData: ", byLawData, props.selectedRowIndex);
     }, [byLawData]);
 
     const onUpdateByLawColor = (color: Color) => {        
@@ -85,6 +85,7 @@ export const ByLawDetailsPanel = (props: _Props) => {
     }
 
     let propertyViews = byLawData && byLawData.blocks? byLawData?.blocks[0]?.itemData.map((item, index) => {
+        console.log("RENDER");
         return (
             <ByLawPropertyView byLawItem={item} key={index} onDelete={onDeleteProperty(index)} onChange={onPropertyViewChange(0, index)} />
         )
