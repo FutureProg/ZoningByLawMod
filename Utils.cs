@@ -40,6 +40,11 @@ namespace Trejak.ZoningByLaw
             GameManager.instance.localizationManager.activeDictionary.Add(textId, text);
         }
 
+        public static void SaveToFile(ByLawRecord record)
+        {
+
+        }
+
         public static void SaveByLaws(Entity[] bylawEntities, EntityManager em)
         {
             if (!_initialized)
@@ -238,10 +243,6 @@ namespace Trejak.ZoningByLaw
             Utils.AddLocaleText($"Assets.NAME[{prefab.name}]", prefab.bylawName);
             Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", data.CreateDescription());
         }
-
-        internal static void SaveToFile(ByLawRecord record)
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }

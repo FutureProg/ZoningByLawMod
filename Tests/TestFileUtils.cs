@@ -1,6 +1,8 @@
-﻿using Game.Debug.Tests;
+﻿using Game.Debug;
+using Game.Debug.Tests;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,13 +12,13 @@ using Trejak.ZoningByLaw.Prefab;
 using Trejak.ZoningByLaw.Serialization;
 using Trejak.ZoningByLaw.UISystems;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace ZoningByLaw.Tests
 {
     public class TestFileUtils
     {
 
+        [Test]        
         public void TestSaveToFile()
         {
             var binding = new ZoningByLawBinding()
@@ -30,7 +32,12 @@ namespace ZoningByLaw.Tests
             bool result = Directory.Exists(Path.Combine(Utils.ContentFolder, "ByLaws"));
             result = result && File.Exists(Path.Combine(Utils.ContentFolder, "ByLaws", record.bylawName + ".json"));
 
-            Assert.IsTrue(result);
+            if (result)
+            {
+                File.Delete(Path.Combine(Utils.ContentFolder, "ByLaws", record.bylawName + ".json"));
+            }
+            
+            Assert.IsTrue(result, "Did not find expected file");
         }
     }
 }

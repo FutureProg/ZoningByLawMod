@@ -23,6 +23,7 @@ using Colossal.PSI.Environment;
 using Colossal.IO.AssetDatabase.Internal;
 using System.Text;
 using Colossal.UI;
+using ZoningByLaw.Tests;
 
 namespace Trejak.ZoningByLaw;
 
@@ -44,7 +45,7 @@ public class Mod : IMod
         if (GameManager.instance.modManager.TryGetExecutableAsset(this, out var asset))
             log.Info($"Current mod asset at {asset.path}");
 
-        installed = false;
+        installed = false;        
 
         var path = Path.GetDirectoryName(asset.GetMeta().path);
         UIManager.defaultUISystem.AddHostLocation("trejak_zbl", Path.Combine(path, "Images/"));
@@ -63,9 +64,10 @@ public class Mod : IMod
         var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
         var prefabs = Traverse.Create(prefabSystem).Field<List<PrefabBase>>("m_Prefabs").Value;
         var basePrefab = prefabs.FirstOrDefault(p => p.name == "NA Residential Medium");
-        var baseCategoryPrefab = prefabs.FirstOrDefault(p => p.name.StartsWith("Zones") && p is UIAssetCategoryPrefab) as UIAssetCategoryPrefab;        
+        var baseCategoryPrefab = prefabs.FirstOrDefault(p => p.name.StartsWith("Zones") && p is UIAssetCategoryPrefab) as UIAssetCategoryPrefab;
 
-        if (!Utils.InitData(basePrefab as ZonePrefab, baseCategoryPrefab, prefabSystem))
+        TestRunner.Run();
+        if (!Utils.InitData(basePrefab as ZonePrefab, baseCategoryPrefab, prefabSystem) || TestRunner.FailureCount > 0)
         {
             Mod.log.Error("Unable to initialize Zoning ByLaw Mod!");            
         } else
