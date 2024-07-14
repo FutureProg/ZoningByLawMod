@@ -246,7 +246,7 @@ namespace Trejak.ZoningByLaw.UI
                 Mod.log.Error($"Failed to add new zone prefab \"{byLawName}\"!");                
             }
             UpdateByLawList();
-            SaveActiveByLawToDisk();
+            Utils.SaveByLaw(_prefabSystem.GetEntity(prefab), this.EntityManager);
         }
 
         void SaveActiveByLawToDisk()
