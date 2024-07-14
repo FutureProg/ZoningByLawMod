@@ -9,6 +9,8 @@ using Game.Prefabs;
 using UnityEngine;
 using Trejak.ZoningByLaw.Serialization;
 using Trejak.ZoningByLaw.UISystems;
+using System.Linq;
+using UnityEngine.Profiling;
 
 namespace Trejak.ZoningByLaw
 {
@@ -34,6 +36,30 @@ namespace Trejak.ZoningByLaw
             GameManager.instance.localizationManager.activeDictionary.Add(textId, text);
         }        
 
+        public static ByLawRecord ByLawRecordFromEntity(Entity entity, EntityManager em)
+        {
+            var zonePrefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(entity);
+            var zoneData = em.GetComponentData<ByLawZoneData>(entity);
+            var prefabID = zonePrefab.GetPrefabID();            
+
+            var bylawJson = ZoningByLawBinding.FromEntity(entity, em);
+            var re = new ByLawRecord(zonePrefab.bylawName, bylawJson.CreateDescription(), zonePrefab.m_Color, zonePrefab.m_Edge, bylawJson, prefabID);
+            return re;
+        }
+
+        /***
+         * Save a single ByLaw to disk
+         */
+        public static void SaveByLaw(Entity entity, EntityManager em)
+        {
+            var record = ByLawRecordFromEntity(entity, em);
+            if (record.zoningByLawBinding.deleted)
+            {
+                return;
+            }
+
+        }
+
         public static void SaveByLaws(Entity[] bylawEntities, EntityManager em)
         {
             if (!_initialized)
@@ -54,22 +80,20 @@ namespace Trejak.ZoningByLaw
 
                 records.Add(new ByLawRecord(zonePrefab.bylawName, bylawJson.CreateDescription(), zonePrefab.m_Color, zonePrefab.m_Edge, bylawJson, prefabID));
             }
-            var toDump = records.ToArray();
-            var path = Path.Combine(FileUtils.ContentFolder, ByLawsJSONFileName);
-            File.WriteAllText(path, JSON.Dump(toDump));
+            FileUtils.SaveAll(records);
         }
 
         public static bool GetByLawsFromFile(out ByLawRecord[] records)
         {
-            var path = Path.Combine(FileUtils.ContentFolder, ByLawsJSONFileName);
-            if (!File.Exists(path))
+            var path = Path.Combine(FileUtils.ByLawsFolder);
+            if (!Directory.Exists(path) || FileUtils.GetByLawRecordFileNames().ToArray().Length == 0)
             {
                 records = new ByLawRecord[0];
                 return true;
             }
             try
             {
-                records = JSON.MakeInto<ByLawRecord[]>(JSON.Load(File.ReadAllText(path)));
+                records = FileUtils.LoadAllByLaws().ToArray();
                 return true;
             } catch (Exception ex)
             {

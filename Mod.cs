@@ -23,7 +23,7 @@ using Colossal.PSI.Environment;
 using Colossal.IO.AssetDatabase.Internal;
 using System.Text;
 using Colossal.UI;
-using ZoningByLaw.Tests;
+using Trejak.ZoningByLaw.Tests;
 
 namespace Trejak.ZoningByLaw;
 

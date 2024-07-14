@@ -2,13 +2,7 @@
 using Game.Debug.Tests;
 using Game.Prefabs;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Trejak.ZoningByLaw;
 using Trejak.ZoningByLaw.Prefab;
 using Trejak.ZoningByLaw.Serialization;
 using Trejak.ZoningByLaw.UISystems;
@@ -34,14 +28,16 @@ namespace Trejak.ZoningByLaw.Tests.Serialization
         public void TestLoadFromFile()
         {
             var record = TestRecord();
-            FileUtils.SaveToFile(record);
-            var other = FileUtils.LoadFromFile(record.idName);
+            FileUtils.SaveToFile(record);           
+            var other = FileUtils.LoadFromFile(record.idName + ".json");
+            string filePath = Path.Combine(FileUtils.ByLawsFolder, record.idName + ".json");
+            File.Delete(filePath);
 
-            Assert.Equals(record.idName, other.idName);
-            Assert.Equals(record.bylawName, other.bylawName);
-            Assert.Equals(record.zoningByLawBinding, other.zoningByLawBinding);
-            Assert.Equals(record.zoneColor, other.zoneColor);
-        }
+            Assert.IsTrue(record.idName == other.idName, "ID Names don't match");
+            Assert.IsTrue(record.bylawName == other.bylawName, "ByLaw Names don't match");
+            Assert.IsTrue(record.zoningByLawBinding.blocks.Length == other.zoningByLawBinding.blocks.Length, "Block array lengths don't match");
+            Assert.IsTrue(record.zoneColor == other.zoneColor, "Colours don't match");            
+        }        
 
         [Test]        
         public void TestSaveToFile()
@@ -49,8 +45,8 @@ namespace Trejak.ZoningByLaw.Tests.Serialization
             var record = TestRecord();
             FileUtils.SaveToFile(record);
 
-            bool result = Directory.Exists(Path.Combine(FileUtils.ContentFolder, "ByLaws"));
-            string filePath = Path.Combine(FileUtils.ContentFolder, "ByLaws", record.idName + ".json");
+            bool result = Directory.Exists(FileUtils.ByLawsFolder);
+            string filePath = Path.Combine(FileUtils.ByLawsFolder, record.idName + ".json");
             result = result && File.Exists(filePath);
 
             string fileContent = "";
