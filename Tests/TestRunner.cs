@@ -12,7 +12,7 @@ using Trejak.ZoningByLaw;
 using Unity.Entities;
 using UnityEngine.Assertions;
 
-namespace ZoningByLaw.Tests
+namespace Trejak.ZoningByLaw.Tests
 {
     public static class TestRunner
     {
@@ -25,8 +25,7 @@ namespace ZoningByLaw.Tests
         public static void Run()
         {
             NotificationUISystem notifSystem= World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<NotificationUISystem>();
-
-
+            
             var tests = Assembly.GetAssembly(typeof(TestRunner))
                 .GetTypes()
                 .Where(x => x.IsClass)

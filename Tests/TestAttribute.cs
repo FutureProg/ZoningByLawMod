@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine.Scripting;
 
-namespace ZoningByLaw.Tests
+namespace Trejak.ZoningByLaw.Tests
 {
     [AttributeUsage(AttributeTargets.Method)]
     public class TestAttribute : PreserveAttribute
