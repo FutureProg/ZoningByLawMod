@@ -160,7 +160,7 @@ namespace Trejak.ZoningByLaw
             ComponentBase[] baseComponents = new ComponentBase[baseCategoryPrefab.components.Count];
             baseCategoryPrefab.components.CopyTo(baseComponents);
 
-            UIAssetCategoryPrefab assetCategory = new UIAssetCategoryPrefab();
+            UIAssetCategoryPrefab assetCategory = ScriptableObject.CreateInstance<UIAssetCategoryPrefab>();
             assetCategory.m_Menu = baseCategoryPrefab.m_Menu;
             assetCategory.active = true;
             assetCategory.isDirty = true;
