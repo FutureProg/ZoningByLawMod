@@ -239,5 +239,9 @@ namespace Trejak.ZoningByLaw
             Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", data.CreateDescription());
         }
 
+        internal static void SaveToFile(ByLawRecord record)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
