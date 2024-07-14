@@ -17,6 +17,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Trejak.ZoningByLaw.BuildingBlocks;
 using Trejak.ZoningByLaw.Prefab;
+using Trejak.ZoningByLaw.Serialization;
 using Trejak.ZoningByLaw.Systems;
 using Trejak.ZoningByLaw.UISystems;
 using Unity.Collections;
@@ -130,7 +131,7 @@ namespace Trejak.ZoningByLaw.UI
             prefab.m_Edge = borderColour;
             Traverse.Create(_zoneSystem).Field<bool>("m_UpdateColors").Value = true;
             _selectedByLawColour.Update(new Color[] { zoneColour, borderColour });
-            SaveByLawsToDisk();
+            SaveActiveByLawToDisk();
         }
 
         public void SetConfigPanelOpen(bool newValue)
@@ -181,7 +182,7 @@ namespace Trejak.ZoningByLaw.UI
             prefab.Update(data);            
             Utils.SetPrefabText(prefab, data);            
             this._selectedByLawData.Value = data;
-            SaveByLawsToDisk();
+            SaveActiveByLawToDisk();
         }
 
         void SetByLawName(string name)
@@ -196,7 +197,7 @@ namespace Trejak.ZoningByLaw.UI
             Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", _selectedByLawData.Value.CreateDescription());
             _selectedByLawName.Update(prefab.bylawName);
             UpdateByLawList();
-            SaveByLawsToDisk();
+            SaveActiveByLawToDisk();
         }
 
         void GetBasePrefab()
@@ -245,14 +246,19 @@ namespace Trejak.ZoningByLaw.UI
                 Mod.log.Error($"Failed to add new zone prefab \"{byLawName}\"!");                
             }
             UpdateByLawList();
-            SaveByLawsToDisk();
+            SaveActiveByLawToDisk();
         }
 
-        void SaveByLawsToDisk()
+        void SaveActiveByLawToDisk()
         {
-            var entities = _bylawsQuery.ToEntityArray(Allocator.Temp);
-            Utils.SaveByLaws(entities.ToArray(), this.EntityManager);
-            entities.Dispose();
+            Utils.SaveByLaw(_selectedByLaw.value, this.EntityManager);            
+        }
+
+        void DeleteActiveByLawFromDisk()
+        {
+            UpdateByLawList();
+            SetActiveByLaw(Entity.Null);            
+            Utils.DeleteByLawFromDisk(_selectedByLaw.value, this.EntityManager);            
         }
 
         void DeleteByLaw()
@@ -299,10 +305,8 @@ namespace Trejak.ZoningByLaw.UI
             // "delete" the bylaw (really just hides it)
             //ecb.AddComponent<Deleted>(entity);
             _endFrameBarrier.AddJobHandleForProducer(this.Dependency);            
-
-            UpdateByLawList();
-            SetActiveByLaw(Entity.Null);
-            SaveByLawsToDisk();            
+            
+            DeleteActiveByLawFromDisk();            
         }
 
         public partial struct DeleteByLawJob : IJobParallelFor

@@ -57,7 +57,7 @@ namespace Trejak.ZoningByLaw
             {
                 return;
             }
-
+            FileUtils.SaveToFile(record);
         }
 
         public static void SaveByLaws(Entity[] bylawEntities, EntityManager em)
@@ -138,17 +138,17 @@ namespace Trejak.ZoningByLaw
             return true;
         }
 
+        public static void DeleteByLawFromDisk(Entity entity, EntityManager em)
+        {
+            var record = ByLawRecordFromEntity(entity, em);
+            FileUtils.DeleteByLaw(FileUtils.GetByLawFileName(record));
+        }
+
         public static bool InitData(ZonePrefab basePrefab, UIAssetCategoryPrefab baseCategoryPrefab, PrefabSystem prefabSystem)
         {
             _basePrefab = basePrefab;
             _prefabSystem = prefabSystem;
             _assetCategory = CreateAssetCategory(baseCategoryPrefab);
-            //if (_assetCategory != null)
-            //{
-            //    Mod.log.Info("Asset Category Name: " + _assetCategory.name);
-            //    ByLawConfigButtonPrefab prefab = ByLawConfigButtonPrefab.Create(_assetCategory, _prefabSystem);
-            //    _prefabSystem.AddPrefab(prefab);
-            //}            
             
             _initialized = _assetCategory != null && _basePrefab != null && _prefabSystem != null;
             return _initialized;
