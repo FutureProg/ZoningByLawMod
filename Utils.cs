@@ -1,17 +1,13 @@
 ﻿using Game.SceneFlow;
 using System.IO;
-using Colossal.PSI.Environment;
 using Trejak.ZoningByLaw.Prefab;
 using Colossal.Json;
 using System.Collections.Generic;
 using System;
 using Unity.Entities;
 using Game.Prefabs;
-using HarmonyLib;
-using System.Linq;
 using UnityEngine;
 using Trejak.ZoningByLaw.Serialization;
-using Game.UI.InGame;
 using Trejak.ZoningByLaw.UISystems;
 
 namespace Trejak.ZoningByLaw
@@ -26,24 +22,17 @@ namespace Trejak.ZoningByLaw
 
         public static readonly string ByLawsJSONFileName = "ZoningByLaws.json";
 
-        public static string ContentFolder { get; }
+        
 
         static Utils()
-        {
-            ContentFolder = Path.Combine(EnvPath.kUserDataPath, "ModsData", "Trejak.ZoningByLaw");
-            Directory.CreateDirectory(ContentFolder);
+        {            
             _initialized = false;
         }          
 
         public static void AddLocaleText(string textId, string text)
         {
             GameManager.instance.localizationManager.activeDictionary.Add(textId, text);
-        }
-
-        public static void SaveToFile(ByLawRecord record)
-        {
-
-        }
+        }        
 
         public static void SaveByLaws(Entity[] bylawEntities, EntityManager em)
         {
@@ -66,13 +55,13 @@ namespace Trejak.ZoningByLaw
                 records.Add(new ByLawRecord(zonePrefab.bylawName, bylawJson.CreateDescription(), zonePrefab.m_Color, zonePrefab.m_Edge, bylawJson, prefabID));
             }
             var toDump = records.ToArray();
-            var path = Path.Combine(ContentFolder, ByLawsJSONFileName);
+            var path = Path.Combine(FileUtils.ContentFolder, ByLawsJSONFileName);
             File.WriteAllText(path, JSON.Dump(toDump));
         }
 
         public static bool GetByLawsFromFile(out ByLawRecord[] records)
         {
-            var path = Path.Combine(ContentFolder, ByLawsJSONFileName);
+            var path = Path.Combine(FileUtils.ContentFolder, ByLawsJSONFileName);
             if (!File.Exists(path))
             {
                 records = new ByLawRecord[0];
