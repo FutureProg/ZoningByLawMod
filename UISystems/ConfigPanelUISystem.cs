@@ -98,8 +98,8 @@ namespace Trejak.ZoningByLaw.UI
 
             this.AddBinding(_setActiveByLaw = new TriggerBinding<Entity>(uiGroupName, "SetActiveByLaw", SetActiveByLaw));
             _setByLawData = CreateTrigger<ZoningByLawBinding>("SetByLawData", SetByLawData);
-            _createNewByLaw =  CreateTrigger("CreateNewByLaw", CreateNewByLaw);            
-            this.AddBinding(_deleteByLaw = new TriggerBinding(uiGroupName, "DeleteByLaw", DeleteByLaw));
+            _createNewByLaw =  CreateTrigger("CreateNewByLaw", CreateNewByLaw);
+            _deleteByLaw = CreateTrigger("DeleteByLaw", DeleteByLaw);            
             this.AddBinding(_setConfigPanelOpen = new TriggerBinding<bool>(uiGroupName, "SetConfigPanelOpen", SetConfigPanelOpen));
             this.AddBinding(_setByLawName = new TriggerBinding<string>(uiGroupName, "SetByLawName", SetByLawName));
             this.AddBinding(_setByLawZoneColour = new TriggerBinding<Color, Color>(uiGroupName, "SetByLawZoneColour", SetByLawZoneColour));
@@ -257,8 +257,8 @@ namespace Trejak.ZoningByLaw.UI
         void DeleteActiveByLawFromDisk()
         {
             UpdateByLawList();
-            SetActiveByLaw(Entity.Null);            
-            Utils.DeleteByLawFromDisk(_selectedByLaw.value, this.EntityManager);            
+            Utils.DeleteByLawFromDisk(_selectedByLaw.value, this.EntityManager);
+            SetActiveByLaw(Entity.Null); 
         }
 
         void DeleteByLaw()
@@ -269,6 +269,8 @@ namespace Trejak.ZoningByLaw.UI
             var data = EntityManager.GetComponentData<ByLawZoneData>(entity);            
             data.deleted = true;
             EntityManager.SetComponentData(entity, data);
+            DeleteActiveByLawFromDisk();
+
             var zoneData = EntityManager.GetComponentData<ZoneData>(entity);
             zoneData.m_AreaType = AreaType.None;            
             ecb.SetComponent(entity, zoneData);
@@ -304,9 +306,7 @@ namespace Trejak.ZoningByLaw.UI
 
             // "delete" the bylaw (really just hides it)
             //ecb.AddComponent<Deleted>(entity);
-            _endFrameBarrier.AddJobHandleForProducer(this.Dependency);            
-            
-            DeleteActiveByLawFromDisk();            
+            _endFrameBarrier.AddJobHandleForProducer(this.Dependency);                                           
         }
 
         public partial struct DeleteByLawJob : IJobParallelFor

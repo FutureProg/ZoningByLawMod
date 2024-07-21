@@ -24,7 +24,7 @@ export default ({byLawItem, onChange: onChangeCallback, onDelete: onDeleteCallba
 
     // when the parent bylaw item changes, update
     useEffect(() => {
-        setByLawItem(byLawItem)
+        setByLawItem(byLawItem);
     }, [byLawItem]);
 
     let splitByUpperCase = (txt: string) => txt.split(/(?=[A-Z])/).join(' ');
@@ -108,6 +108,10 @@ export default ({byLawItem, onChange: onChangeCallback, onDelete: onDeleteCallba
         onChangeCallback(item);
     }
 
+    let onDelete = () => {
+        onDeleteCallback && onDeleteCallback();
+    }
+
     let operatorName = splitByUpperCase(ByLawPropertyOperator[_byLawItem.propertyOperator]);
     let propName = splitByUpperCase(ByLawItemType[_byLawItem.byLawItemType]);
 
@@ -127,7 +131,7 @@ export default ({byLawItem, onChange: onChangeCallback, onDelete: onDeleteCallba
                         onSelect={() => setEditing(!editing)} 
                         variant='icon' 
                         src={'coui://uil/Colored/' + (!editing? 'Pencil.svg' : 'Checkmark.svg')} />
-                    <Button focusKey={FOCUS_AUTO} variant='icon' src='coui://uil/Colored/Trash.svg' onSelect={onDeleteCallback} /> 
+                    <Button focusKey={FOCUS_AUTO} variant='icon' src='coui://uil/Colored/Trash.svg' onSelect={() => onDelete()} /> 
                 </div>
             </div>
             <div className={styles.editSection + ' ' + (editing? '' : styles.hidden)}>

@@ -31,18 +31,18 @@ export let createNewByLaw = () => {
     trigger(mod.fullname, "CreateNewByLaw");
 }
 
-export const deleteByLaw = () => {
+export let deleteByLaw = () => {
     trigger(mod.fullname, "DeleteByLaw");
 }
 
-export const setByLawName = (name: string) => {
+export let setByLawName = (name: string) => {
     trigger(mod.fullname, "SetByLawName", name);
 }
 
-export const setByLawZoneColor = (zoneColor: Color, borderColor: Color) => {
+export let setByLawZoneColor = (zoneColor: Color, borderColor: Color) => {
     trigger(mod.fullname, "SetByLawZoneColour", zoneColor, borderColor);
 }
 
-export const toggleByLawRenderPreview = () => {
+export let toggleByLawRenderPreview = () => {
     trigger(mod.fullname, "ToggleByLawRenderPreview");
 }

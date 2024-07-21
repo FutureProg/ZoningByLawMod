@@ -1,33 +1,30 @@
-import { Button, DropdownItem, DropdownToggle, FOCUS_AUTO, FOCUS_DISABLED, Scrollable } from "cs2/ui"
+import { Button, FOCUS_AUTO, Scrollable } from "cs2/ui";
 import styles from './ByLawDetailsPanel.module.scss';
-import { ZONE_BORDER_IDX, ZONE_COLOR_IDX, defaultColor, deleteByLaw, selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor, toggleByLawRenderPreview } from "./bindings";
+import { selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor } from "./bindings";
 import { useValue } from "cs2/api";
-import { ChangeEvent, ChangeEventHandler, forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { ByLawConstraintType, ByLawItem, ByLawItemCategory, ByLawItemType, ByLawPropertyOperator, ByLawZoneComponent, ByLawZoneType, ZoningByLawBinding } from "./types";
-import { Bounds1, Color } from "cs2/bindings";
-import { Dropdown } from "cs2/ui";
-import { ColorHSV, VanillaComponentResolver } from "vanillacomponentresolver";
-import { GetDefaultByLawItem, GetDefaultZoningByLawBinding, getConstraintTypes, rgbaToHex } from "./utils";
-import { Bounds1Field } from "./components/Bounds1Field";
+import { ChangeEvent, useEffect } from "react";
+import { ByLawItem, ZoningByLawBinding } from "./types";
+import { Color } from "cs2/bindings";
+import { VanillaComponentResolver } from "vanillacomponentresolver";
+import { GetDefaultByLawItem, GetDefaultZoningByLawBinding, getConstraintTypes } from "./utils";
 import ByLawPropertyView from "./components/Details/ByLawPropertyView";
 
 interface _Props {
     selectedRowIndex: number;
-    onDelete?: () => void;
 }
 export const ByLawDetailsPanel = (props: _Props) => {    
     let byLawData = useValue(selectedByLawData$);    
     let byLawName = useValue(selectedByLawName$);
     let byLawColour = useValue(selectedByLawColor$);    
 
-    useEffect(() => {
-        console.log("Updated ByLawData: ", byLawData, props.selectedRowIndex);
-    }, [byLawData]);
+    
+    console.log("Updated ByLawData: ", byLawData, props.selectedRowIndex);
+    
 
-    const onUpdateByLawColor = (color: Color) => {        
+    let onUpdateByLawColor = (color: Color) => {        
         setByLawZoneColor(color, color);
     }
-    const onNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    let onNameChange = (e: ChangeEvent<HTMLInputElement>) => {
         setByLawName(e.target.value);
     }
     
@@ -41,7 +38,7 @@ export const ByLawDetailsPanel = (props: _Props) => {
         button: styles.addPropertyButton
     }
     
-    const onAddProperty = () => {
+    let onAddProperty = () => {
         // let nItemData = [newByLawData?.blocks[0].itemData];
         if (byLawData) {
             let nData = {...byLawData}
@@ -50,15 +47,18 @@ export const ByLawDetailsPanel = (props: _Props) => {
                 nData.blocks[0].itemData = [];
             }
             nData!.blocks[0].itemData.push({...GetDefaultByLawItem()});         
-            setByLawData({...nData});
+            setByLawData({...nData});            
         }        
     }
 
-    const onDeleteProperty = (index: number) => () => {
+    let onDeleteProperty = (index: number) => () => {        
+        console.log("Delete", byLawData);
         if (byLawData) {
             let nData = {...byLawData}
-            nData!.blocks[0].itemData = nData?.blocks[0].itemData.filter((_, idx, _1) => idx != index);
-            setByLawData(nData);
+            nData.blocks = [...nData.blocks];            
+            nData!.blocks[0].itemData = [...nData!.blocks[0].itemData.filter((_, idx) => idx != index)];
+            setByLawData({...nData});            
+            console.log(byLawData);
         }
     }
 
@@ -84,12 +84,12 @@ export const ByLawDetailsPanel = (props: _Props) => {
         }
     }
 
-    let propertyViews = byLawData && byLawData.blocks? byLawData?.blocks[0]?.itemData.map((item, index) => {
-        console.log("RENDER");
-        return (
-            <ByLawPropertyView byLawItem={item} key={index} onDelete={onDeleteProperty(index)} onChange={onPropertyViewChange(0, index)} />
-        )
-    }) : <></>;
+    let propertyViews = [<></>];
+    if (byLawData.blocks?.length > 0) {
+        propertyViews = byLawData.blocks[0].itemData.map((item, index) => (        
+            <ByLawPropertyView byLawItem={item} key={index + " " + item.byLawItemType} onDelete={onDeleteProperty(index)} onChange={onPropertyViewChange(0, index)} />
+        ));
+    }     
     
     return (
         <div className={styles.bylawDetails}>

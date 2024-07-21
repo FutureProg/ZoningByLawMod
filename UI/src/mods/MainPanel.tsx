@@ -97,7 +97,7 @@ export const MainPanel = () => {
                     <Scrollable className={styles.bylawList}>
                         {listItems}
                     </Scrollable>
-                    <ByLawDetailsPanel selectedRowIndex={selectedListItem} onDelete={onDeleteByLaw}/>
+                    <ByLawDetailsPanel selectedRowIndex={selectedListItem} />
                 </div>
                 <div className={styles.mainPanelBottomBar}>
                 </div>
