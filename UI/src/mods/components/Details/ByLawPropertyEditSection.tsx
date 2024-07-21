@@ -29,13 +29,13 @@ export default ({byLawItem, isOpen, onChange: onChangeCallback}: Props) : JSX.El
                 ...byLawItem,
                 valueBounds1: newValue                
             };
-            // updateLocalByLawItem(nItemVal);            
-            onChangeCallback?.call(null, nItemVal);
+            console.log(`On Change ${name} : ${newValue}`);
+            onChangeCallback && onChangeCallback(nItemVal);
         }
         return ByLawItemBounds1Editor({
             name: ByLawItemType[byLawItem.byLawItemType], 
             bounds: byLawItem.valueBounds1,   
-            onChange: onChange
+            onChange
         });
     }
 
@@ -46,7 +46,7 @@ export default ({byLawItem, isOpen, onChange: onChangeCallback}: Props) : JSX.El
                 valueByteFlag: nValue
             }
             // updateLocalByLawItem(nItemVal);            
-            onChangeCallback?.call(null, nItemVal);
+            onChangeCallback && onChangeCallback(nItemVal);
         }
 
         return ByLawItemEnumEditor({

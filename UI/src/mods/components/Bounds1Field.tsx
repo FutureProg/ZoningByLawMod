@@ -11,34 +11,33 @@ const couiStandard =                         "coui://uil/Standard/";
 const resetSrc =            couiStandard + "Reset.svg";
 
 export interface Bounds1FieldProps {
-    bounds?: Bounds1, 
+    bounds: Bounds1, 
     name: string, 
     onChange?: (name: string, newValue: Bounds1) => void
 };
 
 export const Bounds1Field = (props : Bounds1FieldProps) => {
-    let [localBounds, setLocalBounds] = useState({min: String(props.bounds?.min), max: String(props.bounds?.max)});
+    // let [localBounds, setLocalBounds] = useState({min: String(props.bounds?.min), max: String(props.bounds?.max)});
     let minRef = useRef<ButtonedNumberInputRef>(null);
     let maxRef = useRef<ButtonedNumberInputRef>(null);
-    useEffect(() => {
-        setLocalBounds({min: String(props.bounds?.min), max: String(props.bounds?.max)});
-        if (props.bounds) {
-            minRef.current?.setValue(props.bounds.min);
-            maxRef.current?.setValue(props.bounds.max);
-        }        
-    }, [props.bounds, minRef, maxRef]);    
+    // useEffect(() => {
+    //     setLocalBounds({min: String(props.bounds?.min), max: String(props.bounds?.max)});
+    //     if (props.bounds) {
+    //         minRef.current?.setValue(props.bounds.min);
+    //         maxRef.current?.setValue(props.bounds.max);
+    //     }        
+    // }, [props.bounds, minRef, maxRef]);        
 
-    let onInputChange = (e: any) => {
-        let minS = minRef.current?.getValue();
-        let maxS = maxRef.current?.getValue();
-        setLocalBounds({min: String(minS), max: String(maxS)});
-        
-        let max = Number(maxS);
-        let min = Number(minS);
-        if (isNaN(min) || isNaN(max)) {
+    let onInputChange = (field: keyof Bounds1) => (value: number) => {        
+        // setLocalBounds({min: String(minS), max: String(maxS)});       
+
+        if (isNaN(value)) {
             return;
         }
-        let nBounds = {min, max};
+        let nBounds : Bounds1 = {
+            ...props.bounds,
+            [field]: value
+        };
         if (nBounds.min > nBounds.max && nBounds.max > -1) {
             return;
         }
@@ -47,32 +46,15 @@ export const Bounds1Field = (props : Bounds1FieldProps) => {
         }
     }
 
-    const onClickUnset = (sender: 'min' | 'max') => useCallback(() => {
-        var nBoundsText = localBounds;
-        console.log(minRef.current);
-        if (sender == 'min' && minRef.current) {        
-            minRef.current.setValue(-1);
-        }
-        // nBoundsText[sender] = "-1";
-        // setLocalBounds(nBoundsText);
-        // if (isNaN(Number(nBoundsText.min)) || isNaN(Number(nBoundsText.max))) {
-        //     return;
-        // }
-        // let nBounds = {min: Number(nBoundsText.min), max: Number(nBoundsText.max)};
-        // if (props.onChange) {
-        //     props.onChange(props.name, nBounds);
-        // }
-    }, [minRef.current]);
+    const onClickUnset = (sender: keyof Bounds1) => useCallback(() => {
+        onInputChange(sender)(-1);
+    }, [onInputChange]);
     const textInputTheme = VanillaComponentResolver.instance.textInputTheme;
     const toolButtonTheme = VanillaComponentResolver.instance.toolButtonTheme;
 
     return (
         <div className={styles.bounds1Field}>        
             <div>
-                {/* <div style={{display: "flex", justifyContent: "space-between"}}>
-                    <label className={textInputTheme.label}>Min</label>
-                    <Button className={styles.unsetButton} onClick={onClickUnset("min")}>Unset</Button>
-                </div>                 */}
                 <VanillaComponentResolver.instance.Section title="Minimum">
                     <VanillaComponentResolver.instance.ToolButton 
                                 className={VanillaComponentResolver.instance.toolButtonTheme.button} 
@@ -81,7 +63,7 @@ export const Bounds1Field = (props : Bounds1FieldProps) => {
                                 src={resetSrc}
                                 focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}
                     ></VanillaComponentResolver.instance.ToolButton>  
-                    <ButtonedNumberInput defaultValue={-1} ref={minRef} limit={{min: -1}} />
+                    <ButtonedNumberInput value={props.bounds.min} onChange={onInputChange('min')} ref={minRef} limit={{min: -1}} />
                 </VanillaComponentResolver.instance.Section>                
             </div>
             <div>
@@ -93,16 +75,9 @@ export const Bounds1Field = (props : Bounds1FieldProps) => {
                                 src={resetSrc}
                                 focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}
                     ></VanillaComponentResolver.instance.ToolButton>  
-                    <ButtonedNumberInput defaultValue={-1} ref={maxRef} limit={{min: -1}} />
+                    <ButtonedNumberInput onChange={onInputChange('max')} value={props.bounds.max} ref={maxRef} limit={{min: -1}} />
                 </VanillaComponentResolver.instance.Section> 
             </div>
-            {/* <div className={textInputTheme.container}>
-                <div style={{display: "flex", justifyContent: "space-between"}}>
-                    
-                    <Button  className={styles.unsetButton} onClick={onClickUnset("max")}>Unset</Button>
-                </div>                                                    
-                <input className={textInputTheme.input} type="number" ref={maxRef} value={localBounds?.max} onChange={onInputChange} />                            
-            </div>         */}
         </div>
     )
 }

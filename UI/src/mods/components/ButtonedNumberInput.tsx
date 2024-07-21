@@ -8,21 +8,19 @@ const arrowUpSrc =           couiStandard +  "ArrowUpThickStroke.svg";
 
 type _Props = {
     onChange?: (newValue: number) => void;
-    defaultValue?: number;    
+    value: number;    
     limit?: {min?: number, max?: number};
     step?: number;
 }
 
 export interface ButtonedNumberInputRef {
-    setValue: (value: number) => boolean;
+    setValue: (value: number, silent?: boolean) => boolean;
     getValue: () => number | undefined;
 }
 
-export const ButtonedNumberInput = forwardRef(({onChange, defaultValue, limit, step} : _Props, ref: ForwardedRef<ButtonedNumberInputRef>) => {
-
-    let defaultVal = defaultValue || 0;
+export const ButtonedNumberInput = forwardRef(({onChange, value, limit, step} : _Props, ref: ForwardedRef<ButtonedNumberInputRef>) => {
+    
     let _ref = useRef<HTMLInputElement>(null); 
-    let [value, setValue] = useState(defaultVal);
     let _step = step || 1;
 
     
@@ -41,28 +39,26 @@ export const ButtonedNumberInput = forwardRef(({onChange, defaultValue, limit, s
         if (limit?.min && limit.min > nValue) {
             return;
         }
-        setValue(nValue);
-        onChange?.apply(null, [nValue]);
+        onChange && onChange(nValue);
     }, [onChange, limit, value]);
     
     useImperativeHandle(ref, () => {
         return {
-            setValue: (value: number) => {
+            setValue: (value: number, silent: boolean = false) => {
                 if (limit?.max && limit.max < value) {
                     return false;
                 }        
                 if (limit?.min && limit.min > value) {
                     return false;
-                }                    
-                setValue(value);
-                onChange?.apply(null, [value]);
+                }                                    
+                !silent && onChange && onChange(value);
                 return true;
             },
             getValue: () => {
                 return value;
             }
         }        
-    }, [limit, ref, onChange, setValue, value]);      
+    }, [limit, ref, onChange, value]);      
     
     let changeValueByButton = (multiplier: number) => useCallback(() => {
         console.log(multiplier);
@@ -75,9 +71,8 @@ export const ButtonedNumberInput = forwardRef(({onChange, defaultValue, limit, s
         }        
         if (limit?.min && limit.min > nValue) {
             nValue = limit.min;
-        }
-        setValue(nValue);
-        onChange?.apply(null, [nValue]);
+        }        
+        onChange && onChange(nValue);
     }, [_step, onChange, limit, value]);
 
     return (
