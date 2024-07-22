@@ -1,4 +1,5 @@
 ﻿using Colossal.Collections;
+using Colossal.Json;
 using Colossal.Serialization.Entities;
 using Game;
 using Game.Areas;
@@ -9,9 +10,11 @@ using Game.Rendering;
 using Game.UI.Editor;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Trejak.ZoningByLaw.Serialization;
 using Unity.Burst.Intrinsics;
 using Unity.Collections;
 using Unity.Entities;
@@ -78,7 +81,7 @@ namespace Trejak.ZoningByLaw.Prefab
 
         protected override void OnUpdate()
         {
-            UpdateIndex(true);
+            UpdateIndex(true);            
         }
 
         protected override void OnGameLoadingComplete(Purpose purpose, GameMode mode)
@@ -189,6 +192,28 @@ namespace Trejak.ZoningByLaw.Prefab
                 _initialized = true;
             }
             Mod.log.Info($"IndexBuildingsSystem created properties for {processedEnts} entities.");
+            WriteToFile();
+        }
+        
+        public void WriteToFile()
+        {
+            var filePath = Path.Combine(FileUtils.ContentFolder, "BuildingIndexedProperties.json");
+            File.Delete(filePath);
+            File.WriteAllText(filePath, "[");
+            var file = File.AppendText(filePath);
+            for (int i = 0; i < _properties.Length; i++)
+            {
+                if (_properties[i].initialized)
+                {
+                    Dictionary<string, object> t = new Dictionary<string, object>();
+                    t["index"] = i;
+                    t["data"] = _properties[i];
+                    file.Write(JSON.Dump(t) + ",\n");
+                }
+            }
+            file.Write("]");
+            file.Flush();
+            file.Close();
         }
 
         public void AddPropertiesReader(JobHandle jobHandle)
