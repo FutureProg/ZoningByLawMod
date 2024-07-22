@@ -168,13 +168,15 @@ export const getConstraintTypes = (item: ByLawItem) : ByLawConstraintType[] => {
             break;
         case ByLawItemType.Height:
         case ByLawItemType.LotWidth:
-        case ByLawItemType.LotSize:
-        case ByLawItemType.Parking:
+        case ByLawItemType.LotSize:        
         case ByLawItemType.FrontSetback:
         case ByLawItemType.LeftSetback:
         case ByLawItemType.RightSetback:
         case ByLawItemType.RearSetback:                
             re.push(ByLawConstraintType.Length);                                   
+            break;
+        case ByLawItemType.Parking:
+            re.push(ByLawConstraintType.Count);
             break;
         case ByLawItemType.NoisePollutionLevel:
         case ByLawItemType.GroundPollutionLevel:

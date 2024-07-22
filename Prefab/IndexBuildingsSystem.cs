@@ -191,8 +191,7 @@ namespace Trejak.ZoningByLaw.Prefab
             {
                 _initialized = true;
             }
-            Mod.log.Info($"IndexBuildingsSystem created properties for {processedEnts} entities.");
-            WriteToFile();
+            Mod.log.Info($"IndexBuildingsSystem created properties for {processedEnts} entities.");            
         }
         
         public void WriteToFile()
