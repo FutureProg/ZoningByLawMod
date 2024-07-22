@@ -1,4 +1,5 @@
 ﻿using Colossal.Entities;
+using Colossal.Json;
 using Colossal.UI.Binding;
 using Game;
 using Game.Common;
@@ -176,7 +177,7 @@ namespace Trejak.ZoningByLaw.UI
 
         void SetByLawData(ZoningByLawBinding data)
         {
-            Mod.log.Info("Set By Law Data: " + data);
+            Mod.log.Info("Set By Law Data: " + data.ToJSONString());
             data.UpdateEntity(_selectedByLaw.value, this.EntityManager);            
             var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(_selectedByLaw.value);            
             prefab.Update(data);            

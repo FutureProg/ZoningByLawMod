@@ -1,13 +1,15 @@
 import { Button, FOCUS_AUTO, Scrollable } from "cs2/ui";
 import styles from './ByLawDetailsPanel.module.scss';
 import { selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor } from "./bindings";
-import { useValue } from "cs2/api";
+import { trigger, useValue } from "cs2/api";
 import { ChangeEvent, useEffect } from "react";
 import { ByLawItem, ZoningByLawBinding } from "./types";
 import { Color } from "cs2/bindings";
 import { VanillaComponentResolver } from "vanillacomponentresolver";
 import { GetDefaultByLawItem, GetDefaultZoningByLawBinding, getConstraintTypes } from "./utils";
 import ByLawPropertyView from "./components/Details/ByLawPropertyView";
+
+import mod from '../../mod.json';
 
 interface _Props {
     selectedRowIndex: number;
@@ -57,7 +59,7 @@ export const ByLawDetailsPanel = (props: _Props) => {
             let nData = {...byLawData}
             nData.blocks = [...nData.blocks];            
             nData!.blocks[0].itemData = [...nData!.blocks[0].itemData.filter((_, idx) => idx != index)];
-            setByLawData({...nData});            
+            trigger(mod.fullname, "SetByLawData", {...nData});
             console.log(byLawData);
         }
     }
