@@ -215,3 +215,5 @@ export const getItemCategories = (itemType: ByLawItemType) : ByLawItemCategory =
             return ByLawItemCategory.None;
     }
 }
+
+export const deepCopy = <T,>(obj: T) => JSON.parse(JSON.stringify(obj)) as T;   

@@ -1,27 +1,23 @@
-import { Button, FOCUS_AUTO, Scrollable } from "cs2/ui";
+import { Button, FOCUS_AUTO, FOCUS_DISABLED, Scrollable } from "cs2/ui";
 import styles from './ByLawDetailsPanel.module.scss';
 import { selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor } from "./bindings";
-import { trigger, useValue } from "cs2/api";
-import { ChangeEvent, useEffect } from "react";
+import { useValue } from "cs2/api";
+import { ChangeEvent, useEffect, useState } from "react";
 import { ByLawItem, ZoningByLawBinding } from "./types";
 import { Color } from "cs2/bindings";
 import { VanillaComponentResolver } from "vanillacomponentresolver";
-import { GetDefaultByLawItem, GetDefaultZoningByLawBinding, getConstraintTypes } from "./utils";
+import { GetDefaultByLawItem, GetDefaultZoningByLawBinding, deepCopy, getConstraintTypes } from "./utils";
 import ByLawPropertyView from "./components/Details/ByLawPropertyView";
 
-import mod from '../../mod.json';
 
 interface _Props {
     selectedRowIndex: number;
 }
 export const ByLawDetailsPanel = (props: _Props) => {    
-    let byLawData = useValue(selectedByLawData$);    
+    let byLawData = useValue(selectedByLawData$);        
     let byLawName = useValue(selectedByLawName$);
-    let byLawColour = useValue(selectedByLawColor$);    
-
-    
-    console.log("Updated ByLawData: ", byLawData, props.selectedRowIndex);
-    
+    let byLawColour = useValue(selectedByLawColor$); 
+    let itemData = byLawData.blocks?.length > 0 && byLawData.blocks[0].itemData? [...byLawData.blocks[0].itemData] : [];          
 
     let onUpdateByLawColor = (color: Color) => {        
         setByLawZoneColor(color, color);
@@ -41,35 +37,30 @@ export const ByLawDetailsPanel = (props: _Props) => {
     }
     
     let onAddProperty = () => {
-        // let nItemData = [newByLawData?.blocks[0].itemData];
         if (byLawData) {
-            let nData = {...byLawData}
+            let nData = deepCopy<ZoningByLawBinding>(byLawData);
             if (nData.blocks.length == 0) {
                 nData.blocks = [...GetDefaultZoningByLawBinding().blocks];
                 nData.blocks[0].itemData = [];
             }
             nData!.blocks[0].itemData.push({...GetDefaultByLawItem()});         
-            setByLawData({...nData});            
+            setByLawData({...nData});
         }        
     }
 
-    let onDeleteProperty = (index: number) => () => {        
-        console.log("Delete", byLawData);
+    let onDeleteProperty = (index: number) => () => {                
         if (byLawData) {
-            let nData = {...byLawData}
+            let nData = deepCopy(byLawData);
             nData.blocks = [...nData.blocks];            
             nData!.blocks[0].itemData = [...nData!.blocks[0].itemData.filter((_, idx) => idx != index)];
-            trigger(mod.fullname, "SetByLawData", {...nData});
-            console.log(byLawData);
+            setByLawData({...nData});
         }
     }
 
     let onPropertyViewChange = (blockIndex: number, itemIndex: number) => (item: ByLawItem) => {
         if (byLawData) {
             let oldItem = byLawData.blocks[blockIndex].itemData[itemIndex];            
-            let newItem = {
-                ...item
-            };
+            let newItem = deepCopy(item);
             if (oldItem.byLawItemType !== item.byLawItemType) {
                 newItem = {
                     ...GetDefaultByLawItem(),
@@ -77,21 +68,15 @@ export const ByLawDetailsPanel = (props: _Props) => {
                     constraintType: getConstraintTypes(item)[0]
                 };                
             }
-            let newData = {
-                ...byLawData,                          
-            } as ZoningByLawBinding;
+            let newData = deepCopy<ZoningByLawBinding>(byLawData);
             newData.blocks[blockIndex].itemData[itemIndex] = newItem; 
-            setByLawData(newData);
-            console.log("Property view changed data:", newData);            
+            setByLawData(newData);   
         }
     }
-
-    let propertyViews = [<></>];
-    if (byLawData.blocks?.length > 0) {
-        propertyViews = byLawData.blocks[0].itemData.map((item, index) => (        
-            <ByLawPropertyView byLawItem={item} key={index + " " + item.byLawItemType} onDelete={onDeleteProperty(index)} onChange={onPropertyViewChange(0, index)} />
-        ));
-    }     
+    
+    let propertyViews = itemData.map((item, index) => (        
+        <ByLawPropertyView byLawItem={item} key={index} onDelete={onDeleteProperty(index)} onChange={onPropertyViewChange(0, index)} />
+    ));  
     
     return (
         <div className={styles.bylawDetails}>
@@ -105,7 +90,7 @@ export const ByLawDetailsPanel = (props: _Props) => {
                             placeholder="ByLaw Name" 
                             vkTitle="ByLaw Name"
                             className={styles.nameInput}
-                            focusKey={FOCUS_AUTO}/>                                                                                                             
+                            focusKey={FOCUS_DISABLED}/>                                                                                                             
                         <VanillaComponentResolver.instance.ColorField value={byLawColour[0]} onChange={onUpdateByLawColor}/>                        
                         <h2>Constraints</h2>
                         {propertyViews}

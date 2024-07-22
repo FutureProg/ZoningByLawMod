@@ -1,6 +1,6 @@
 import { useValue } from "cs2/api"
 import { isConfigPanelOpen$, setConfigPanelOpen } from "./bindings"
-import { Button } from "cs2/ui";
+import { Button, FOCUS_AUTO, FOCUS_DISABLED } from "cs2/ui";
 import { ModuleRegistryExtend } from "cs2/modding";
 
 import styles from './configpaneltogglebutton.module.scss';
@@ -16,7 +16,7 @@ export const ConfigPanelToggleButton : ModuleRegistryExtend = (Component) => {
         return (
         <>            
             <VanillaComponentResolver.instance.Section>
-                <Button className={styles.button + ' ' + VanillaComponentResolver.instance.toolButtonTheme.button} variant="flat" onClick={onClick}>
+                <Button className={styles.button + ' ' + VanillaComponentResolver.instance.toolButtonTheme.button} focusKey={FOCUS_DISABLED} variant="flat" onClick={onClick}>
                     <img src="coui://trejak_zbl/config-icon.svg" />
                     Zoning ByLaw Editor
                 </Button>            
