@@ -24,6 +24,7 @@ using Colossal.IO.AssetDatabase.Internal;
 using System.Text;
 using Colossal.UI;
 using Trejak.ZoningByLaw.Tests;
+using Game.UI.InGame;
 
 namespace Trejak.ZoningByLaw;
 
@@ -73,6 +74,15 @@ public class Mod : IMod
         } else
         {            
             Utils.LoadByLaws();
+
+            // init localization
+            var em = updateSystem.EntityManager;
+            LocaleDictionary localeDict = new LocaleDictionary(em, em.World.GetOrCreateSystemManaged<PrefabUISystem>(), em.World.GetOrCreateSystemManaged<PrefabSystem>());
+            foreach (var localeId in GameManager.instance.localizationManager.GetSupportedLocales())
+            {
+                GameManager.instance.localizationManager.AddSource(localeId, localeDict);
+            }
+
             installed = true;
         }
 

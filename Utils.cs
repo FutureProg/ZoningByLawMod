@@ -29,11 +29,12 @@ namespace Trejak.ZoningByLaw
         static Utils()
         {            
             _initialized = false;
-        }          
+        }
 
+        [Obsolete]
         public static void AddLocaleText(string textId, string text)
         {
-            GameManager.instance.localizationManager.activeDictionary.Add(textId, text);
+            //GameManager.instance.localizationManager.activeDictionary.Add(textId, text);
         }        
 
         public static ByLawRecord ByLawRecordFromEntity(Entity entity, EntityManager em)
@@ -251,10 +252,11 @@ namespace Trejak.ZoningByLaw
             return prefab;
         }
 
+        [Obsolete]
         public static void SetPrefabText(ByLawZonePrefab prefab, ZoningByLawBinding data)
         {
-            Utils.AddLocaleText($"Assets.NAME[{prefab.name}]", prefab.bylawName);
-            Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", data.CreateDescription());
+            //Utils.AddLocaleText($"Assets.NAME[{prefab.name}]", prefab.bylawName);
+            //Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", data.CreateDescription());
         }
         
     }
