@@ -180,7 +180,8 @@ namespace Trejak.ZoningByLaw.UI
             Mod.log.Info("Set By Law Data: " + data.ToJSONString());
             data.UpdateEntity(_selectedByLaw.value, this.EntityManager);            
             var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(_selectedByLaw.value);            
-            prefab.Update(data);            
+            prefab.Update(data);     
+            GameManager.instance.localizationManager.ReloadActiveLocale();
             Utils.SetPrefabText(prefab, data);            
             this._selectedByLawData.Value = data;
             SaveActiveByLawToDisk();
@@ -197,6 +198,7 @@ namespace Trejak.ZoningByLaw.UI
             Utils.AddLocaleText($"Assets.NAME[{prefab.name}]", prefab.bylawName);
             Utils.AddLocaleText($"Assets.DESCRIPTION[{prefab.name}]", _selectedByLawData.Value.CreateDescription());
             _selectedByLawName.Update(prefab.bylawName);
+            GameManager.instance.localizationManager.ReloadActiveLocale();
             UpdateByLawList();
             SaveActiveByLawToDisk();
         }
@@ -246,8 +248,9 @@ namespace Trejak.ZoningByLaw.UI
             {
                 Mod.log.Error($"Failed to add new zone prefab \"{byLawName}\"!");                
             }
+            GameManager.instance.localizationManager.ReloadActiveLocale();
             UpdateByLawList();
-            Utils.SaveByLaw(_prefabSystem.GetEntity(prefab), this.EntityManager);
+            Utils.SaveByLaw(_prefabSystem.GetEntity(prefab), this.EntityManager);            
         }
 
         void SaveActiveByLawToDisk()
