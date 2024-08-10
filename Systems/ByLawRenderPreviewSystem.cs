@@ -89,14 +89,13 @@ namespace Trejak.ZoningByLaw.Systems
             {
                 return;
             }
-            var currentDrawPoint = _bylawToolSystem.currentDrawPoint;
             var byLawZoneData = _bylawToolSystem.byLawZoneData;
-            if (currentDrawPoint.HasValue)
+            if (drawPosition.HasValue)
             {
                 var renderPreviewJob = new RenderPreviewJob()
                 {
                     overlayBuffer = _overlayRenderSystem.GetBuffer(out var overlayRenderHandle),
-                    terrainPoint = currentDrawPoint.Value,
+                    terrainPoint = drawPosition.Value,
                     constraintData = _constraintData,
                     gizmoBatcher = _gizmosSystem.GetGizmosBatcher(out var gizmoJobHandle)
                 };
