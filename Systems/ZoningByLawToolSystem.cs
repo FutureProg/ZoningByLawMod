@@ -43,7 +43,7 @@ namespace Trejak.ZoningByLaw.Systems
         public override string toolID => "Zoning ByLaw Tool";
 
         private TerrainSystem _terrainSystem;
-        private ByLawRenderOverlaySystem _overlayRenderSystem;
+        private ByLawRenderPreviewSystem _previewRenderSystem;
         private ConfigPanelUISystem _bylawUISystem;
 
         private ProxyAction _applyAction;
@@ -52,7 +52,7 @@ namespace Trejak.ZoningByLaw.Systems
         {
             base.OnCreate();
             _terrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
-            _overlayRenderSystem = World.GetOrCreateSystemManaged<ByLawRenderOverlaySystem>();
+            _previewRenderSystem = World.GetOrCreateSystemManaged<ByLawRenderPreviewSystem>();
 
             _applyAction = InputManager.instance.FindAction("Tool", "Apply");
 
@@ -69,7 +69,7 @@ namespace Trejak.ZoningByLaw.Systems
         {
             base.OnStopRunning();
             _applyAction.shouldBeEnabled = false;
-            _overl
+            _previewRenderSystem.Enabled = false;
             currentDrawPoint = null;
             byLawZoneData = null;
         }

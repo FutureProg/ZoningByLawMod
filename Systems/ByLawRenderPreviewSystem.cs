@@ -20,13 +20,22 @@ using UnityEngine;
 
 namespace Trejak.ZoningByLaw.Systems
 {
-    public partial class ByLawRenderOverlaySystem : GameSystemBase
+    public partial class ByLawRenderPreviewSystem : GameSystemBase
     {
 
         private ZoningByLawToolSystem _bylawToolSystem;
         private OverlayRenderSystem _overlayRenderSystem;
         private ToolSystem _toolSystem;
         private GizmosSystem _gizmosSystem;
+        private ConstraintData _constraintData;
+
+        private readonly ConstraintData DefaultConstraints = new()
+        {
+            frontage = new() { max = 48, min = 0 },
+            height = new() { max = 500, min = 0 },
+            lotSize = new() { max = 2304, min = 0 },
+            frontSetback = new() { max = 48, min = 0 }
+        };
 
         protected override void OnCreate()
         {
@@ -35,12 +44,31 @@ namespace Trejak.ZoningByLaw.Systems
             _overlayRenderSystem = World.GetOrCreateSystemManaged<OverlayRenderSystem>();
             _bylawToolSystem = World.GetOrCreateSystemManaged<ZoningByLawToolSystem>();
             _gizmosSystem = World.GetOrCreateSystemManaged<GizmosSystem>();
+            _constraintData = DefaultConstraints;
             this.Enabled = false;
-        }
+        }        
 
         public void SetConstraintData(NativeArray<ByLawItem> constraints)
         {
-            //TODO: Create function that returns the constraint data
+            this._constraintData = DefaultConstraints;
+            foreach(ByLawItem item in constraints)
+            {
+                switch(item.byLawItemType)
+                {
+                    case ByLawItemType.Height:
+                        _constraintData.height = item.valueBounds1;
+                        break;
+                    case ByLawItemType.LotWidth:
+                        _constraintData.frontage = item.valueBounds1;
+                        break;
+                    case ByLawItemType.LotSize:
+                        _constraintData.lotSize = item.valueBounds1;
+                        break;
+                    case ByLawItemType.FrontSetback:
+                        _constraintData.frontSetback = item.valueBounds1;
+                        break;
+                }
+            }
         }
 
         protected override void OnStopRunning()
@@ -67,7 +95,7 @@ namespace Trejak.ZoningByLaw.Systems
                 {
                     overlayBuffer = _overlayRenderSystem.GetBuffer(out var overlayRenderHandle),
                     terrainPoint = currentDrawPoint.Value,
-                    bylawData = byLawZoneData.Value,
+                    constraintData = _constraintData,
                     gizmoBatcher = _gizmosSystem.GetGizmosBatcher(out var gizmoJobHandle)
                 };
                 this.Dependency = renderPreviewJob.Schedule(JobHandle.CombineDependencies(this.Dependency, overlayRenderHandle, gizmoJobHandle));
@@ -75,12 +103,12 @@ namespace Trejak.ZoningByLaw.Systems
             }
         }
 
-        struct ConstraintData
+        public struct ConstraintData
         {
-            public Bounds1 lotSizeConstraint;
+            public Bounds1 lotSize;
             public Bounds1 frontage;
-            public Bounds1 heightConstraint;
-            public Bounds1 setback;
+            public Bounds1 height;
+            public Bounds1 frontSetback; // currently unused
         }
 
 #if BURST    
@@ -89,10 +117,7 @@ namespace Trejak.ZoningByLaw.Systems
         public partial struct RenderPreviewJob : IJob
         {
 
-            public Bounds1 lotSizeConstraint;
-            public Bounds1 frontage;
-            public Bounds1 heightConstraint;
-            public Bounds1 setback;
+            public ConstraintData constraintData;
             public OverlayRenderSystem.Buffer overlayBuffer;
             public float3 terrainPoint;
             public GizmoBatcher gizmoBatcher;
@@ -104,22 +129,22 @@ namespace Trejak.ZoningByLaw.Systems
 
 
 
-                float width = math.min(unitSizeMetres * maxZoneSizeUnits, frontage.max > 0 ? frontage.max : unitSizeMetres * maxZoneSizeUnits);
-                float height = math.min(50.0f, heightConstraint.max > 0 ? heightConstraint.max : 50.0f);
+                float width = math.min(unitSizeMetres * maxZoneSizeUnits, constraintData.frontage.max > 0 ? constraintData.frontage.max : unitSizeMetres * maxZoneSizeUnits);
+                float height = math.min(50.0f, constraintData.height.max > 0 ? constraintData.height.max : 50.0f);
 
                 float depth = 6 * unitSizeMetres;
                 float lotSize = depth * width;
                 while (true)
                 {
-                    bool passMinLotSize = lotSizeConstraint.min <= 0 || lotSizeConstraint.min <= lotSize;
-                    bool passMaxLotSize = lotSizeConstraint.max <= 0 || lotSizeConstraint.max >= lotSize;
+                    bool passMinLotSize = constraintData.lotSize.min <= 0 || constraintData.lotSize.min <= lotSize;
+                    bool passMaxLotSize = constraintData.lotSize.max <= 0 || constraintData.lotSize.max >= lotSize;
                     if (passMinLotSize && passMaxLotSize)
                     {
                         break;
                     }
 
                     // Basically set a value that isn't possible
-                    if ((passMinLotSize || passMaxLotSize) && lotSizeConstraint.max - lotSizeConstraint.min < unitSizeMetres)
+                    if ((passMinLotSize || passMaxLotSize) && constraintData.lotSize.max - constraintData.lotSize.min < unitSizeMetres)
                     {
                         break;
                     }

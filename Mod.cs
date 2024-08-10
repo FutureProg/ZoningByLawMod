@@ -60,7 +60,7 @@ public class Mod : IMod
         updateSystem.UpdateAt<ConfigPanelUISystem>(SystemUpdatePhase.UIUpdate);
         updateSystem.UpdateAt<ResetGameToolbarUISystem>(SystemUpdatePhase.Modification1);
         updateSystem.UpdateAt<ZoningByLawToolSystem>(SystemUpdatePhase.ToolUpdate);
-        updateSystem.UpdateAfter<ByLawRenderOverlaySystem, AreaRenderSystem>(SystemUpdatePhase.Rendering);
+        updateSystem.UpdateAfter<ByLawRenderPreviewSystem, AreaRenderSystem>(SystemUpdatePhase.Rendering);
 
         var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
         var prefabs = Traverse.Create(prefabSystem).Field<List<PrefabBase>>("m_Prefabs").Value;
