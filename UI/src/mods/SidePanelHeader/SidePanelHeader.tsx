@@ -21,13 +21,13 @@ export const SidePanelHeader = (props: SidePanelHeaderProps) => {
             <div className={styles.buttonRow}>
                 <div
                     className={classNames(styles.viewButton, { [styles.selected]: props.currentView == 'bylaws' })}
-                    onSelect={() => props.onViewChange('bylaws')}
+                    onClick={() => props.onViewChange('bylaws')}
                 >
                     {translate('ZBL.ByLawPanel[ByLawList]', "Your ByLaws")}
                 </div>
                 <div
                     className={classNames(styles.viewButton, { [styles.selected]: props.currentView == 'editor' })}
-                    onSelect={() => props.onViewChange('editor')}
+                    onClick={() => props.onViewChange('editor')}
                 >
                     {translate('ZBL.ByLawPanel[Editor]', "Editor")}
                 </div>
