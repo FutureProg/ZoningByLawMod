@@ -9,12 +9,13 @@ import { selectedByLaw$ } from 'mods/bindings';
 import { createPortal } from 'react-dom';
 import { Tooltip } from 'cs2/ui';
 import { useLocalization } from 'cs2/l10n';
+import classNames from 'classnames';
 
 export const SidePanel = () => {
-    let {translate} = useLocalization();
+    let { translate } = useLocalization();
     let [currentView, setCurrentView] = useState<SidePanelViews>('bylaws');
     let [searchQuery, setSearchQuery] = useState<string | undefined>();
-    let activeByLaw = useValue(selectedByLaw$);    
+    let activeByLaw = useValue(selectedByLaw$);
 
     let onSearchChange = (text: string) => {
         setSearchQuery(text);
@@ -24,25 +25,47 @@ export const SidePanel = () => {
     }
 
     useEffect(() => {
-        if(activeByLaw.index > 0) {
+        if (activeByLaw.index > 0) {
             setCurrentView('editor');
-        }    
+        }
     }, [activeByLaw.index])
+
+    let editorButtons = currentView == 'editor' ? (
+        <>
+        <Tooltip tooltip={translate("Common.COPY_TOOLTIP", "Copy")} direction='right'>
+            <div className={classNames(styles.sideButton)}>
+                <img src="coui://uil/Dark/RectangleCopy.svg" />
+            </div>
+        </Tooltip>
+        <Tooltip tooltip={translate("Common.DELETE_TOOLTIP", "Delete")} direction='right'>
+            <div className={classNames(styles.sideButton, styles.warningButton)}>
+                <img src="coui://uil/Dark/Trash.svg" />
+            </div>
+        </Tooltip> 
+        <div className={styles.divider}></div>
+        <Tooltip tooltip={translate("ZBL.Tooltip[Preview]", "Preview Zone")} direction='right'>
+            <div className={styles.sideButton}>
+                <img src="coui://uil/Dark/Cube.svg" />
+            </div>
+        </Tooltip>                    
+        </>
+    ) : <></>;
 
     let sideButtons = createPortal((
         <div className={styles.sideButtons}>
             <Tooltip tooltip={translate("ZBL.Tooltip[CreateNewByLaw]", "Create A New ByLaw")} direction='right'>
                 <div className={styles.sideButton}>
-                    <img src="coui://uil/Dark/Plus.svg"/>
+                    <img src="coui://uil/Dark/Plus.svg" />
                 </div>
-            </Tooltip>            
+            </Tooltip>
+            {editorButtons}
         </div>
     ), document.body);
 
-    return (        
+    return (
         <div className={styles.view}>
             <SidePanelHeader currentView={currentView} onSearchQueryChange={onSearchChange} onViewChange={onViewChange} />
-            {currentView == 'bylaws'? <ByLawListView searchQuery={searchQuery} /> : <ByLawEditorView />}
+            {currentView == 'bylaws' ? <ByLawListView searchQuery={searchQuery} /> : <ByLawEditorView />}
             {sideButtons}
         </div>
     )

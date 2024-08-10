@@ -5,10 +5,10 @@
     width: 330rem;
     top: 100rem;
     bottom: 180rem;
-    left: 10rem;    
+    left: 10rem;
 
     display: flex;
-    flex-direction: column;    
+    flex-direction: column;
 
     background-color: var(--panelColorNormal);
     backdrop-filter: var(--panelBlur);
@@ -18,7 +18,7 @@
     border-top-right-radius: var(--panelRadius);
 
     pointer-events: auto;
-    
+
     animation: entry 0.2s;
     color: var(--textColorDim)
 }
@@ -26,30 +26,57 @@
 .sideButtons {
     position: absolute;
     left: 345rem;
-    top: 100rem;
+    top: 108rem;
 
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     align-items: flex-start;
-    justify-content: left;    
+    justify-content: left;
+
+    .divider {
+        width: 40rem;
+        height: 2rem;
+        border-top-left-radius: 5rem 5rem;
+        border-top-right-radius: 5rem 5rem;
+        border-bottom-left-radius: 5rem 5rem;
+        border-bottom-right-radius: 5rem 5rem;
+        background-color: rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(4px);
+        margin-top: 8rem;
+        margin-left: 0px;
+        margin-right: 0px;
+        margin-bottom: 8rem;
+    }
 
     .sideButton {
         @include _base.basicLightButton($hasImage: true);
-        padding: 4rem;      
+        padding: 4rem;
         backdrop-filter: blur(8px);
+        margin: 4rem 0;
+
         img {
             height: 30rem;
             width: 30rem;
+        }
+
+        &:first-child {
+            margin-top: 0;
+        }
+        &.warningButton {
+            &:hover {
+                background-color: var(--negativeColor);
+            }
         }
     }
 }
 
 @keyframes entry {
-0% {
-    left: -10rem;
-    opacity: 0;
-}
-100% {
-    opacity: 1;
-}
+    0% {
+        left: -10rem;
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
