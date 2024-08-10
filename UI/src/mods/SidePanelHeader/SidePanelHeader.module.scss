@@ -6,6 +6,8 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    border-top-left-radius: var(--panelRadius);
+    border-top-right-radius: var(--panelRadius);
 }
 
 .title {
