@@ -1,0 +1,9 @@
+@use '../../base.scss' as _base;
+
+.panelListItem {
+    @include _base.panelListItem();
+
+    .bylawName {
+        flex: 1
+    }
+}
