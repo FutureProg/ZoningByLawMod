@@ -101,3 +101,5 @@ export interface ZoningByLawBinding {
     blocks: ByLawBlockBinding[];
     deleted: boolean;
 }
+
+export type SidePanelViews =  'bylaws' | 'editor';
