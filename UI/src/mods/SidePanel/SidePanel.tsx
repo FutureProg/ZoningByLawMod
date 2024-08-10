@@ -33,7 +33,7 @@ export const SidePanel = () => {
         <div className={styles.sideButtons}>
             <Tooltip tooltip={translate("ZBL.Tooltip[CreateNewByLaw]", "Create A New ByLaw")} direction='right'>
                 <div className={styles.sideButton}>
-                    <img src="coui://uil/Standard/Plus.svg"/>
+                    <img src="coui://uil/Dark/Plus.svg"/>
                 </div>
             </Tooltip>            
         </div>

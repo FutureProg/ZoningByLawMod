@@ -56,3 +56,25 @@
         background-color: rgba(255,255,255,0.3);    
     }
 }
+
+@mixin basicLightButton($hasImage: false) {
+  border-radius: 5rem;
+  padding: 4rem;
+  color: var(--normalTextColor);
+  background-color: rgba(255, 255, 255, 0.3);
+  text-align: center;
+  border: none;
+
+  @if $hasImage {
+    img {
+      filter: invert(1);
+    }
+  }
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+  &:active {
+    background: rgba(255, 255, 255, 0.5);
+  }
+}
