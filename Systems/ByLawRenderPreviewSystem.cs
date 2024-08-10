@@ -27,8 +27,8 @@ namespace Trejak.ZoningByLaw.Systems
         private OverlayRenderSystem _overlayRenderSystem;
         private ToolSystem _toolSystem;
         private GizmosSystem _gizmosSystem;
-        private ConstraintData _constraintData;
 
+        private ConstraintData _constraintData;
         private readonly ConstraintData DefaultConstraints = new()
         {
             frontage = new() { max = 48, min = 0 },
@@ -36,6 +36,8 @@ namespace Trejak.ZoningByLaw.Systems
             lotSize = new() { max = 2304, min = 0 },
             frontSetback = new() { max = 48, min = 0 }
         };
+
+        public float3? drawPosition { get; set; }
 
         protected override void OnCreate()
         {
@@ -48,7 +50,7 @@ namespace Trejak.ZoningByLaw.Systems
             this.Enabled = false;
         }        
 
-        public void SetConstraintData(NativeArray<ByLawItem> constraints)
+        public void SetConstraintData(ByLawItem[] constraints)
         {
             this._constraintData = DefaultConstraints;
             foreach(ByLawItem item in constraints)

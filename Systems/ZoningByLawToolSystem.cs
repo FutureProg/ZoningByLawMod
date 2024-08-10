@@ -1,4 +1,5 @@
-﻿using Colossal.Mathematics;
+﻿using Colossal.IO.AssetDatabase.Internal;
+using Colossal.Mathematics;
 using Game;
 using Game.Common;
 using Game.Input;
@@ -34,7 +35,6 @@ namespace Trejak.ZoningByLaw.Systems
         }
 
         public ZoningByLawBinding? byLawZoneData;
-        public float3? currentDrawPoint;
         public State state { 
             get; 
             private set; 
@@ -70,7 +70,7 @@ namespace Trejak.ZoningByLaw.Systems
             base.OnStopRunning();
             _applyAction.shouldBeEnabled = false;
             _previewRenderSystem.Enabled = false;
-            currentDrawPoint = null;
+            _previewRenderSystem.drawPosition = null;
             byLawZoneData = null;
         }
 
@@ -117,23 +117,25 @@ namespace Trejak.ZoningByLaw.Systems
                 {
                     if (GetRaycastResult(out var hit))
                     {
-                        currentDrawPoint = hit.m_HitPosition;                        
+                        _previewRenderSystem.drawPosition = hit.m_HitPosition;                        
                     } else
                     {
-                        currentDrawPoint = null;
+                        _previewRenderSystem.drawPosition = null;
                     }                    
                     _terrainSystem.AddCPUHeightReader(inputDeps);
-                    Mod.log.Info("Clicked at " + (currentDrawPoint?.ToString() ?? "null"));
+                    Mod.log.Info("Clicked at " + (_previewRenderSystem.drawPosition?.ToString() ?? "null"));
                 }
             }            
             return base.OnUpdate(inputDeps);
         }
 
-        public void SetByLaw(ZoningByLawBinding bylawData)
+        public void SetByLawData(ZoningByLawBinding bylawData)
         {
             this.byLawZoneData = bylawData;
+            var constraints = bylawData.blocks[0].itemData;
+            _previewRenderSystem.SetConstraintData(constraints);
             if (m_ToolSystem.activeTool != this)
-            {
+            {                
                 SetToolEnabled(true);
             }
         }
