@@ -1,0 +1,45 @@
+@use "../../base.scss" as _base;
+
+.container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4rem;
+}
+
+.searchArea {
+  flex: 1;
+  position: relative;
+  margin: 0 0.5em;
+}
+
+.placeholder {
+  pointer-events: none;
+  color: rgba(255, 255, 255, 0.6);
+  position: absolute;
+  top: 50%;
+  left: 10rem;
+  transform: translate(0, -50%);
+}
+
+.clearIcon,
+.searchIcon {
+  height: 1.9em;
+  width: 1.9em;
+  padding: 0.5rem;
+  background: none;
+  position: absolute;
+  top: 50%;
+  right: 0.2em;
+  transform: translate(0, -50%);
+  img {
+    height: 1.5em;
+    width: 1.5em;
+  }
+}
+.searchIcon {
+  pointer-events: none;
+}
+
+.textBox {
+  @include _base.textInputBasic();
+}

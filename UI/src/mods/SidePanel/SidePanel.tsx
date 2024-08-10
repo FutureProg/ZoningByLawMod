@@ -6,7 +6,7 @@ import { SidePanelViews } from 'mods/types';
 
 export const SidePanel = () => {
     let [currentView, setCurrentView] = useState<SidePanelViews>('bylaws');
-    let [searchQuery, setSearchQuery] = useState('');
+    let [searchQuery, setSearchQuery] = useState<string | undefined>();
     let onSearchChange = (text: string) => {
         setSearchQuery(text);
     }

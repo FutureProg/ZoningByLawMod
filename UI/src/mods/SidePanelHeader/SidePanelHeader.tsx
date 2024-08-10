@@ -2,9 +2,11 @@ import { useLocalization } from 'cs2/l10n';
 import styles from './SidePanelHeader.module.scss';
 import { SidePanelViews } from 'mods/types';
 import classNames from 'classnames';
+import { SearchTextBox } from 'mods/components/SearchTextBox/SearchTextBox';
 
 type SidePanelHeaderProps = {
     currentView: SidePanelViews;
+    searchQuery?: string;
 
     onSearchQueryChange: (text: string) => void;
     onViewChange: (newView: SidePanelViews) => void;
@@ -29,6 +31,9 @@ export const SidePanelHeader = (props: SidePanelHeaderProps) => {
                 >
                     {translate('ZBL.ByLawPanel[Editor]', "Editor")}
                 </div>
+            </div>
+            <div>
+                <SearchTextBox onChange={props.onSearchQueryChange} value={props.searchQuery} />
             </div>
         </div>
     )
