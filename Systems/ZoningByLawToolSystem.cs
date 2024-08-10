@@ -12,6 +12,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Trejak.ZoningByLaw.Prefab;
+using Trejak.ZoningByLaw.UI;
+using Trejak.ZoningByLaw.UISystems;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
@@ -23,13 +25,26 @@ namespace Trejak.ZoningByLaw.Systems
     public partial class ZoningByLawToolSystem : ToolBaseSystem
     {
 
-        public ByLawZoneData? byLawZoneData;
-        public float3? currentDrawPoint;
+        public enum State
+        {
+            None,
+            Default,
+            PlopPreview,
+            PreviewRunning
+        }
 
-        public override string toolID => "Zoning ByLaw Render Tool";
+        public ZoningByLawBinding? byLawZoneData;
+        public float3? currentDrawPoint;
+        public State state { 
+            get; 
+            private set; 
+        }
+
+        public override string toolID => "Zoning ByLaw Tool";
 
         private TerrainSystem _terrainSystem;
-        private OverlayRenderSystem _overlayRenderSystem;
+        private ByLawRenderOverlaySystem _overlayRenderSystem;
+        private ConfigPanelUISystem _bylawUISystem;
 
         private ProxyAction _applyAction;
 
@@ -37,7 +52,7 @@ namespace Trejak.ZoningByLaw.Systems
         {
             base.OnCreate();
             _terrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
-            _overlayRenderSystem = World.GetOrCreateSystemManaged<OverlayRenderSystem>();
+            _overlayRenderSystem = World.GetOrCreateSystemManaged<ByLawRenderOverlaySystem>();
 
             _applyAction = InputManager.instance.FindAction("Tool", "Apply");
 
@@ -54,6 +69,7 @@ namespace Trejak.ZoningByLaw.Systems
         {
             base.OnStopRunning();
             _applyAction.shouldBeEnabled = false;
+            _overl
             currentDrawPoint = null;
             byLawZoneData = null;
         }
@@ -66,6 +82,24 @@ namespace Trejak.ZoningByLaw.Systems
         public override bool TrySetPrefab(PrefabBase prefab)
         {
             return false;
+        }
+
+        public void SetState(State newState)
+        {
+            this.state = newState;
+            switch (state)
+            {
+                case State.None:
+                    break;
+                case State.Default:
+                    break;
+                case State.PlopPreview:
+                    break;
+                case State.PreviewRunning:
+                    break;
+                default:
+                    break;
+            }
         }
 
         public override void InitializeRaycast()
@@ -95,7 +129,7 @@ namespace Trejak.ZoningByLaw.Systems
             return base.OnUpdate(inputDeps);
         }
 
-        public void SetByLaw(ByLawZoneData bylawData)
+        public void SetByLaw(ZoningByLawBinding bylawData)
         {
             this.byLawZoneData = bylawData;
             if (m_ToolSystem.activeTool != this)

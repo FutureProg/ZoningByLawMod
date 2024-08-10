@@ -8,9 +8,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Trejak.ZoningByLaw.BuildingBlocks;
 using Trejak.ZoningByLaw.Prefab;
 using Trejak.ZoningByLaw.Systems;
+using Trejak.ZoningByLaw.UISystems;
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
@@ -20,7 +23,7 @@ namespace Trejak.ZoningByLaw.Systems
     public partial class ByLawRenderOverlaySystem : GameSystemBase
     {
 
-        private ZoningByLawToolSystem _bylawRenderToolSystem;
+        private ZoningByLawToolSystem _bylawToolSystem;
         private OverlayRenderSystem _overlayRenderSystem;
         private ToolSystem _toolSystem;
         private GizmosSystem _gizmosSystem;
@@ -30,8 +33,14 @@ namespace Trejak.ZoningByLaw.Systems
             base.OnCreate();
             _toolSystem = World.GetOrCreateSystemManaged<ToolSystem>();
             _overlayRenderSystem = World.GetOrCreateSystemManaged<OverlayRenderSystem>();
-            _bylawRenderToolSystem = World.GetOrCreateSystemManaged<ZoningByLawToolSystem>();
+            _bylawToolSystem = World.GetOrCreateSystemManaged<ZoningByLawToolSystem>();
             _gizmosSystem = World.GetOrCreateSystemManaged<GizmosSystem>();
+            this.Enabled = false;
+        }
+
+        public void SetConstraintData(NativeArray<ByLawItem> constraints)
+        {
+            //TODO: Create function that returns the constraint data
         }
 
         protected override void OnStopRunning()
@@ -39,14 +48,19 @@ namespace Trejak.ZoningByLaw.Systems
             base.OnStopRunning();
         }
 
+        protected override void OnStartRunning()
+        {
+            base.OnStartRunning();
+        }
+
         protected override void OnUpdate()
         {
-            if (_toolSystem.activeTool != _bylawRenderToolSystem || !_bylawRenderToolSystem.byLawZoneData.HasValue)
+            if (_toolSystem.activeTool != _bylawToolSystem || !_bylawToolSystem.byLawZoneData.HasValue)
             {
                 return;
             }
-            var currentDrawPoint = _bylawRenderToolSystem.currentDrawPoint;
-            var byLawZoneData = _bylawRenderToolSystem.byLawZoneData;
+            var currentDrawPoint = _bylawToolSystem.currentDrawPoint;
+            var byLawZoneData = _bylawToolSystem.byLawZoneData;
             if (currentDrawPoint.HasValue)
             {
                 var renderPreviewJob = new RenderPreviewJob()
@@ -61,13 +75,24 @@ namespace Trejak.ZoningByLaw.Systems
             }
         }
 
+        struct ConstraintData
+        {
+            public Bounds1 lotSizeConstraint;
+            public Bounds1 frontage;
+            public Bounds1 heightConstraint;
+            public Bounds1 setback;
+        }
+
 #if BURST    
         [BurstCompile]
 #endif
         public partial struct RenderPreviewJob : IJob
         {
 
-            public ByLawZoneData bylawData;
+            public Bounds1 lotSizeConstraint;
+            public Bounds1 frontage;
+            public Bounds1 heightConstraint;
+            public Bounds1 setback;
             public OverlayRenderSystem.Buffer overlayBuffer;
             public float3 terrainPoint;
             public GizmoBatcher gizmoBatcher;
@@ -77,22 +102,24 @@ namespace Trejak.ZoningByLaw.Systems
                 float unitSizeMetres = 8f;
                 float maxZoneSizeUnits = 6f;
 
-                float width = math.min(unitSizeMetres * maxZoneSizeUnits, bylawData.frontage.max > 0 ? bylawData.frontage.max : unitSizeMetres * maxZoneSizeUnits);
-                float height = math.min(50.0f, bylawData.height.max > 0 ? bylawData.height.max : 50.0f);
+
+
+                float width = math.min(unitSizeMetres * maxZoneSizeUnits, frontage.max > 0 ? frontage.max : unitSizeMetres * maxZoneSizeUnits);
+                float height = math.min(50.0f, heightConstraint.max > 0 ? heightConstraint.max : 50.0f);
 
                 float depth = 6 * unitSizeMetres;
                 float lotSize = depth * width;
                 while (true)
                 {
-                    bool passMinLotSize = bylawData.lotSize.min <= 0 || bylawData.lotSize.min <= lotSize;
-                    bool passMaxLotSize = bylawData.lotSize.max <= 0 || bylawData.lotSize.max >= lotSize;
+                    bool passMinLotSize = lotSizeConstraint.min <= 0 || lotSizeConstraint.min <= lotSize;
+                    bool passMaxLotSize = lotSizeConstraint.max <= 0 || lotSizeConstraint.max >= lotSize;
                     if (passMinLotSize && passMaxLotSize)
                     {
                         break;
                     }
 
                     // Basically set a value that isn't possible
-                    if ((passMinLotSize || passMaxLotSize) && bylawData.lotSize.max - bylawData.lotSize.min < unitSizeMetres)
+                    if ((passMinLotSize || passMaxLotSize) && lotSizeConstraint.max - lotSizeConstraint.min < unitSizeMetres)
                     {
                         break;
                     }
