@@ -41,7 +41,7 @@ export const SidePanel = () => {
 
     let editorButtons = currentView == 'editor' ? (
         <>
-        <Tooltip tooltip={translate("Common.COPY_TOOLTIP", "Copy")} direction='right'>
+        <Tooltip tooltip={translate("Editor.LIST_ITEM_DUPLICATE", "Duplicate")} direction='right'>
             <div className={classNames(styles.sideButton)}>
                 <img src="coui://uil/Dark/RectangleCopy.svg" />
             </div>
