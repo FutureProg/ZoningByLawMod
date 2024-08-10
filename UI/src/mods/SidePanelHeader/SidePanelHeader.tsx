@@ -3,6 +3,8 @@ import styles from './SidePanelHeader.module.scss';
 import { SidePanelViews } from 'mods/types';
 import classNames from 'classnames';
 import { SearchTextBox } from 'mods/components/SearchTextBox/SearchTextBox';
+import { useValue } from 'cs2/api';
+import { selectedByLaw$ } from 'mods/bindings';
 
 type SidePanelHeaderProps = {
     currentView: SidePanelViews;
@@ -14,7 +16,12 @@ type SidePanelHeaderProps = {
 
 export const SidePanelHeader = (props: SidePanelHeaderProps) => {
     let { translate } = useLocalization();
+    let activeByLaw = useValue(selectedByLaw$);
 
+    let editorClassNames = classNames(styles.viewButton, {
+         [styles.selected]: props.currentView == 'editor',
+         [styles.disabled]: activeByLaw.index <= 0
+    });
     return (
         <div className={styles.view}>
             <div className={styles.title}>{translate('ZBL.ByLawPanel[Title]', "Zoning By Laws")}</div>
@@ -26,8 +33,8 @@ export const SidePanelHeader = (props: SidePanelHeaderProps) => {
                     {translate('ZBL.ByLawPanel[ByLawList]', "Your ByLaws")}
                 </div>
                 <div
-                    className={classNames(styles.viewButton, { [styles.selected]: props.currentView == 'editor' })}
-                    onClick={() => props.onViewChange('editor')}
+                    className={editorClassNames}
+                    onClick={() => activeByLaw.index <= 0? null : props.onViewChange('editor')}
                 >
                     {translate('ZBL.ByLawPanel[Editor]', "Editor")}
                 </div>

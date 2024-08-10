@@ -5,7 +5,7 @@ import { SidePanelHeader } from 'mods/SidePanelHeader/SidePanelHeader';
 import { SidePanelViews } from 'mods/types';
 import { ByLawEditorView } from 'mods/ByLawEditorView/ByLawEditorView';
 import { useValue } from 'cs2/api';
-import { selectedByLaw$ } from 'mods/bindings';
+import { createNewByLaw, deleteByLaw, selectedByLaw$ } from 'mods/bindings';
 import { createPortal } from 'react-dom';
 import { Tooltip } from 'cs2/ui';
 import { useLocalization } from 'cs2/l10n';
@@ -24,11 +24,20 @@ export const SidePanel = () => {
         setCurrentView(newView);
     }
 
+    let onCreateByLaw = () => {
+        createNewByLaw();
+    }
+    let onDeleteByLaw = () => {
+        deleteByLaw();        
+    }
+
     useEffect(() => {
         if (activeByLaw.index > 0) {
             setCurrentView('editor');
+        } else {
+            setCurrentView('bylaws');
         }
-    }, [activeByLaw.index])
+    }, [activeByLaw.index]);
 
     let editorButtons = currentView == 'editor' ? (
         <>
@@ -38,7 +47,7 @@ export const SidePanel = () => {
             </div>
         </Tooltip>
         <Tooltip tooltip={translate("Common.DELETE_TOOLTIP", "Delete")} direction='right'>
-            <div className={classNames(styles.sideButton, styles.warningButton)}>
+            <div onClick={onDeleteByLaw} className={classNames(styles.sideButton, styles.warningButton)}>
                 <img src="coui://uil/Dark/Trash.svg" />
             </div>
         </Tooltip> 
@@ -54,7 +63,7 @@ export const SidePanel = () => {
     let sideButtons = createPortal((
         <div className={styles.sideButtons}>
             <Tooltip tooltip={translate("ZBL.Tooltip[CreateNewByLaw]", "Create A New ByLaw")} direction='right'>
-                <div className={styles.sideButton}>
+                <div onClick={onCreateByLaw} className={styles.sideButton}>
                     <img src="coui://uil/Dark/Plus.svg" />
                 </div>
             </Tooltip>
