@@ -16,10 +16,39 @@
     border-top-right-radius: var(--panelRadius);
 
     pointer-events: auto;
-    overflow: hidden;
     
     animation: entry 0.2s;
     color: var(--textColorDim)
+}
+
+.sideButtons {
+    position: absolute;
+    left: 345rem;
+    top: 100rem;
+
+    display: flex;
+    flex-direction: column; 
+    align-items: flex-start;
+    justify-content: left;    
+
+    .sideButton {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;        
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 5rem;
+        padding: 4rem;      
+        backdrop-filter: blur(8px);
+        img {
+            height: 30rem;
+            width: 30rem;
+        }
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+    }
 }
 
 @keyframes entry {

@@ -1,6 +1,15 @@
+@use '../base.scss' as _base;
+
 .view > div {
     display: flex;
     flex-direction: column; 
 
     padding: 4rem;
+}
+
+.addNewButton {
+    @include _base.panelListItem();
+    background-color: rgba(0, 0, 0, 0.8);
+    text-align: center;
+    display: block;
 }
