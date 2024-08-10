@@ -25,7 +25,7 @@ export const MainPanel = () => {
         }        
     }, [selectedAsset]) 
 
-    const isPanelOpen = useValue(isConfigPanelOpen$);
+    const isPanelOpen = false;// useValue(isConfigPanelOpen$);
     useEffect(() => {
         if (isPanelOpen) {
             toolbar.clearAssetSelection();

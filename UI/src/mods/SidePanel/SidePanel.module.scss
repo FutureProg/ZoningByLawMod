@@ -1,0 +1,32 @@
+.view {
+    position: absolute;
+    width: 330rem;
+    top: 100rem;
+    bottom: 180rem;
+    left: 10rem;    
+
+    display: flex;
+    flex-direction: column;    
+
+    background-color: var(--panelColorNormal);
+    backdrop-filter: var(--panelBlur);
+    border-bottom-left-radius: var(--panelRadius);
+    border-bottom-right-radius: var(--panelRadius);
+    border-top-left-radius: var(--panelRadius);
+    border-top-right-radius: var(--panelRadius);
+
+    pointer-events: auto;
+    overflow: hidden;
+    
+    animation: entry 0.2s;
+}
+
+@keyframes entry {
+0% {
+    left: -10rem;
+    opacity: 0;
+}
+100% {
+    opacity: 1;
+}
+}
