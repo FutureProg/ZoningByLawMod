@@ -32,7 +32,7 @@ namespace Trejak.ZoningByLaw.UI
     {
 
         private PrefabSystem _prefabSystem;
-        private ByLawRenderToolSystem _bylawRenderSystem;
+        private ZoningByLawToolSystem _bylawRenderSystem;
         private ToolSystem _toolSystem;
         //private ToolbarUISystem _toolbarUISystem;
         //private RawMapBinding<Entity> _toolBarUIAssetsBinding;
@@ -86,7 +86,7 @@ namespace Trejak.ZoningByLaw.UI
             _prefabSystem = this.World.GetOrCreateSystemManaged<PrefabSystem>();
             _zoneSystem = this.World.GetOrCreateSystemManaged<ZoneSystem>();            
             _endFrameBarrier = this.World.GetOrCreateSystemManaged<EndFrameBarrier>();
-            _bylawRenderSystem = this.World.GetOrCreateSystemManaged<ByLawRenderToolSystem>();
+            _bylawRenderSystem = this.World.GetOrCreateSystemManaged<ZoningByLawToolSystem>();
             _toolSystem = this.World.GetOrCreateSystemManaged<ToolSystem>();
             GetBasePrefab();
 

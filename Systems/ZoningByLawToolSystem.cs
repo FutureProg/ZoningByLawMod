@@ -20,7 +20,7 @@ using UnityEngine;
 
 namespace Trejak.ZoningByLaw.Systems
 {
-    public partial class ByLawRenderToolSystem : ToolBaseSystem
+    public partial class ZoningByLawToolSystem : ToolBaseSystem
     {
 
         public ByLawZoneData? byLawZoneData;

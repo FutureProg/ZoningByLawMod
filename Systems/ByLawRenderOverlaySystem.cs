@@ -20,7 +20,7 @@ namespace Trejak.ZoningByLaw.Systems
     public partial class ByLawRenderOverlaySystem : GameSystemBase
     {
 
-        private ByLawRenderToolSystem _bylawRenderToolSystem;
+        private ZoningByLawToolSystem _bylawRenderToolSystem;
         private OverlayRenderSystem _overlayRenderSystem;
         private ToolSystem _toolSystem;
         private GizmosSystem _gizmosSystem;
@@ -30,7 +30,7 @@ namespace Trejak.ZoningByLaw.Systems
             base.OnCreate();
             _toolSystem = World.GetOrCreateSystemManaged<ToolSystem>();
             _overlayRenderSystem = World.GetOrCreateSystemManaged<OverlayRenderSystem>();
-            _bylawRenderToolSystem = World.GetOrCreateSystemManaged<ByLawRenderToolSystem>();
+            _bylawRenderToolSystem = World.GetOrCreateSystemManaged<ZoningByLawToolSystem>();
             _gizmosSystem = World.GetOrCreateSystemManaged<GizmosSystem>();
         }
 
