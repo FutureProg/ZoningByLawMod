@@ -25,6 +25,9 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
                 <div className={styles.constraintName}>{props.readableName}</div>
                 <div className={styles.operator}>{enabled? "is": ""}</div>
                 <ConstraintValueText className={styles.valueDescription} item={props.value} />
+            </div>
+            <div className={styles.caretSection}>
+                <div></div>
             </div>            
         </div>
     )

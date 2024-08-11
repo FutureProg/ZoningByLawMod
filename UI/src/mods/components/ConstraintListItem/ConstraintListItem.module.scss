@@ -3,7 +3,10 @@
 .view {
     @include _base.panelListItem();
     padding-top: 4rem;
-    padding-bottom: 4rem;
+    padding-bottom: 2rem;
+
+    display: flex;
+    flex-direction: column;
 }
 
 .infoRow {
@@ -29,4 +32,25 @@
     flex: 1;
     text-align: right;
     margin: 0 4rem;
+}
+
+.caretSection {    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin-top: 4rem;
+    border-top: 1rem solid rgba(255, 255, 255, 0.3);
+    > div {
+        mask-image: url("coui://gameui/Media/Glyphs/StrokeArrowDown.svg");
+        width: 0.5em;
+        height: 0.5em;
+        background-color: #fff;
+        mask-size: contain;
+        mask-position: center;
+    }
+
+    &.open > div  {
+        transform: rotate(180deg);
+    }
 }
