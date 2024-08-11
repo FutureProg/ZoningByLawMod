@@ -27,8 +27,9 @@ export const SidePanel = () => {
     let onCreateByLaw = () => {
         createNewByLaw();
     }
-    let onDeleteByLaw = () => {
-        deleteByLaw();        
+    let onDeleteByLaw = () => {        
+        setCurrentView('bylaws');
+        deleteByLaw();                
     }
 
     useEffect(() => {
