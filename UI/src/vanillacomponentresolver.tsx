@@ -212,6 +212,8 @@ const registryIndex = {
     EllipsisTextInput: ["game-ui/common/input/text/ellipsis-text-input/ellipsis-text-input.tsx", "EllipsisTextInput"],
     assetGridTheme: ["game-ui/game/components/asset-menu/asset-grid/asset-grid.module.scss", "classes"],
 
+    BoundToggleField: ["game-ui/game/widgets/toggle-field/toggle-field.tsx", "BoundToggleField"],
+
 
     FOCUS_DISABLED: ["game-ui/common/focus/focus-key.ts", "FOCUS_DISABLED"],
     FOCUS_AUTO: ["game-ui/common/focus/focus-key.ts", "FOCUS_AUTO"],

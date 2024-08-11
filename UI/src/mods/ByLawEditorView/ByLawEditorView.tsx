@@ -3,6 +3,7 @@ import styles from './ByLawEditorView.module.scss';
 import { useValue } from 'cs2/api';
 import { selectedByLawColor$, selectedByLawData$, selectedByLawName$ } from 'mods/bindings';
 import { ByLawItemType } from 'mods/types';
+import { ConstraintListItem } from 'mods/components/ConstraintListItem/ConstraintListItem';
 
 export const ByLawEditorView = ({searchQuery} : {searchQuery?: string}) => {
     let byLawData = useValue(selectedByLawData$);
@@ -14,7 +15,11 @@ export const ByLawEditorView = ({searchQuery} : {searchQuery?: string}) => {
         .map((val) => val.split(/(?<![A-Z])(?=[A-Z])/).join(' '))
         .filter((val) => searchQuery? val.toUpperCase().indexOf(searchQuery.toUpperCase()) > 0 : true);
     let listItems = types.map((typeInfo, idx) => 
-        <div className={styles.listItem} key={idx}>{typeInfo}</div>
+        <ConstraintListItem 
+            key={idx} 
+            itemType={typeInfo as any as (ByLawItemType)}
+            value={undefined}
+        />
     );
 
     return (

@@ -5,9 +5,3 @@
     flex-direction: column;
     padding: 4rem;
 }
-
-.listItem {
-    @include _base.panelListItem();
-    padding-top: 4rem;
-    padding-bottom: 4rem;
-}

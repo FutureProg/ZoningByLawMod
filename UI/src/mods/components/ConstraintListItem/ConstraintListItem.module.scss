@@ -1,0 +1,52 @@
+@use '../../base.scss' as _base;
+
+.view {
+    @include _base.panelListItem();
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+}
+
+.checkboxToggle {
+    --checkmarkColor: white;
+    --disabledCheckmarkColor: grey;
+    width: 24rem;
+    height: 24rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top:  var(--gap1) ;
+    padding-right:  var(--gap1) ;
+    padding-bottom:  var(--gap1) ;
+    padding-left:  var(--gap1) ;
+    background-color: rgba(255, 255, 255, 0);
+    border-style: solid;
+    border-top-width:  var(--stroke2);
+    border-left-width:  var(--stroke2);
+    border-bottom-width:  var(--stroke2);
+    border-right-width:  var(--stroke2);
+    border-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    transition-property: background-color 0.15s ease;
+
+    &:hover {
+        border-color: rgba(255, 255, 255, 1);
+
+        &:global(.unchecked) .checkboxMark {
+            opacity: 0.4;
+        }
+    }    
+}
+.checkboxMark {
+    width: 100%;
+    height: 100%;
+    background-color:  rgba(255, 255, 255);
+    mask-position: center;
+    clip-path: circle(35%);
+    opacity: 0;
+    transition-property: opacity 0.15s cubic-bezier(0.32, 0, 0.67, 0);    
+
+    &:global(.checked) {
+        opacity: 0.9;
+    }
+
+}
