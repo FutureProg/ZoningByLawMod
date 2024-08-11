@@ -6,21 +6,22 @@ import { useState } from 'react';
 
 type ConstraintListItemProps = {
     itemType: ByLawItemType,
-    value?: ByLawItem
-    onChecked?: (newValue: boolean) => void;
+    value?: ByLawItem,
+    readableName: string,
+    onChecked?: (newValue: boolean) => void
 }
 
 export const ConstraintListItem = (props: ConstraintListItemProps) => {
-    let enabled = props.value != undefined;
+    let enabled = props.value != undefined;    
     return (
         <div className={styles.view}>
             <div className={styles.infoRow}>
                 <VanillaComponentResolver.instance.Checkbox 
                     theme={checkboxTheme} 
-                    onChange={() => props.onChecked && props.onChecked(!enabled)} 
+                    onChange={() => {console.log(enabled);props.onChecked && props.onChecked(!enabled)}} 
                     checked={enabled} 
                 />
-                <div className={styles.constraintName}>{String(props.itemType)}</div>
+                <div className={styles.constraintName}>{props.readableName}</div>
             </div>            
         </div>
     )
