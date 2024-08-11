@@ -4,12 +4,29 @@ import { useValue } from 'cs2/api';
 import { selectedByLawColor$, selectedByLawData$, selectedByLawName$ } from 'mods/bindings';
 import { ByLawItemType } from 'mods/types';
 import { ConstraintListItem } from 'mods/components/ConstraintListItem/ConstraintListItem';
-import { useMemo } from 'react';
+import { ChangeEvent, useMemo } from 'react';
+import { TextInputTheme } from 'mods/components/TextInput/TextInput';
+import classNames from 'classnames';
+import ImageLabelButton from 'mods/atoms/ImageLabelButton';
+import { VanillaComponentResolver } from 'vanillacomponentresolver';
+import { Color } from 'cs2/bindings';
+import { rgbaToHex } from 'mods/utils';
 
 export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
     let byLawData = useValue(selectedByLawData$);
     let byLawName = useValue(selectedByLawName$);
     let byLawColor = useValue(selectedByLawColor$);
+
+    let onNameChange = ({target} : ChangeEvent<HTMLInputElement>) => {
+        
+    }
+
+    let onColorChange = (col: Color) => {
+
+    }
+    let onColorChangeHex = ({target} : ChangeEvent<HTMLInputElement>) => {
+        // Do hex stuff, convert to Color, then call onColorChange
+    }
 
     let items = byLawData.blocks[0].itemData;
     let itemMap = useMemo(() =>
@@ -33,6 +50,31 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
 
     return (
         <Scrollable className={styles.view}>
+            <div className={styles.nameItem}>
+                <label>Name</label>
+                <input 
+                    type={'text'} 
+                    value={byLawName} 
+                    className={classNames(TextInputTheme.input, styles.textBox)}
+                    onChange={onNameChange}
+                />
+            </div>
+            <div className={styles.colorItem}>
+                <label>Colour</label>
+                <div>
+                    <VanillaComponentResolver.instance.ColorField 
+                        value={byLawColor[0]} 
+                        onChange={onColorChange}
+                        className={styles.colorButton}
+                    />
+                    <input 
+                        type={'text'} 
+                        value={rgbaToHex(byLawColor[0])} 
+                        className={classNames(TextInputTheme.input, styles.textBox)}
+                        onChange={onColorChangeHex}
+                    />                                    
+                </div>
+            </div>
             {listItems}
         </Scrollable>
     )

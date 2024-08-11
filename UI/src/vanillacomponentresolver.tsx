@@ -69,6 +69,18 @@ type Checkbox = {
         })
     })
  */
+
+type ColorFieldTheme = {
+    "color-field"?: "color-field_due" | string,
+    colorField?: "color-field_due" | string,
+    alpha?: "alpha_R9X" | string,
+    disabled?: "disabled_QDB" | string,
+    "color-picker-container"?: "color-picker-container_Sj5"| string,
+    colorPickerContainer?: "color-picker-container_Sj5" | string,
+    "bound-color-field"?: "bound-color-field_RVj"| string,
+    boundColorField?: "bound-color-field_RVj" | string
+};
+
 type ColorField = {
     focusKey?: FocusKey;
     disabled?: boolean;
@@ -77,6 +89,7 @@ type ColorField = {
     selectAction?: InputAction;
     alpha?: any;
     popupDirection?: BalloonDirection;
+    theme?: ColorFieldTheme;
     onChange?: (e: Color) => void;
     onClick?: (e: any) => void;
     onMouseEnter?: (e: any) => void;
