@@ -89,7 +89,6 @@ type ColorField = {
     selectAction?: InputAction;
     alpha?: any;
     popupDirection?: BalloonDirection;
-    theme?: ColorFieldTheme;
     onChange?: (e: Color) => void;
     onClick?: (e: any) => void;
     onMouseEnter?: (e: any) => void;
