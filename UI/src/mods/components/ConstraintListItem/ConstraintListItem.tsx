@@ -3,6 +3,7 @@ import styles from './ConstraintListItem.module.scss';
 import checkboxTheme from '../../themes/RoundCheckboxTheme.module.scss';
 import { VanillaComponentResolver } from 'vanillacomponentresolver';
 import { useState } from 'react';
+import ConstraintValueText from '../ConstraintValueText/ConstraintValueText';
 
 type ConstraintListItemProps = {
     itemType: ByLawItemType,
@@ -22,6 +23,8 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
                     checked={enabled} 
                 />
                 <div className={styles.constraintName}>{props.readableName}</div>
+                <div className={styles.operator}> is </div>
+                <ConstraintValueText className={styles.valueDescription} item={props.value} />
             </div>            
         </div>
     )

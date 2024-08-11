@@ -103,3 +103,5 @@ export interface ZoningByLawBinding {
 }
 
 export type SidePanelViews =  'bylaws' | 'editor';
+
+export const BOUNDS_VALUE_DISABLED = -1;

@@ -8,11 +8,25 @@
 
 .infoRow {
     display: flex;
+    flex-wrap: wrap;
+    width: 100%;
     flex-direction: row;
     align-items: center;
+    justify-content: flex-start;
 }
 
 .constraintName {
     flex: 1;    
-    margin-left: 4rem;
+    margin: 0 4rem;
+    text-align: left;
+}
+
+.operator {
+    text-align: center;
+}
+
+.valueDescription {
+    flex: 1;
+    text-align: right;
+    margin: 0 4rem;
 }
