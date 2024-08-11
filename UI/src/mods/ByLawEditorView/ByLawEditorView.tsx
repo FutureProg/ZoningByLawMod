@@ -21,7 +21,7 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
     let types = Object.keys(ByLawItemType)        
         .filter((key) => isNaN(Number(key)) && key != 'None')
         .map((key) => [key, key.split(/(?<![A-Z])(?=[A-Z])/).join(' ')] as [keyof typeof ByLawItemType, string])        
-        .filter(([key, readableName]) => searchQuery ? readableName.toUpperCase().indexOf(searchQuery.toUpperCase()) > 0 : true);
+        .filter(([key, readableName]) => searchQuery && readableName ? readableName.toUpperCase().indexOf(searchQuery.toUpperCase()) > 0 : true);
     let listItems = types.map(([key, readableName]: [keyof typeof ByLawItemType, string], idx) =>
         <ConstraintListItem
             key={idx}
