@@ -1,10 +1,10 @@
 import { Scrollable } from 'cs2/ui';
 import styles from './ByLawEditorView.module.scss';
 import { useValue } from 'cs2/api';
-import { selectedByLawColor$, selectedByLawData$, selectedByLawName$ } from 'mods/bindings';
+import { selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawName } from 'mods/bindings';
 import { ByLawItemType } from 'mods/types';
 import { ConstraintListItem } from 'mods/components/ConstraintListItem/ConstraintListItem';
-import { ChangeEvent, useMemo } from 'react';
+import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { TextInputTheme } from 'mods/components/TextInput/TextInput';
 import classNames from 'classnames';
 import ImageLabelButton from 'mods/atoms/ImageLabelButton';
@@ -16,9 +16,15 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
     let byLawData = useValue(selectedByLawData$);
     let byLawName = useValue(selectedByLawName$);
     let byLawColor = useValue(selectedByLawColor$);
+    let [_byLawName, set_ByLawName] = useState(byLawName);
+
+    useEffect(() => {
+        set_ByLawName(byLawName);
+    }, [byLawName]);
+    
 
     let onNameChange = ({target} : ChangeEvent<HTMLInputElement>) => {
-        
+        setByLawName(target.value);
     }
 
     let onColorChange = (col: Color) => {
@@ -54,9 +60,10 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
                 <label>Name</label>
                 <input 
                     type={'text'} 
-                    value={byLawName} 
+                    value={_byLawName} 
                     className={classNames(TextInputTheme.input, styles.textBox)}
-                    onChange={onNameChange}
+                    onChange={({target}) => set_ByLawName(target.value)}         
+                    onBlur={onNameChange}
                 />
             </div>
             <div className={styles.colorItem}>
