@@ -29,7 +29,6 @@ export default ({byLawItem, isOpen, onChange: onChangeCallback}: Props) : JSX.El
                 ...byLawItem,
                 valueBounds1: newValue                
             };
-            console.log(`On Change ${name} : ${newValue}`);
             onChangeCallback && onChangeCallback(nItemVal);
         }
         return ByLawItemBounds1Editor({

@@ -19,7 +19,7 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
             <div className={styles.infoRow}>
                 <VanillaComponentResolver.instance.Checkbox 
                     theme={checkboxTheme} 
-                    onChange={() => {console.log(enabled);props.onChecked && props.onChecked(!enabled)}} 
+                    onChange={() => {props.onChecked && props.onChecked(!enabled)}} 
                     checked={enabled} 
                 />
                 <div className={styles.constraintName}>{props.readableName}</div>

@@ -28,7 +28,6 @@ export const ButtonedNumberInput = forwardRef(({onChange, value, limit, step} : 
     const toolButtonTheme = VanillaComponentResolver.instance.toolButtonTheme;
 
     let handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {      
-        console.log(e.target.value);  
         if (Number.isNaN(e.target.value)) {
             return;
         }
@@ -61,7 +60,6 @@ export const ButtonedNumberInput = forwardRef(({onChange, value, limit, step} : 
     }, [limit, ref, onChange, value]);      
     
     let changeValueByButton = (multiplier: number) => useCallback(() => {
-        console.log(multiplier);
         let nValue = value + (multiplier * _step);
         if (nValue % _step !== 0) {
             nValue += (nValue % _step) * multiplier;           

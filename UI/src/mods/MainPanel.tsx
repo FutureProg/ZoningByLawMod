@@ -20,8 +20,7 @@ export const MainPanel = () => {
     let [prevSelectedAsset, setPrevSelectedAsset] = useState<Entity>({index: 0, version: 0});       
     useEffect(() => {
         if (selectedAsset.index > 0) {
-            setPrevSelectedAsset(selectedAsset);
-            console.log("New Asset Selected, id: " + selectedAsset.index);        
+            setPrevSelectedAsset(selectedAsset);    
         }        
     }, [selectedAsset]) 
 
@@ -55,8 +54,6 @@ export const MainPanel = () => {
     );
 
     const onCreateNewByLaw = () => {
-        const baseByLaw = GetDefaultZoningByLawBinding();
-        console.log("CREATE NEW BYLAW", baseByLaw);
         createNewByLaw();
     }
 

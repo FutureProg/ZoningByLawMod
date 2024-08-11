@@ -23,7 +23,6 @@ export const setActiveByLaw = (entity: Entity) => {
 }
 
 export const setByLawData = (byLawData: ZoningByLawBinding) => {    
-    console.log("SetByLawData: ", byLawData);
     trigger(mod.fullname, "SetByLawData", byLawData);
 }
 

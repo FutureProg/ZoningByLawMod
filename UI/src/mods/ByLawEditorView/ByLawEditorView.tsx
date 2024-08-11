@@ -40,7 +40,6 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
             items.map((item) => [ByLawItemType[item.byLawItemType], item])
         )
     , [items]);
-    console.log(itemMap, Object.keys(itemMap));    
     let types = Object.keys(ByLawItemType)        
         .filter((key) => isNaN(Number(key)) && key != 'None')
         .map((key) => [key, key.split(/(?<![A-Z])(?=[A-Z])/).join(' ')] as [keyof typeof ByLawItemType, string])        
