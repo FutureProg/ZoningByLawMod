@@ -2,6 +2,7 @@ import { LocalizedNumber, UnitSystem, useLocalization } from "cs2/l10n";
 import { BlockType, ByLawConstraintType, ByLawItem, ByLawItemCategory, ByLawItemType, ByLawPropertyOperator, ByLawZoneComponent, ByLawZoneType, LogicOperation, ZoningByLawBinding } from "./types";
 import { Bounds1, Color, Unit } from "cs2/bindings";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import hexToRgba from 'hex-to-rgba';
 
 export const GetDefaultByLawComponent = () : ByLawZoneComponent => {return {
     frontage: {max: -1, min: -1},
@@ -47,6 +48,17 @@ export const rgbaToHex = (color: Color) : string => {
         }        
         return accum;
     }, '#');
+}
+
+
+export const hexToRGBA = (hex: string) : Color => {
+    let pieces = hexToRgba(hex).replaceAll("rgba(", "").replaceAll(")", "").split(",").map(Number);
+    return {
+        r: pieces[0]/255,
+        g: pieces[1]/255,
+        b: pieces[2]/255,
+        a: pieces[3]
+    }
 }
 
 export const useLocalizedMeasurement = (value: number) => {

@@ -1,7 +1,7 @@
 import { Scrollable } from 'cs2/ui';
 import styles from './ByLawEditorView.module.scss';
 import { useValue } from 'cs2/api';
-import { selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawName } from 'mods/bindings';
+import { selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawName, setByLawZoneColor } from 'mods/bindings';
 import { ByLawItemType } from 'mods/types';
 import { ConstraintListItem } from 'mods/components/ConstraintListItem/ConstraintListItem';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
@@ -10,17 +10,21 @@ import classNames from 'classnames';
 import ImageLabelButton from 'mods/atoms/ImageLabelButton';
 import { VanillaComponentResolver } from 'vanillacomponentresolver';
 import { Color } from 'cs2/bindings';
-import { rgbaToHex } from 'mods/utils';
+import { hexToRGBA, rgbaToHex } from 'mods/utils';
 
 export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
     let byLawData = useValue(selectedByLawData$);
     let byLawName = useValue(selectedByLawName$);
     let byLawColor = useValue(selectedByLawColor$);
     let [_byLawName, set_ByLawName] = useState(byLawName);
+    let [colorText, setColorText] = useState(rgbaToHex(byLawColor[0]));
 
     useEffect(() => {
         set_ByLawName(byLawName);
     }, [byLawName]);
+    useEffect(() => {
+        setColorText(rgbaToHex(byLawColor[0]));
+    }, [byLawColor[0]]);
     
 
     let onNameChange = ({target} : ChangeEvent<HTMLInputElement>) => {
@@ -28,10 +32,16 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
     }
 
     let onColorChange = (col: Color) => {
-
+        setByLawZoneColor(col, byLawColor[1]);
     }
     let onColorChangeHex = ({target} : ChangeEvent<HTMLInputElement>) => {
-        // Do hex stuff, convert to Color, then call onColorChange
+        let hex = target.value;
+        try {
+            let newColor = hexToRGBA(hex);
+            onColorChange(newColor);
+        } catch {
+            // Was an error converting to hex, so ignoring the change
+        }        
     }
 
     let items = byLawData.blocks[0].itemData;
@@ -75,9 +85,10 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
                     />
                     <input 
                         type={'text'} 
-                        value={rgbaToHex(byLawColor[0])} 
+                        value={colorText} 
                         className={classNames(TextInputTheme.input, styles.textBox)}
-                        onChange={onColorChangeHex}
+                        onChange={({target}) => setColorText(target.value)}
+                        onBlur={onColorChangeHex}
                     />                                    
                 </div>
             </div>
