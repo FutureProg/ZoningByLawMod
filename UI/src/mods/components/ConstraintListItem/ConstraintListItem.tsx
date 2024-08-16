@@ -16,10 +16,25 @@ type ConstraintListItemProps = {
 }
 
 export const ConstraintListItem = (props: ConstraintListItemProps) => {
-    let [isOpen, setIsOpen] = useState(false);
-    let toggleOpen = () => setIsOpen(!isOpen);
+    let [isOpen, setIsOpen] = useState(false);    
     let enabled = props.value != undefined;   
+    let toggleOpen = () => {
+        if (!enabled && props.onChangeConstraintEnabled) {
+            props.onChangeConstraintEnabled(!enabled, props.itemType);
+            setIsOpen(true);
+        } 
+        else if (enabled) {
+            setIsOpen(!isOpen);
+        } else {
+            setIsOpen(false);
+        }     
+    }
     
+    let onChangeEnabled = () => {
+        setIsOpen(false);
+        props.onChangeConstraintEnabled && props.onChangeConstraintEnabled(!enabled, props.itemType)
+    }
+
     let onItemChange = (newItemValue: ByLawItem) => {
         props.onValueChange && props.onValueChange(newItemValue);
     }
@@ -28,14 +43,14 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
             <div className={styles.infoRow}>
                 <VanillaComponentResolver.instance.Checkbox
                     theme={checkboxTheme}
-                    onChange={() => { props.onChangeConstraintEnabled && props.onChangeConstraintEnabled(!enabled, props.itemType) }}
+                    onChange={onChangeEnabled}
                     checked={enabled}
                 />
                 <div className={styles.constraintName}>{props.readableName}</div>
                 <div className={styles.operator}>{enabled ? "is" : ""}</div>
                 <ConstraintValueText className={styles.valueDescription} item={props.value} />
             </div>
-            <div className={classNames(styles.editorSection, {[styles.open]: isOpen})}>
+            <div className={classNames(styles.editorSection, {[styles.open]: isOpen && enabled})}>
                 {enabled ?
                     <ByLawPropertyEditSection byLawItem={props.value!} isOpen={isOpen} onChange={onItemChange} />
                     : <></>
