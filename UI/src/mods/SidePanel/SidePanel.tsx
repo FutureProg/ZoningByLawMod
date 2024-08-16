@@ -75,7 +75,7 @@ export const SidePanel = () => {
     return (
         <div className={styles.view}>
             <SidePanelHeader currentView={currentView} onSearchQueryChange={onSearchChange} onViewChange={onViewChange} />
-            {currentView == 'bylaws' ? <ByLawListView searchQuery={searchQuery} /> : <ByLawEditorView />}
+            {currentView == 'bylaws' ? <ByLawListView searchQuery={searchQuery} /> : <ByLawEditorView searchQuery={searchQuery} />}
             {sideButtons}
         </div>
     )

@@ -74,7 +74,7 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
     let types = Object.keys(ByLawItemType)        
         .filter((key) => isNaN(Number(key)) && key != 'None')
         .map((key) => [key, key.split(/(?<![A-Z])(?=[A-Z])/).join(' ')] as [keyof typeof ByLawItemType, string])        
-        .filter(([key, readableName]) => searchQuery && readableName ? readableName.toUpperCase().indexOf(searchQuery.toUpperCase()) > 0 : true);
+        .filter(([key, readableName]) => searchQuery && readableName ? readableName.toUpperCase().indexOf(searchQuery.toUpperCase()) >= 0 : true);
     let listItems = types.map(([key, readableName]: [keyof typeof ByLawItemType, string], idx) =>
         <ConstraintListItem
             key={idx}
@@ -88,7 +88,7 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
 
     return (
         <Scrollable className={styles.view} vertical trackVisibility='always'>
-            <div className={styles.nameItem}>
+            <div className={classNames(styles.nameItem, {[styles.invisible]: searchQuery ? "NAME".indexOf(searchQuery.toUpperCase()) < 0 : false})}>
                 <label>Name</label>
                 <input 
                     type={'text'} 
@@ -98,7 +98,7 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
                     onBlur={onNameChange}
                 />
             </div>
-            <div className={styles.colorItem}>
+            <div className={classNames(styles.colorItem, {[styles.invisible]: searchQuery ? "COLOR".indexOf(searchQuery.toUpperCase()) < 0 || "COLOUR".indexOf(searchQuery.toUpperCase()) < 0 : false})}>
                 <label>Colour</label>
                 <div>
                     <VanillaComponentResolver.instance.ColorField 

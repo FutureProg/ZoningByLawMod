@@ -19,13 +19,17 @@
     padding-bottom: 6rem;
     background-color: rgba(0,0,0,0.4);
 
+    &.invisible {
+      display: none;  
+    }
+
     &:hover {
         background-color: rgba(0,0,0,0.4);
-    }
+    }    
 
     label {
         flex: 0.3 0;
-    }
+    }    
 }
 
 .colorItem > div {

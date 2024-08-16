@@ -9,7 +9,7 @@ import { entityKey } from 'cs2/utils';
 export const ByLawListView = ({ searchQuery }: { searchQuery?: string }) => {
     let bylawList = useValue(byLawZoneList$);
     let listItems = bylawList
-        .filter((item: ByLawZoneListItem) => searchQuery ? item.name.toUpperCase().indexOf(searchQuery!.toUpperCase()) > 0 : true)
+        .filter((item: ByLawZoneListItem) => searchQuery ? item.name.toUpperCase().indexOf(searchQuery!.toUpperCase()) >= 0 : true)
         .map((item: ByLawZoneListItem) => <ByLawListItem item={item} key={entityKey(item.entity)} />);
     return (
         <Scrollable className={styles.view} vertical trackVisibility='always'>
