@@ -34,6 +34,12 @@ namespace Trejak.ZoningByLaw.Prefab
         private JobHandle _propertiesReaders;
         private bool _initialized;
 
+        private PrefabSystem _prefabSystem;
+        private EntityQuery _UIConfigQuery;
+
+        public static PollutionThresholdData airThresholds { get; private set; }
+        public static PollutionThresholdData groundThresholds { get; private set; }
+        public static PollutionThresholdData noiseThresholds { get; private set; }
 
         protected override void OnCreate()
         {
@@ -75,6 +81,11 @@ namespace Trejak.ZoningByLaw.Prefab
             _properties = new NativeList<BuildingByLawProperties>(20, Allocator.Persistent);
             _propertiesReaders = default;
             _initialized = false;
+            _prefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
+            _UIConfigQuery = base.GetEntityQuery(new ComponentType[]
+            {
+                ComponentType.ReadOnly<UIPollutionConfigurationData>()
+            });
             Mod.log.Info($"Created IndexBuildingsSystem {_buildingsPrefabsQuery.CalculateEntityCount()} entities.");
             RequireForUpdate(_buildingsPrefabsQuery);
         }
@@ -93,12 +104,29 @@ namespace Trejak.ZoningByLaw.Prefab
             }
         }
 
+        private PollutionThresholdData CreatePollutionThresholdData(UIPollutionThresholds thresholds)
+        {
+            return new()
+            {
+                low = thresholds.m_Low,
+                medium = thresholds.m_Medium,
+                high = thresholds.m_High
+            };
+        }
+
         private void UpdateIndex(bool onUpdate)
         {
             this._propertiesReaders.Complete();
             this._propertiesReaders = default;
             
             int processedEnts = 0;
+
+            if (_prefabSystem.TryGetSingletonPrefab<UIPollutionConfigurationPrefab>(_UIConfigQuery, out UIPollutionConfigurationPrefab pollutionConfig))
+            {
+                airThresholds = CreatePollutionThresholdData(pollutionConfig.m_AirPollution);
+                groundThresholds = CreatePollutionThresholdData(pollutionConfig.m_GroundPollution);
+                noiseThresholds = CreatePollutionThresholdData(pollutionConfig.m_NoisePollution);
+            }
 
 
             NativeArray<ArchetypeChunk> chunks;
@@ -120,6 +148,7 @@ namespace Trejak.ZoningByLaw.Prefab
             BufferLookup<SubMesh> subMeshBufferLookup = GetBufferLookup<SubMesh>(true);
             ComponentLookup<BuildingData> buildingDataLookup = GetComponentLookup<BuildingData>(true);
             ComponentLookup<ObjectGeometryData> objectGeomDataLookup = GetComponentLookup<ObjectGeometryData>(true);
+            ComponentLookup<PollutionData> pollutionDataLookup = SystemAPI.GetComponentLookup<PollutionData>(true);
             foreach (ArchetypeChunk chunk in chunks)
             {
                 var buildingEntities = chunk.GetNativeArray(entityHandle);
@@ -162,6 +191,9 @@ namespace Trejak.ZoningByLaw.Prefab
                     //    Mod.log.Warn($"Object Archetype is empty for prefab with index {prefabData.m_Index}");
                     //}
                     var propertyData = SystemAPI.GetComponent<BuildingPropertyData>(buildingEntity);
+                    bool hasPollutionData = pollutionDataLookup.TryGetComponent(buildingEntity, out PollutionData pollutionData);
+
+
                     var props = new BuildingByLawProperties()
                     {
                         initialized = true,
@@ -172,7 +204,8 @@ namespace Trejak.ZoningByLaw.Prefab
                         isIndustry = archetypeComponents.Contains(ComponentType.ReadOnly<IndustrialProperty>()),
                         isExtractor = archetypeComponents.Contains(ComponentType.ReadOnly<ExtractorProperty>()),
                         isResidential = propertyData.m_ResidentialProperties > 0,
-                        isCommercial = archetypeComponents.Contains(ComponentType.ReadOnly<CommercialProperty>())
+                        isCommercial = archetypeComponents.Contains(ComponentType.ReadOnly<CommercialProperty>()),
+                        pollutionData = hasPollutionData? pollutionData : default
                     };
 
                     if (subMeshBufferLookup.TryGetBuffer(buildingEntity, out var buildingSubMeshes))
@@ -389,5 +422,7 @@ namespace Trejak.ZoningByLaw.Prefab
         public float buildingSetBackRight;
         public float buildingSetBackRear;
         public float buildingHeight;
+
+        public PollutionData pollutionData;
     }
 }

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Trejak.ZoningByLaw;
 using Trejak.ZoningByLaw.BuildingBlocks;
 using Trejak.ZoningByLaw.Prefab;
+using Trejak.ZoningByLaw.UISystems;
 using Unity.Entities;
 
 namespace ZoningByLaw.BuildingBlocks
@@ -41,7 +42,15 @@ namespace ZoningByLaw.BuildingBlocks
 
         private static bool EvaluateSingleSelect(Entity building, BuildingByLawProperties properties, ByLawItem item, ByLawZoneSpawnSystem.EvaluateSpawnAreas job)
         {
-            return false;
+            switch (item.byLawItemType)
+            {
+                case ByLawItemType.AirPollutionLevel:
+                case ByLawItemType.GroundPollutionLevel:
+                case ByLawItemType.NoisePollutionLevel:
+                    return EvalPollution(building, properties, item);
+                default:
+                    return false;
+            }
         }
 
         private static bool EvaluateMultiSelect(Entity building, BuildingPropertyData propertyData, BuildingByLawProperties properties, ByLawItem item, ByLawZoneSpawnSystem.EvaluateSpawnAreas job)
@@ -53,6 +62,43 @@ namespace ZoningByLaw.BuildingBlocks
                 default:
                     return false;
             }
+        }
+
+        private static float PollutionLevelValue(ByLawItemType itemType, BuildingByLawProperties properties) => itemType switch
+        {
+            ByLawItemType.AirPollutionLevel => properties.pollutionData.m_AirPollution,
+            ByLawItemType.GroundPollutionLevel => properties.pollutionData.m_GroundPollution,
+            ByLawItemType.NoisePollutionLevel => properties.pollutionData.m_NoisePollution,
+            _ => 0.0f
+        };
+
+        public static bool EvalPollution(Entity building, BuildingByLawProperties properties, ByLawItem item)
+        {
+            float basePollutionValue = PollutionLevelValue(item.byLawItemType, properties);
+            var pollutionLimit = (ByLawPollutionThreshold) item.valueByteFlag;
+            var thresholdData = IndexBuildingsSystem.groundThresholds;
+            if (item.byLawItemType == ByLawItemType.AirPollutionLevel)
+            {
+                thresholdData = IndexBuildingsSystem.airThresholds;
+            } 
+            else if (item.byLawItemType == ByLawItemType.NoisePollutionLevel)
+            {
+                thresholdData = IndexBuildingsSystem.noiseThresholds;
+            }
+
+            if (basePollutionValue >= thresholdData.low && pollutionLimit == ByLawPollutionThreshold.None)
+            {
+                return false;
+            }
+            if (basePollutionValue >= thresholdData.medium && pollutionLimit < ByLawPollutionThreshold.Low)
+            {
+                return false;
+            }
+            if (basePollutionValue >= thresholdData.high && pollutionLimit < ByLawPollutionThreshold.Medium)
+            {
+                return false;
+            }
+            return true;
         }
 
         public static bool EvalLandUse(Entity building, BuildingByLawProperties properties, ByLawItem item, ByLawZoneSpawnSystem.EvaluateSpawnAreas job)
