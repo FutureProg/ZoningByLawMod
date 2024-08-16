@@ -64,7 +64,7 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
     );    
 
     return (
-        <Scrollable className={styles.view}>
+        <Scrollable className={styles.view} vertical trackVisibility='always'>
             <div className={styles.nameItem}>
                 <label>Name</label>
                 <input 

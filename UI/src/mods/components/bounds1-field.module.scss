@@ -1,10 +1,10 @@
 .bounds1Field {
     position: relative;
     display: flex;
-    flex-direction: row;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
     width: 70%;
-    justify-content: center;
+    justify-content: flex-start;
 }
 .bounds1Field > div {
     margin-right: 16rem;
@@ -18,4 +18,18 @@
     color: white;
     border: none;
     padding: 2rem 4rem;
+}
+
+.label {
+    font-size: 1em;
+    width: 45%;
+    margin-left: 4rem;
+}
+
+.inputContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 2rem 0;
 }

@@ -2,9 +2,10 @@ import { Bounds1 } from "cs2/bindings";
 import { Button } from "cs2/ui";
 import { MutableRefObject, useCallback, useEffect, useRef, useState } from "react";
 import { VanillaComponentResolver } from "vanillacomponentresolver";
-
+import checkboxTheme from '../themes/RoundCheckboxTheme.module.scss';
 import styles from './bounds1-field.module.scss';
 import {ButtonedNumberInput, ButtonedNumberInputRef} from "./ButtonedNumberInput";
+import { BOUNDS_VALUE_DISABLED } from "mods/types";
 
 const couiStandard =                         "coui://uil/Standard/";
 
@@ -17,20 +18,10 @@ export interface Bounds1FieldProps {
 };
 
 export const Bounds1Field = (props : Bounds1FieldProps) => {
-    // let [localBounds, setLocalBounds] = useState({min: String(props.bounds?.min), max: String(props.bounds?.max)});
     let minRef = useRef<ButtonedNumberInputRef>(null);
     let maxRef = useRef<ButtonedNumberInputRef>(null);
-    // useEffect(() => {
-    //     setLocalBounds({min: String(props.bounds?.min), max: String(props.bounds?.max)});
-    //     if (props.bounds) {
-    //         minRef.current?.setValue(props.bounds.min);
-    //         maxRef.current?.setValue(props.bounds.max);
-    //     }        
-    // }, [props.bounds, minRef, maxRef]);        
 
-    let onInputChange = (field: keyof Bounds1) => (value: number) => {        
-        // setLocalBounds({min: String(minS), max: String(maxS)});       
-
+    let onInputChange = (field: keyof Bounds1) => (value: number) => {                
         if (isNaN(value)) {
             return;
         }
@@ -54,29 +45,23 @@ export const Bounds1Field = (props : Bounds1FieldProps) => {
 
     return (
         <div className={styles.bounds1Field}>        
-            <div>
-                <VanillaComponentResolver.instance.Section title="Minimum">
-                    <VanillaComponentResolver.instance.ToolButton 
-                                className={VanillaComponentResolver.instance.toolButtonTheme.button} 
-                                tooltip={"Unset"} 
-                                onSelect={onClickUnset("min")} 
-                                src={resetSrc}
-                                focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}
-                    ></VanillaComponentResolver.instance.ToolButton>  
-                    <ButtonedNumberInput value={props.bounds.min} onChange={onInputChange('min')} ref={minRef} limit={{min: -1}} />
-                </VanillaComponentResolver.instance.Section>                
+            <div className={styles.inputContainer}>           
+            <VanillaComponentResolver.instance.Checkbox
+                    theme={checkboxTheme}
+                    onChange={onClickUnset("min")}
+                    checked={props.bounds.min != BOUNDS_VALUE_DISABLED}
+                />     
+                <div className={styles.label}>Minimum</div>     
+                <ButtonedNumberInput value={props.bounds.min} onChange={onInputChange('min')} ref={minRef} limit={{min: -1}} />                        
             </div>
-            <div>
-                <VanillaComponentResolver.instance.Section title="Maximum">
-                    <VanillaComponentResolver.instance.ToolButton 
-                                className={VanillaComponentResolver.instance.toolButtonTheme.button} 
-                                tooltip={"Unset"} 
-                                onSelect={onClickUnset("max")} 
-                                src={resetSrc}
-                                focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}
-                    ></VanillaComponentResolver.instance.ToolButton>  
-                    <ButtonedNumberInput onChange={onInputChange('max')} value={props.bounds.max} ref={maxRef} limit={{min: -1}} />
-                </VanillaComponentResolver.instance.Section> 
+            <div className={styles.inputContainer}>
+                <VanillaComponentResolver.instance.Checkbox
+                    theme={checkboxTheme}
+                    onChange={onClickUnset("max")}
+                    checked={props.bounds.max != BOUNDS_VALUE_DISABLED}
+                />
+                <div className={styles.label}>Maximum</div>                
+                <ButtonedNumberInput onChange={onInputChange('max')} value={props.bounds.max} ref={maxRef} limit={{min: -1}} />                
             </div>
         </div>
     )
