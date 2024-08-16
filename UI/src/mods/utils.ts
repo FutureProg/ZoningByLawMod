@@ -172,9 +172,9 @@ export const getOperationTypes = (item: ByLawItem) : ByLawPropertyOperator[] => 
     return re;
 }
 
-export const getConstraintTypes = (item: ByLawItem) : ByLawConstraintType[] => {
+export const getConstraintTypes = (byLawItemType: ByLawItemType) : ByLawConstraintType[] => {
     let re : ByLawConstraintType[] = [];
-    switch(item.byLawItemType) {
+    switch(byLawItemType) {
         case ByLawItemType.LandUse:
             re.push(ByLawConstraintType.MultiSelect);
             break;

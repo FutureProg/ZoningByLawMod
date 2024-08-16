@@ -55,7 +55,7 @@ export default ({byLawItem, onChange: onChangeCallback, onDelete: onDeleteCallba
             ...GetDefaultByLawItem(),
             byLawItemType: num            
         };
-        nItem.constraintType = getConstraintTypes(nItem)[0];
+        nItem.constraintType = getConstraintTypes(nItem.byLawItemType)[0];
         setByLawItem(nItem);        
         onChangeCallback(nItem);
     }

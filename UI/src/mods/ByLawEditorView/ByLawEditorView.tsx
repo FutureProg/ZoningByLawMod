@@ -1,8 +1,8 @@
 import { Scrollable } from 'cs2/ui';
 import styles from './ByLawEditorView.module.scss';
 import { useValue } from 'cs2/api';
-import { selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawName, setByLawZoneColor } from 'mods/bindings';
-import { ByLawItemType } from 'mods/types';
+import { selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor } from 'mods/bindings';
+import { ByLawItem, ByLawItemType } from 'mods/types';
 import { ConstraintListItem } from 'mods/components/ConstraintListItem/ConstraintListItem';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { TextInputTheme } from 'mods/components/TextInput/TextInput';
@@ -10,20 +10,20 @@ import classNames from 'classnames';
 import ImageLabelButton from 'mods/atoms/ImageLabelButton';
 import { VanillaComponentResolver } from 'vanillacomponentresolver';
 import { Color } from 'cs2/bindings';
-import { hexToRGBA, rgbaToHex } from 'mods/utils';
+import * as utils from 'mods/utils';
 
 export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
     let byLawData = useValue(selectedByLawData$);
     let byLawName = useValue(selectedByLawName$);
     let byLawColor = useValue(selectedByLawColor$);
     let [_byLawName, set_ByLawName] = useState(byLawName);
-    let [colorText, setColorText] = useState(rgbaToHex(byLawColor[0]));
+    let [colorText, setColorText] = useState(utils.rgbaToHex(byLawColor[0]));
 
     useEffect(() => {
         set_ByLawName(byLawName);
     }, [byLawName]);
     useEffect(() => {
-        setColorText(rgbaToHex(byLawColor[0]));
+        setColorText(utils.rgbaToHex(byLawColor[0]));
     }, [byLawColor[0]]);
     
 
@@ -37,11 +37,32 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
     let onColorChangeHex = ({target} : ChangeEvent<HTMLInputElement>) => {
         let hex = target.value;
         try {
-            let newColor = hexToRGBA(hex);
+            let newColor = utils.hexToRGBA(hex);
             onColorChange(newColor);
         } catch {
             // Was an error converting to hex, so ignoring the change
         }        
+    }
+
+    let onConstraintUpdate = (newItemValue: ByLawItem) => {
+        let nByLawData = utils.deepCopy(byLawData);
+        let itemData = nByLawData.blocks[0].itemData;
+        nByLawData.blocks[0].itemData = itemData.map(item => item.byLawItemType == newItemValue.byLawItemType? newItemValue : item);
+        setByLawData(nByLawData);
+    }
+    let onChangeConstraintEnabled = (newEnabledValue: boolean, itemType: ByLawItemType) => {
+        let nByLawData = utils.deepCopy(byLawData);
+        if (newEnabledValue) {
+            nByLawData.blocks[0].itemData.push({
+                ...utils.GetDefaultByLawItem(),
+                byLawItemType: itemType,
+                itemCategory: utils.getItemCategories(itemType),
+                constraintType: utils.getConstraintTypes(itemType)[0]
+            });            
+        } else {
+            nByLawData.blocks[0].itemData = nByLawData.blocks[0].itemData.filter((item) => item.byLawItemType != itemType);
+        }
+        setByLawData(nByLawData);
     }
 
     let items = byLawData.blocks[0].itemData;
@@ -60,6 +81,8 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
             readableName={readableName}
             itemType={ByLawItemType[key]}
             value={itemMap[key] || undefined}
+            onValueChange={onConstraintUpdate}
+            onChangeConstraintEnabled={onChangeConstraintEnabled}
         />
     );    
 

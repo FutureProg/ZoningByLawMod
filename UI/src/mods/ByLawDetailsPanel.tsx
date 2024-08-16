@@ -65,7 +65,7 @@ export const ByLawDetailsPanel = (props: _Props) => {
                 newItem = {
                     ...GetDefaultByLawItem(),
                     ...item,
-                    constraintType: getConstraintTypes(item)[0]
+                    constraintType: getConstraintTypes(item.byLawItemType)[0]
                 };                
             }
             let newData = deepCopy<ZoningByLawBinding>(byLawData);

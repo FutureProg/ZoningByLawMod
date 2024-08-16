@@ -37,8 +37,8 @@ export const Bounds1Field = (props : Bounds1FieldProps) => {
         }
     }
 
-    const onClickUnset = (sender: keyof Bounds1) => useCallback(() => {
-        onInputChange(sender)(-1);
+    const onToggleEnable = (sender: keyof Bounds1) => useCallback(() => {        
+        onInputChange(sender)(props.bounds[sender] == BOUNDS_VALUE_DISABLED? 0 : -1);
     }, [onInputChange]);
     const textInputTheme = VanillaComponentResolver.instance.textInputTheme;
     const toolButtonTheme = VanillaComponentResolver.instance.toolButtonTheme;
@@ -48,7 +48,7 @@ export const Bounds1Field = (props : Bounds1FieldProps) => {
             <div className={styles.inputContainer}>           
             <VanillaComponentResolver.instance.Checkbox
                     theme={checkboxTheme}
-                    onChange={onClickUnset("min")}
+                    onChange={onToggleEnable("min")}
                     checked={props.bounds.min != BOUNDS_VALUE_DISABLED}
                 />     
                 <div className={styles.label}>Minimum</div>     
@@ -57,7 +57,7 @@ export const Bounds1Field = (props : Bounds1FieldProps) => {
             <div className={styles.inputContainer}>
                 <VanillaComponentResolver.instance.Checkbox
                     theme={checkboxTheme}
-                    onChange={onClickUnset("max")}
+                    onChange={onToggleEnable("max")}
                     checked={props.bounds.max != BOUNDS_VALUE_DISABLED}
                 />
                 <div className={styles.label}>Maximum</div>                

@@ -10,19 +10,24 @@ type ConstraintListItemProps = {
     itemType: ByLawItemType,
     value?: ByLawItem,
     readableName: string,
-    onChecked?: (newValue: boolean) => void
+    onChangeConstraintEnabled?: (newValue: boolean, itemType: ByLawItemType) => void
+    onValueChange?: (newItemValue: ByLawItem) => void;
 }
 
 export const ConstraintListItem = (props: ConstraintListItemProps) => {
     let [isOpen, setIsOpen] = useState(false);
     let toggleOpen = () => setIsOpen(!isOpen);
-    let enabled = props.value != undefined;    
+    let enabled = props.value != undefined;   
+    
+    let onItemChange = (newItemValue: ByLawItem) => {
+        props.onValueChange && props.onValueChange(newItemValue);
+    }
     return (
         <div className={styles.view} onClick={toggleOpen}>
             <div className={styles.infoRow}>
                 <VanillaComponentResolver.instance.Checkbox
                     theme={checkboxTheme}
-                    onChange={() => { props.onChecked && props.onChecked(!enabled) }}
+                    onChange={() => { props.onChangeConstraintEnabled && props.onChangeConstraintEnabled(!enabled, props.itemType) }}
                     checked={enabled}
                 />
                 <div className={styles.constraintName}>{props.readableName}</div>
@@ -31,7 +36,7 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
             </div>
             <div className={styles.editorSection}>
                 {enabled ?
-                    <ByLawPropertyEditSection byLawItem={props.value!} isOpen={isOpen} />
+                    <ByLawPropertyEditSection byLawItem={props.value!} isOpen={true} onChange={onItemChange} />
                     : <></>
                 }
             </div>
