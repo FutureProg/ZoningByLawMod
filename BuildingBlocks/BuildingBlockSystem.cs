@@ -90,11 +90,11 @@ namespace ZoningByLaw.BuildingBlocks
             {
                 return false;
             }
-            if (basePollutionValue >= thresholdData.medium && pollutionLimit < ByLawPollutionThreshold.Low)
+            if (basePollutionValue >= thresholdData.medium && pollutionLimit <= ByLawPollutionThreshold.Low)
             {
                 return false;
             }
-            if (basePollutionValue >= thresholdData.high && pollutionLimit < ByLawPollutionThreshold.Medium)
+            if (basePollutionValue >= thresholdData.high && pollutionLimit <= ByLawPollutionThreshold.Medium)
             {
                 return false;
             }
