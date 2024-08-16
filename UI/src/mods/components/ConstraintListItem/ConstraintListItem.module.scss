@@ -55,8 +55,10 @@
     }
 }
 
-.editorSection {
-    margin-top: 4rem;
-    border-top: 1rem solid rgba(255, 255, 255, 0.3);
-    padding-top: 4rem;
+.editorSection {    
+    &.open {
+        margin-top: 4rem;
+        border-top: 1rem solid rgba(255, 255, 255, 0.3);
+        padding-top: 4rem;
+    }    
 }

@@ -5,6 +5,7 @@ import { VanillaComponentResolver } from 'vanillacomponentresolver';
 import { useState } from 'react';
 import ConstraintValueText from '../ConstraintValueText/ConstraintValueText';
 import ByLawPropertyEditSection from '../Details/ByLawPropertyEditSection';
+import classNames from 'classnames';
 
 type ConstraintListItemProps = {
     itemType: ByLawItemType,
@@ -34,9 +35,9 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
                 <div className={styles.operator}>{enabled ? "is" : ""}</div>
                 <ConstraintValueText className={styles.valueDescription} item={props.value} />
             </div>
-            <div className={styles.editorSection}>
+            <div className={classNames(styles.editorSection, {[styles.open]: isOpen})}>
                 {enabled ?
-                    <ByLawPropertyEditSection byLawItem={props.value!} isOpen={true} onChange={onItemChange} />
+                    <ByLawPropertyEditSection byLawItem={props.value!} isOpen={isOpen} onChange={onItemChange} />
                     : <></>
                 }
             </div>
