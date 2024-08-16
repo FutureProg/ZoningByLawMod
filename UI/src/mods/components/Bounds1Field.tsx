@@ -1,15 +1,10 @@
 import { Bounds1 } from "cs2/bindings";
-import { Button } from "cs2/ui";
-import { MutableRefObject, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 import { VanillaComponentResolver } from "vanillacomponentresolver";
 import checkboxTheme from '../themes/RoundCheckboxTheme.module.scss';
 import styles from './bounds1-field.module.scss';
-import {ButtonedNumberInput, ButtonedNumberInputRef} from "./ButtonedNumberInput";
+import { ButtonedNumberInput, ButtonedNumberInputRef } from "./ButtonedNumberInput";
 import { BOUNDS_VALUE_DISABLED } from "mods/types";
-
-const couiStandard =                         "coui://uil/Standard/";
-
-const resetSrc =            couiStandard + "Reset.svg";
 
 export interface Bounds1FieldProps {
     bounds: Bounds1, 
