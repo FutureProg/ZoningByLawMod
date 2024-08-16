@@ -12,4 +12,11 @@ namespace Trejak.ZoningByLaw.Prefab
         public int medium;
         public int high;
     }
+
+    public struct PollutionThresholdsSet
+    {
+        public PollutionThresholdData air;
+        public PollutionThresholdData ground;
+        public PollutionThresholdData noise;
+    }
 }

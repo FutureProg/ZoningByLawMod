@@ -194,7 +194,13 @@ namespace Trejak.ZoningByLaw
                 prefabDataLookup = GetComponentLookup<PrefabData>(true),
                 bylawBlockLookup = GetComponentLookup<ByLawBlock>(true),
                 bylawBlockRefLookup = GetBufferLookup<ByLawBlockReference>(true),
-                bylawItemBufferLookup = GetBufferLookup<ByLawItem>(true)
+                bylawItemBufferLookup = GetBufferLookup<ByLawItem>(true),
+                pollutionsThresholds = new()
+                {
+                    air = IndexBuildingsSystem.airThresholds,
+                    ground = IndexBuildingsSystem.groundThresholds,
+                    noise = IndexBuildingsSystem.noiseThresholds
+                }
             };            
             ZoneSpawnSystem.SpawnBuildingJob spawnBuildingJob = new()
             {
@@ -265,6 +271,7 @@ namespace Trejak.ZoningByLaw
             public NativeQueue<ZoneSpawnSystem.SpawnLocation>.ParallelWriter commercialQ;
             public NativeQueue<ZoneSpawnSystem.SpawnLocation>.ParallelWriter industrialQ;
             public EntityStorageInfoLookup entityStorageInfoLookup;
+            public PollutionThresholdsSet pollutionsThresholds;
             public int minDemand;                        
 
             public EntityTypeHandle entityHandle;
@@ -291,7 +298,7 @@ namespace Trejak.ZoningByLaw
 
             public ComponentLookup<ByLawBlock> bylawBlockLookup;
             public BufferLookup<ByLawBlockReference> bylawBlockRefLookup;
-            public BufferLookup<ByLawItem> bylawItemBufferLookup;
+            public BufferLookup<ByLawItem> bylawItemBufferLookup;            
 
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
             {

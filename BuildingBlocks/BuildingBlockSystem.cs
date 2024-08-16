@@ -47,7 +47,7 @@ namespace ZoningByLaw.BuildingBlocks
                 case ByLawItemType.AirPollutionLevel:
                 case ByLawItemType.GroundPollutionLevel:
                 case ByLawItemType.NoisePollutionLevel:
-                    return EvalPollution(building, properties, item);
+                    return EvalPollution(building, properties, item, job);
                 default:
                     return false;
             }
@@ -72,18 +72,18 @@ namespace ZoningByLaw.BuildingBlocks
             _ => 0.0f
         };
 
-        public static bool EvalPollution(Entity building, BuildingByLawProperties properties, ByLawItem item)
+        public static bool EvalPollution(Entity building, BuildingByLawProperties properties, ByLawItem item, ByLawZoneSpawnSystem.EvaluateSpawnAreas job)
         {
             float basePollutionValue = PollutionLevelValue(item.byLawItemType, properties);
             var pollutionLimit = (ByLawPollutionThreshold) item.valueByteFlag;
-            var thresholdData = IndexBuildingsSystem.groundThresholds;
+            var thresholdData = job.pollutionsThresholds.ground;
             if (item.byLawItemType == ByLawItemType.AirPollutionLevel)
             {
-                thresholdData = IndexBuildingsSystem.airThresholds;
+                thresholdData = job.pollutionsThresholds.air;
             } 
             else if (item.byLawItemType == ByLawItemType.NoisePollutionLevel)
             {
-                thresholdData = IndexBuildingsSystem.noiseThresholds;
+                thresholdData = job.pollutionsThresholds.noise;
             }
 
             if (basePollutionValue >= thresholdData.low && pollutionLimit == ByLawPollutionThreshold.None)
