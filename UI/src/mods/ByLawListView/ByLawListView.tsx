@@ -12,7 +12,7 @@ export const ByLawListView = ({ searchQuery }: { searchQuery?: string }) => {
         .filter((item: ByLawZoneListItem) => searchQuery ? item.name.toUpperCase().indexOf(searchQuery!.toUpperCase()) > 0 : true)
         .map((item: ByLawZoneListItem) => <ByLawListItem item={item} key={entityKey(item.entity)} />);
     return (
-        <Scrollable className={styles.view} vertical>
+        <Scrollable className={styles.view} vertical trackVisibility='always'>
             {listItems}
         </Scrollable>
     );

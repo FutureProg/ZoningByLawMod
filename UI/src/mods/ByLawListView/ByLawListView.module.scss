@@ -1,9 +1,11 @@
 @use '../base.scss' as _base;
 
+.view {
+    flex: 1;
+}
 .view > div {
     display: flex;
-    flex-direction: column; 
-
+    flex-direction: column;     
     padding: 4rem;
 }
 
