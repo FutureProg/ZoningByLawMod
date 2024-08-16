@@ -193,7 +193,7 @@ export const getConstraintTypes = (byLawItemType: ByLawItemType) : ByLawConstrai
         case ByLawItemType.NoisePollutionLevel:
         case ByLawItemType.GroundPollutionLevel:
         case ByLawItemType.AirPollutionLevel:
-            re.push(ByLawConstraintType.MultiSelect);
+            re.push(ByLawConstraintType.SingleSelect);
             break;
         case ByLawItemType.None:
         default:

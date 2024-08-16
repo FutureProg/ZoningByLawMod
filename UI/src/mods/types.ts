@@ -24,6 +24,13 @@ export enum ByLawZoneType {
     Office = 8
 }
 
+export enum PollutionValues {
+    None = 0,
+    Low = 1,
+    Medium = 2,
+    High = 4
+}
+
 export enum ByLawPropertyOperator {
     None = 0,
     Is = 1,

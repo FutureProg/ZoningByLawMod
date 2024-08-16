@@ -169,7 +169,7 @@ namespace ZoningByLaw.BuildingBlocks
                 case ByLawItemType.NoisePollutionLevel:
                 case ByLawItemType.GroundPollutionLevel:
                 case ByLawItemType.AirPollutionLevel:
-                    return ByLawConstraintType.MultiSelect;
+                    return ByLawConstraintType.SingleSelect;
 
                 case ByLawItemType.None:
                 default:

@@ -1,5 +1,5 @@
 import { ByLawZoneType } from "mods/types";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { VanillaComponentResolver } from "vanillacomponentresolver";
 import styles from './EnumFieldCheckboxes.module.scss';
 
@@ -8,16 +8,20 @@ export interface EnumFieldCheckboxesProps {
     enumEntries: [any, any][];
     type: 'multi' | 'single',
     onChange?: (enumValue: number) => any    
+    showZero?: boolean
 }
-export default <T,>(props: EnumFieldCheckboxesProps) => {            
-    type x = keyof T;  
+export default <T,>(props: EnumFieldCheckboxesProps) => {                
     let preEntries = props.enumEntries;  
-    // let preEntries : [any, any][] = Object.entries(typeof (props.enum as {[k: string] : string | T}));
     let entries : {[key: string]: number} = Object.fromEntries(
-        preEntries.filter((value, idx) => idx < preEntries.length/2 && Number(value[0]) != 0).map(([k,v]) => [v,k])
+        preEntries.filter(([v, k], idx) => isNaN(Number(k)) && (props.showZero? true: Number(v) != 0)).map(([k,v]) => [v,k])
     )        
-    let defaultState : Record<string, boolean> = {};    
-    Object.entries(entries).forEach(([k,v]) => defaultState[k] = (v & (props.enum as number)) !== 0);        
+    
+    let checked = useMemo(() => {
+        let nState : Record<string, boolean> = {};    
+        Object.entries(entries).forEach(([k,v]) => nState[k] = (nState[k] = v == 0 && props.enum == 0 && props.type == 'single') || (v & (props.enum as number)) !== 0);
+        return nState;        
+    }, [props.enum]);
+    
     const onCheckboxChange = (key: string) => (e: any) => {
         let nState = {...checked};
         if (props.type == 'single') {
@@ -33,14 +37,7 @@ export default <T,>(props: EnumFieldCheckboxesProps) => {
             }
         });
         props.onChange?.call(null, nEnum);
-        setChecked(nState);
     };
-
-    let [checked, setChecked] = useState(defaultState);
-    useEffect(() => {
-        Object.entries(entries).forEach(([k,v]) => defaultState[k] = (v & props.enum) !== 0);        
-        setChecked(defaultState);
-    }, [props.enum]);
     
     const list = Object.entries(entries).map(([key, value], idx) => 
         <div key={key}>

@@ -1,7 +1,8 @@
-import { ByLawConstraintType, ByLawItem, ByLawItemType, ByLawZoneType } from 'mods/types';
+import { ByLawConstraintType, ByLawItem, ByLawItemType, ByLawZoneType, PollutionValues } from 'mods/types';
 import EnumFieldCheckboxes, { EnumFieldCheckboxesProps } from '../EnumFieldCheckboxes';
 import styles from './ByLawItemEnumEditor.module.scss';
 import { useMemo, useState } from 'react';
+import { Pollution } from 'cs2/bindings';
 
 export interface ByLawItemEnumEditorProps {
     itemType: ByLawItemType;
@@ -27,12 +28,24 @@ export default (props: ByLawItemEnumEditorProps) => {
     };
     let field = useMemo(()=>{
         switch(props.itemType) {
-            case ByLawItemType.LandUse:
+            case ByLawItemType.LandUse: {
                 return EnumFieldCheckboxes<ByLawZoneType>({
                     enum: editorValue as ByLawZoneType,
                     enumEntries: Object.entries(ByLawZoneType),
                     ...childProps
                 });
+            }
+            case ByLawItemType.GroundPollutionLevel:
+            case ByLawItemType.AirPollutionLevel:
+            case ByLawItemType.NoisePollutionLevel: {
+                console.log(PollutionValues);
+                return EnumFieldCheckboxes<PollutionValues>({
+                    enum: editorValue as PollutionValues,
+                    enumEntries: Object.entries(PollutionValues),           
+                    showZero: true,                    
+                    ...childProps
+                });
+            }
             default:
                 return (<></>);
         }
