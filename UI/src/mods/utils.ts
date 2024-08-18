@@ -140,9 +140,9 @@ export const flagToStringArr = (flag: number, itemType: ByLawItemType) => {
         .map(([k, v], idx) => k);
 }
 
-export const getOperationTypes = (item: ByLawItem) : ByLawPropertyOperator[] => {
+export const getOperationTypes = (byLawItemType: ByLawItemType) : ByLawPropertyOperator[] => {
     let re : ByLawPropertyOperator[] = [];
-    switch(item.byLawItemType) {
+    switch(byLawItemType) {
         case ByLawItemType.LandUse:
             re.push(ByLawPropertyOperator.AtLeastOne);
             re.push(ByLawPropertyOperator.OnlyOneOf);
@@ -173,6 +173,8 @@ export const getOperationTypes = (item: ByLawItem) : ByLawPropertyOperator[] => 
     }
     return re;
 }
+
+export const getDefaultPropertyOperator = (byLawItemType: ByLawItemType) : ByLawPropertyOperator => getOperationTypes(byLawItemType)[0];
 
 export const getConstraintTypes = (byLawItemType: ByLawItemType) : ByLawConstraintType[] => {
     let re : ByLawConstraintType[] = [];

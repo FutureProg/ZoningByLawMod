@@ -34,7 +34,7 @@ export default ({byLawItem, onChange: onChangeCallback, onDelete: onDeleteCallba
         })
         .filter(([value, key]) => {
             let x : ByLawPropertyOperator = Number(value);            
-            return getOperationTypes(_byLawItem).indexOf(x) >= 0; 
+            return getOperationTypes(_byLawItem.byLawItemType).indexOf(x) >= 0; 
         })
         .map(([value, key], index) => {        
             return {key: splitByUpperCase(key as string), value}
