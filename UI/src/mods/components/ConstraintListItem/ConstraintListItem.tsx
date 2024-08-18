@@ -6,6 +6,7 @@ import { useState } from 'react';
 import ConstraintValueText from '../ConstraintValueText/ConstraintValueText';
 import ByLawPropertyEditSection from '../Details/ByLawPropertyEditSection';
 import classNames from 'classnames';
+import ConstraintOperatorText from '../ConstraintOperatorText/ConstraintOperatorText';
 
 type ConstraintListItemProps = {
     itemType: ByLawItemType,
@@ -47,7 +48,7 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
                     checked={enabled}
                 />
                 <div className={styles.constraintName}>{props.readableName}</div>
-                <div className={styles.operator}>{enabled ? "is" : ""}</div>
+                <ConstraintOperatorText className={styles.operator} item={props.value}/>
                 <ConstraintValueText className={styles.valueDescription} item={props.value} />
             </div>
             <div className={classNames(styles.editorSection, {[styles.open]: isOpen && enabled})}>
