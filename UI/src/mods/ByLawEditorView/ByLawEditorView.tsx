@@ -7,7 +7,6 @@ import { ConstraintListItem } from 'mods/components/ConstraintListItem/Constrain
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { TextInputTheme } from 'mods/components/TextInput/TextInput';
 import classNames from 'classnames';
-import ImageLabelButton from 'mods/atoms/ImageLabelButton';
 import { VanillaComponentResolver } from 'vanillacomponentresolver';
 import { Color } from 'cs2/bindings';
 import * as utils from 'mods/utils';
@@ -25,29 +24,29 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
     useEffect(() => {
         setColorText(utils.rgbaToHex(byLawColor[0]));
     }, [byLawColor[0]]);
-    
 
-    let onNameChange = ({target} : ChangeEvent<HTMLInputElement>) => {
+
+    let onNameChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
         setByLawName(target.value);
     }
 
     let onColorChange = (col: Color) => {
         setByLawZoneColor(col, byLawColor[1]);
     }
-    let onColorChangeHex = ({target} : ChangeEvent<HTMLInputElement>) => {
+    let onColorChangeHex = ({ target }: ChangeEvent<HTMLInputElement>) => {
         let hex = target.value;
         try {
             let newColor = utils.hexToRGBA(hex);
             onColorChange(newColor);
         } catch {
             // Was an error converting to hex, so ignoring the change
-        }        
+        }
     }
 
     let onConstraintUpdate = (newItemValue: ByLawItem) => {
         let nByLawData = utils.deepCopy(byLawData);
         let itemData = nByLawData.blocks[0].itemData;
-        nByLawData.blocks[0].itemData = itemData.map(item => item.byLawItemType == newItemValue.byLawItemType? newItemValue : item);
+        nByLawData.blocks[0].itemData = itemData.map(item => item.byLawItemType == newItemValue.byLawItemType ? newItemValue : item);
         setByLawData(nByLawData);
     }
     let onChangeConstraintEnabled = (newEnabledValue: boolean, itemType: ByLawItemType) => {
@@ -57,8 +56,9 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
                 ...utils.GetDefaultByLawItem(),
                 byLawItemType: itemType,
                 itemCategory: utils.getItemCategories(itemType),
-                constraintType: utils.getConstraintTypes(itemType)[0]
-            });            
+                constraintType: utils.getConstraintTypes(itemType)[0],
+                propertyOperator: utils.getDefaultPropertyOperator(itemType)
+            });
         } else {
             nByLawData.blocks[0].itemData = nByLawData.blocks[0].itemData.filter((item) => item.byLawItemType != itemType);
         }
@@ -70,10 +70,10 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
         Object.fromEntries(
             items.map((item) => [ByLawItemType[item.byLawItemType], item])
         )
-    , [items]);
-    let types = Object.keys(ByLawItemType)        
+        , [items]);
+    let types = Object.keys(ByLawItemType)
         .filter((key) => isNaN(Number(key)) && key != 'None')
-        .map((key) => [key, key.split(/(?<![A-Z])(?=[A-Z])/).join(' ')] as [keyof typeof ByLawItemType, string])        
+        .map((key) => [key, key.split(/(?<![A-Z])(?=[A-Z])/).join(' ')] as [keyof typeof ByLawItemType, string])
         .filter(([key, readableName]) => searchQuery && readableName ? readableName.toUpperCase().indexOf(searchQuery.toUpperCase()) >= 0 : true);
     let listItems = types.map(([key, readableName]: [keyof typeof ByLawItemType, string], idx) =>
         <ConstraintListItem
@@ -84,35 +84,35 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
             onValueChange={onConstraintUpdate}
             onChangeConstraintEnabled={onChangeConstraintEnabled}
         />
-    );    
+    );
 
     return (
         <Scrollable className={styles.view} vertical trackVisibility='always'>
-            <div className={classNames(styles.nameItem, {[styles.invisible]: searchQuery ? "NAME".indexOf(searchQuery.toUpperCase()) < 0 : false})}>
+            <div className={classNames(styles.nameItem, { [styles.invisible]: searchQuery ? "NAME".indexOf(searchQuery.toUpperCase()) < 0 : false })}>
                 <label>Name</label>
-                <input 
-                    type={'text'} 
-                    value={_byLawName} 
+                <input
+                    type={'text'}
+                    value={_byLawName}
                     className={classNames(TextInputTheme.input, styles.textBox)}
-                    onChange={({target}) => set_ByLawName(target.value)}         
+                    onChange={({ target }) => set_ByLawName(target.value)}
                     onBlur={onNameChange}
                 />
             </div>
-            <div className={classNames(styles.colorItem, {[styles.invisible]: searchQuery ? "COLOR".indexOf(searchQuery.toUpperCase()) < 0 || "COLOUR".indexOf(searchQuery.toUpperCase()) < 0 : false})}>
+            <div className={classNames(styles.colorItem, { [styles.invisible]: searchQuery ? "COLOR".indexOf(searchQuery.toUpperCase()) < 0 || "COLOUR".indexOf(searchQuery.toUpperCase()) < 0 : false })}>
                 <label>Colour</label>
                 <div>
-                    <VanillaComponentResolver.instance.ColorField 
-                        value={byLawColor[0]} 
+                    <VanillaComponentResolver.instance.ColorField
+                        value={byLawColor[0]}
                         onChange={onColorChange}
                         className={styles.colorButton}
                     />
-                    <input 
-                        type={'text'} 
-                        value={colorText} 
+                    <input
+                        type={'text'}
+                        value={colorText}
                         className={classNames(TextInputTheme.input, styles.textBox)}
-                        onChange={({target}) => setColorText(target.value)}
+                        onChange={({ target }) => setColorText(target.value)}
                         onBlur={onColorChangeHex}
-                    />                                    
+                    />
                 </div>
             </div>
             {listItems}

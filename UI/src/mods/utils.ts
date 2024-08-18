@@ -1,7 +1,7 @@
 import { LocalizedNumber, UnitSystem, useLocalization } from "cs2/l10n";
 import { BlockType, ByLawConstraintType, ByLawItem, ByLawItemCategory, ByLawItemType, ByLawPropertyOperator, ByLawZoneComponent, ByLawZoneType, LogicOperation, ZoningByLawBinding } from "./types";
 import { Bounds1, Color, Unit } from "cs2/bindings";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import hexToRgba from 'hex-to-rgba';
 
 export const GetDefaultByLawComponent = () : ByLawZoneComponent => {return {
