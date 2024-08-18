@@ -15,11 +15,11 @@ export default (props: {className?: string, item?: ByLawItem}) => {
         case ByLawConstraintType.MultiSelect: {            
             switch(props.item!.byLawItemType) {
                 case ByLawItemType.LandUse: {
-                    let value = ByLawZoneType[props.item.valueByteFlag];                    
+                    let value = props.item.valueByteFlag;
                     let count = Object.keys(ByLawZoneType)
                         .filter(key => !isNaN(Number(key)))                        
-                        .map((key, value) => ((Number(key) & value) != 0? 1 : 0) as number)
-                        .reduce((prevValue, currentValue) => prevValue + currentValue);
+                        .map((key, _) => ((Number(key) & value) != 0? 1 : 0) as number)
+                        .reduce((prevValue, currentValue) => prevValue + currentValue, 0);
                     text = `${count} item(s)`;
                     break;
                 }
