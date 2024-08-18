@@ -38,7 +38,6 @@ export default (props: ByLawItemEnumEditorProps) => {
             case ByLawItemType.GroundPollutionLevel:
             case ByLawItemType.AirPollutionLevel:
             case ByLawItemType.NoisePollutionLevel: {
-                console.log(PollutionValues);
                 return EnumFieldCheckboxes<PollutionValues>({
                     enum: editorValue as PollutionValues,
                     enumEntries: Object.entries(PollutionValues),           
