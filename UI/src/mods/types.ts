@@ -36,7 +36,9 @@ export enum ByLawPropertyOperator {
     Is = 1,
     IsNot = 2,
     AtLeastOne = 3,
-    OnlyOneOf = 4    
+    OnlyOneOf = 4,
+    AtMost = 5,
+    AtLeast = 6
 }
 
 export enum ByLawItemType {

@@ -162,6 +162,8 @@ export const getOperationTypes = (item: ByLawItem) : ByLawPropertyOperator[] => 
         case ByLawItemType.NoisePollutionLevel:
         case ByLawItemType.GroundPollutionLevel:
         case ByLawItemType.AirPollutionLevel:
+            re.push(ByLawPropertyOperator.AtMost);
+            re.push(ByLawPropertyOperator.AtLeast);
             re.push(ByLawPropertyOperator.Is);
             re.push(ByLawPropertyOperator.IsNot);
             return re;

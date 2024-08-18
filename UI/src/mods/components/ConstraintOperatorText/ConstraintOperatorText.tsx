@@ -18,6 +18,11 @@ export default (props: ({ className?: string, item?: ByLawItem })) => {
         case ByLawPropertyOperator.OnlyOneOf:
             text = "Only One Of";
             break;
+        case ByLawPropertyOperator.AtLeast:
+            text = "At Least";
+            break;
+        case ByLawPropertyOperator.AtMost:
+            text = "At Most";
         default:
             text = "";
             break;
