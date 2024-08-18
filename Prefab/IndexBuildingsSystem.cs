@@ -223,6 +223,7 @@ namespace Trejak.ZoningByLaw.Prefab
             if (processedEnts > 0)
             {
                 _initialized = true;
+                WriteToFile();
             }
             Mod.log.Info($"IndexBuildingsSystem created properties for {processedEnts} entities.");            
         }
@@ -246,6 +247,16 @@ namespace Trejak.ZoningByLaw.Prefab
             file.Write("]");
             file.Flush();
             file.Close();
+
+            filePath = Path.Combine(FileUtils.ContentFolder, "NoiseLimit.json");
+            var txt = JSON.Dump(new PollutionThresholdsSet()
+            {
+                air = airThresholds,
+                ground = groundThresholds,
+                noise = noiseThresholds
+            });
+            File.Delete(filePath);
+            File.WriteAllText(filePath, txt);
         }
 
         public void AddPropertiesReader(JobHandle jobHandle)

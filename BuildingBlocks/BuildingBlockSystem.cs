@@ -86,15 +86,15 @@ namespace ZoningByLaw.BuildingBlocks
                 thresholdData = job.pollutionsThresholds.noise;
             }
 
-            if (basePollutionValue >= thresholdData.low && pollutionLimit == ByLawPollutionThreshold.None)
+            if (basePollutionValue > thresholdData.low && pollutionLimit == ByLawPollutionThreshold.None)
             {
                 return false;
             }
-            if (basePollutionValue >= thresholdData.medium && pollutionLimit <= ByLawPollutionThreshold.Low)
+            if (basePollutionValue > thresholdData.medium && pollutionLimit <= ByLawPollutionThreshold.Low)
             {
                 return false;
             }
-            if (basePollutionValue >= thresholdData.high && pollutionLimit <= ByLawPollutionThreshold.Medium)
+            if (basePollutionValue > thresholdData.high && pollutionLimit <= ByLawPollutionThreshold.Medium)
             {
                 return false;
             }
