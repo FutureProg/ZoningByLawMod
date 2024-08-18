@@ -1,12 +1,5 @@
 ﻿using Colossal.Mathematics;
-using Game.Buildings;
 using Game.Prefabs;
-using Game.Rendering;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Trejak.ZoningByLaw;
 using Trejak.ZoningByLaw.BuildingBlocks;
 using Trejak.ZoningByLaw.Prefab;
@@ -164,7 +157,14 @@ namespace ZoningByLaw.BuildingBlocks
                     return EvalBounds(item.valueBounds1, lotSize);
                 case ByLawItemType.LotWidth:
                     return EvalBounds(item.valueBounds1, buildingData.m_LotSize.x * 8);
-                    
+                case ByLawItemType.FrontSetback:
+                    return EvalBounds(item.valueBounds1, properties.buildingSetbackFront);
+                case ByLawItemType.RearSetback:
+                    return EvalBounds(item.valueBounds1, properties.buildingSetBackRear);                    
+                case ByLawItemType.LeftSetback:
+                    return EvalBounds(item.valueBounds1, properties.buildingSetBackLeft);
+                case ByLawItemType.RightSetback:
+                    return EvalBounds(item.valueBounds1, properties.buildingSetBackRight);                    
                 default:
                     return false;
             }
