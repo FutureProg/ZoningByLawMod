@@ -1,7 +1,7 @@
 import { Button, FOCUS_AUTO, Panel, Scrollable } from "cs2/ui";
 import styles from './mainpanel.module.scss';
 import { useValue } from "cs2/api";
-import { byLawZoneList$, createNewByLaw, deleteByLaw, isConfigPanelOpen$, setActiveByLaw, setConfigPanelOpen } from "./bindings";
+import { byLawZoneList$, createNewByLaw, deleteByLaw, isConfigPanelOpen$, setActiveByLaw, toggleTool } from "./bindings";
 import { ByLawZoneListItem } from "./types";
 import { useEffect, useRef, useState } from "react";
 import { ByLawDetailsPanel } from "./ByLawDetailsPanel";
@@ -14,7 +14,7 @@ export const MainPanel = () => {
     const onClose = () => {
         setActiveByLaw({index: 0, version: 0});        
         setSelectedListItem(-1);        
-        setConfigPanelOpen(false);
+        toggleTool();
     }    
     const selectedAsset = useValue(toolbar.selectedAsset$);    
     let [prevSelectedAsset, setPrevSelectedAsset] = useState<Entity>({index: 0, version: 0});       

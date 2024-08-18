@@ -223,7 +223,6 @@ namespace Trejak.ZoningByLaw.Prefab
             if (processedEnts > 0)
             {
                 _initialized = true;
-                WriteToFile();
             }
             Mod.log.Info($"IndexBuildingsSystem created properties for {processedEnts} entities.");            
         }

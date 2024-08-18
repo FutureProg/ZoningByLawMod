@@ -45,3 +45,7 @@ export const setByLawZoneColor = (zoneColor: Color, borderColor: Color) => {
 export const toggleByLawRenderPreview = () => {
     trigger(mod.fullname, "ToggleByLawRenderPreview");
 }
+
+export const toggleTool = () => {
+    trigger(mod.fullname, "ToggleTool");
+}

@@ -45,7 +45,6 @@ namespace Trejak.ZoningByLaw.Systems
         private TerrainSystem _terrainSystem;
         private ByLawRenderPreviewSystem _previewRenderSystem;
         private ConfigPanelUISystem _bylawUISystem;
-
         private ProxyAction _applyAction;
 
         protected override void OnCreate()
@@ -55,23 +54,22 @@ namespace Trejak.ZoningByLaw.Systems
             _previewRenderSystem = World.GetOrCreateSystemManaged<ByLawRenderPreviewSystem>();
 
             _applyAction = InputManager.instance.FindAction("Tool", "Apply");
+            _bylawUISystem = World.GetOrCreateSystemManaged<ConfigPanelUISystem>();
+            
 
             Enabled = false;            
         }
 
         protected override void OnStartRunning()
         {
-            base.OnStartRunning();
-            _applyAction.shouldBeEnabled = true;
+            base.OnStartRunning();            
+            this.SetState(State.Default);
         }
 
         protected override void OnStopRunning()
         {
-            base.OnStopRunning();
-            _applyAction.shouldBeEnabled = false;
-            _previewRenderSystem.Enabled = false;
-            _previewRenderSystem.drawPosition = null;
-            byLawZoneData = null;
+            base.OnStopRunning();            
+            this.SetState(State.None);
         }
 
         public override PrefabBase GetPrefab()
@@ -90,12 +88,21 @@ namespace Trejak.ZoningByLaw.Systems
             switch (state)
             {
                 case State.None:
+                    _applyAction.shouldBeEnabled = false;
+                    _previewRenderSystem.Enabled = false;
+                    _previewRenderSystem.drawPosition = null;
+                    byLawZoneData = null;
+                    _bylawUISystem.SetConfigPanelOpen(false);
                     break;
                 case State.Default:
+                    _applyAction.shouldBeEnabled = false;
+                    _bylawUISystem.SetConfigPanelOpen(true);
                     break;
                 case State.PlopPreview:
+                    _applyAction.shouldBeEnabled = true;
                     break;
                 case State.PreviewRunning:
+                    _applyAction.shouldBeEnabled = false;
                     break;
                 default:
                     break;

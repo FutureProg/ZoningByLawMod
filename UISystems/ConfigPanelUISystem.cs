@@ -32,7 +32,7 @@ namespace Trejak.ZoningByLaw.UI
     {
 
         private PrefabSystem _prefabSystem;
-        private ZoningByLawToolSystem _bylawRenderSystem;
+        private ZoningByLawToolSystem _byLawToolSystem;
         private ToolSystem _toolSystem;
         //private ToolbarUISystem _toolbarUISystem;
         //private RawMapBinding<Entity> _toolBarUIAssetsBinding;
@@ -86,7 +86,7 @@ namespace Trejak.ZoningByLaw.UI
             _prefabSystem = this.World.GetOrCreateSystemManaged<PrefabSystem>();
             _zoneSystem = this.World.GetOrCreateSystemManaged<ZoneSystem>();            
             _endFrameBarrier = this.World.GetOrCreateSystemManaged<EndFrameBarrier>();
-            _bylawRenderSystem = this.World.GetOrCreateSystemManaged<ZoningByLawToolSystem>();
+            _byLawToolSystem = this.World.GetOrCreateSystemManaged<ZoningByLawToolSystem>();
             _toolSystem = this.World.GetOrCreateSystemManaged<ToolSystem>();
             GetBasePrefab();
 
@@ -102,6 +102,7 @@ namespace Trejak.ZoningByLaw.UI
             _createNewByLaw =  CreateTrigger("CreateNewByLaw", CreateNewByLaw);
             _deleteByLaw = CreateTrigger("DeleteByLaw", DeleteByLaw);            
             this.AddBinding(_setConfigPanelOpen = new TriggerBinding<bool>(uiGroupName, "SetConfigPanelOpen", SetConfigPanelOpen));
+            this.CreateTrigger("ToggleTool", this.ToggleTool);
             this.AddBinding(_setByLawName = new TriggerBinding<string>(uiGroupName, "SetByLawName", SetByLawName));
             this.AddBinding(_setByLawZoneColour = new TriggerBinding<Color, Color>(uiGroupName, "SetByLawZoneColour", SetByLawZoneColour));
             //this.AddBinding(_toggleByLawRenderPreview = new TriggerBinding(uiGroupName, "ToggleByLawRenderPreview", ToggleByLawRenderPreview));
@@ -135,13 +136,24 @@ namespace Trejak.ZoningByLaw.UI
             SaveActiveByLawToDisk();
         }
 
+        public void ToggleTool()
+        {
+            if (_toolSystem.activeTool == _byLawToolSystem)
+            {
+                _byLawToolSystem.SetToolEnabled(false);
+            } else
+            {
+                _byLawToolSystem.SetToolEnabled(true);
+            }
+        }
+
         public void SetConfigPanelOpen(bool newValue)
         {
             if (newValue)
             {
-                UpdateByLawList();
+                UpdateByLawList();                
             }
-            _configPanelOpen.Update(newValue);
+            _configPanelOpen.Update(newValue);            
         }
 
         void SetActiveByLaw(Entity entity)

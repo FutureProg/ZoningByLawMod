@@ -14,7 +14,7 @@ export default (props: {className?: string, item?: ByLawItem}) => {
         }
         case ByLawConstraintType.MultiSelect: {            
             switch(props.item!.byLawItemType) {
-                case ByLawItemType.LandUse: {
+                default: {
                     let value = props.item.valueByteFlag;
                     let count = Object.keys(ByLawZoneType)
                         .filter(key => !isNaN(Number(key)))                        
@@ -25,6 +25,9 @@ export default (props: {className?: string, item?: ByLawItem}) => {
                 }
             }
             break;
+        }
+        case ByLawConstraintType.SingleSelect: {
+
         }
     }
     return (

@@ -1,5 +1,5 @@
 import { useValue } from "cs2/api"
-import { isConfigPanelOpen$, setConfigPanelOpen } from "./bindings"
+import { isConfigPanelOpen$, toggleTool } from "./bindings"
 import { Button, FOCUS_AUTO, FOCUS_DISABLED } from "cs2/ui";
 import { ModuleRegistryExtend } from "cs2/modding";
 import { tool, toolbar } from "cs2/bindings";
@@ -11,9 +11,8 @@ export const ConfigPanelToggleButton : ModuleRegistryExtend = (Component) => {
     return (props) => {
         const { children, ...otherProps } = props || {};
         let activeTool = useValue(tool.activeTool$);
-        let isPanelOpen = useValue(isConfigPanelOpen$);
         let onClick = () => {
-            setConfigPanelOpen(!isPanelOpen);
+            toggleTool();
         }
         let button = activeTool.id != tool.ZONE_TOOL? <></> : (
             <VanillaComponentResolver.instance.Section>
