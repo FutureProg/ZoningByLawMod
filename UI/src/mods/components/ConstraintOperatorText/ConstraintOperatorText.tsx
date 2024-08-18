@@ -23,6 +23,7 @@ export default (props: ({ className?: string, item?: ByLawItem })) => {
             break;
         case ByLawPropertyOperator.AtMost:
             text = "At Most";
+            break;
         default:
             text = "";
             break;

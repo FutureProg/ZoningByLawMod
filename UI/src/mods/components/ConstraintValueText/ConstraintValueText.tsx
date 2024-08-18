@@ -1,4 +1,4 @@
-import { BOUNDS_VALUE_DISABLED, ByLawConstraintType, ByLawItem, ByLawItemType, ByLawZoneType } from "mods/types";
+import { BOUNDS_VALUE_DISABLED, ByLawConstraintType, ByLawItem, ByLawItemType, ByLawZoneType, PollutionValues } from "mods/types";
 
 export default (props: {className?: string, item?: ByLawItem}) => {
     let text = "";
@@ -27,7 +27,14 @@ export default (props: {className?: string, item?: ByLawItem}) => {
             break;
         }
         case ByLawConstraintType.SingleSelect: {
-
+            let value = props.item.valueByteFlag;
+            switch(props.item!.byLawItemType) {
+                case ByLawItemType.AirPollutionLevel:
+                case ByLawItemType.GroundPollutionLevel:
+                case ByLawItemType.NoisePollutionLevel:
+                    text = PollutionValues[value];
+                    break;
+            }
         }
     }
     return (
