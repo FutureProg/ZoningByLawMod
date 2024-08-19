@@ -158,13 +158,13 @@ namespace ZoningByLaw.BuildingBlocks
                 case ByLawItemType.LotWidth:
                     return EvalBounds(item.valueBounds1, buildingData.m_LotSize.x * 8);
                 case ByLawItemType.FrontSetback:
-                    return EvalBounds(item.valueBounds1, properties.buildingSetbackFront);
+                    return properties.checkedBuildingSetBack && EvalBounds(item.valueBounds1, properties.buildingSetbackFront);
                 case ByLawItemType.RearSetback:
-                    return EvalBounds(item.valueBounds1, properties.buildingSetBackRear);                    
+                    return properties.checkedBuildingSetBack && EvalBounds(item.valueBounds1, properties.buildingSetBackRear);                    
                 case ByLawItemType.LeftSetback:
-                    return EvalBounds(item.valueBounds1, properties.buildingSetBackLeft);
+                    return properties.checkedBuildingSetBack && EvalBounds(item.valueBounds1, properties.buildingSetBackLeft);
                 case ByLawItemType.RightSetback:
-                    return EvalBounds(item.valueBounds1, properties.buildingSetBackRight);                    
+                    return properties.checkedBuildingSetBack && EvalBounds(item.valueBounds1, properties.buildingSetBackRight);                    
                 default:
                     return false;
             }
