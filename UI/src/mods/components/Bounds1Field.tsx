@@ -24,19 +24,32 @@ export const Bounds1Field = (props: Bounds1FieldProps) => {
             ...props.bounds,
             [field]: value
         };
-        if (nBounds.min > nBounds.max && nBounds.max > -1) {
-            return;
-        }
+        let {min, max} = nBounds;
+        if (max != BOUNDS_VALUE_DISABLED && min != BOUNDS_VALUE_DISABLED) {
+            if (field == 'min' && min > max) {
+                max = min;
+            } else if (field == 'max' && max < min) {
+                min = max;
+            }
+        }        
+        nBounds = {min, max};
         if (props.onChange) {
             props.onChange(props.name, nBounds);
         }
     }
 
     const onToggleEnable = (sender: keyof Bounds1) => useCallback(() => {
-        onInputChange(sender)(props.bounds[sender] == BOUNDS_VALUE_DISABLED ? 0 : -1);
+        let nValue = props.bounds[sender] == BOUNDS_VALUE_DISABLED ? 0 : BOUNDS_VALUE_DISABLED;
+        let {min, max} = props.bounds;
+        if (nValue != BOUNDS_VALUE_DISABLED) {
+            if (sender == 'min' && nValue > max && max != BOUNDS_VALUE_DISABLED) {
+                nValue = max;
+            } else if (sender == 'max' && nValue < min && min != BOUNDS_VALUE_DISABLED) {
+                nValue = min;
+            }
+        }
+        onInputChange(sender)(nValue);
     }, [onInputChange]);
-    const textInputTheme = VanillaComponentResolver.instance.textInputTheme;
-    const toolButtonTheme = VanillaComponentResolver.instance.toolButtonTheme;
 
     let isMinEnabled = props.bounds.min != BOUNDS_VALUE_DISABLED;
     let isMaxEnabled = props.bounds.max != BOUNDS_VALUE_DISABLED;
