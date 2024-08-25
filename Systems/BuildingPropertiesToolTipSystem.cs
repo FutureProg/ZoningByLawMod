@@ -15,7 +15,13 @@ namespace Trejak.ZoningByLaw.Systems
         private IndexBuildingsSystem _indexBuildingsSystem;
         private ZoningByLawToolSystem _bylawToolSystem;
 
-        private FloatTooltip _heightTooltip;
+        private FloatTooltip _heightTip;
+        private FloatTooltip _lotSizeTip;
+        private FloatTooltip _frontSetbackTip;
+        private FloatTooltip _rearSetbackTip;
+        private FloatTooltip _rightSetbackTip;
+        private FloatTooltip _leftSetbackTip;
+
 
         protected override void OnCreate()
         {
@@ -25,11 +31,46 @@ namespace Trejak.ZoningByLaw.Systems
             _bylawToolSystem = World.GetOrCreateSystemManaged<ZoningByLawToolSystem>();
             _indexBuildingsSystem = World.GetOrCreateSystemManaged<IndexBuildingsSystem>();
 
-            _heightTooltip = new FloatTooltip()
+            _heightTip = new FloatTooltip()
             {
                 path = "BuildingHeight",
                 icon = "Media/Glyphs/Length.svg",
                 label = "Height",//LocalizedString.Id("ZBL.Constraints[HEIGHT]"),
+                unit = "length"
+            };
+            _lotSizeTip = new FloatTooltip()
+            {
+                path = "BuildingLotSize",
+                icon = "Media/Glyphs/Length.svg",
+                label = "Lot Size",
+                unit = "length"
+            };
+            _frontSetbackTip = new FloatTooltip()
+            {
+                path = "BuildingFrontSetback",
+                icon = "Media/Glyphs/Length.svg",
+                label = "Front Setback",
+                unit = "length"
+            };
+            _rearSetbackTip = new FloatTooltip()
+            {
+                path = "BuildingRearSetback",
+                icon = "Media/Glyphs/Length.svg",
+                label = "Rear Setback",
+                unit = "length"
+            };
+            _leftSetbackTip = new FloatTooltip()
+            {
+                path = "BuildingLeftSetback",
+                icon = "Media/Glyphs/Length.svg",
+                label = "Rear Setback",
+                unit = "length"
+            };
+            _rightSetbackTip = new FloatTooltip()
+            {
+                path = "BuildingRightSetback",
+                icon = "Media/Glyphs/Length.svg",
+                label = "Right Setback",
                 unit = "length"
             };
         }
@@ -42,8 +83,16 @@ namespace Trejak.ZoningByLaw.Systems
                 var prefab = prefabRef.m_Prefab;
                 if (_indexBuildingsSystem.TryGetProperties(prefabRef, out BuildingByLawProperties properties))
                 {
-                    _heightTooltip.value = properties.buildingHeight;                    
-                    base.AddMouseTooltip(_heightTooltip);                    
+                    _heightTip.value = properties.buildingHeight;
+                    _frontSetbackTip.value = properties.buildingSetbackFront;
+                    _rearSetbackTip.value = properties.buildingSetBackRear;
+                    _leftSetbackTip.value = properties.buildingSetBackLeft;
+                    _rightSetbackTip.value = properties.buildingSetBackRight;
+                    base.AddMouseTooltip(_heightTip);
+                    base.AddMouseTooltip(_frontSetbackTip);
+                    base.AddMouseTooltip(_rearSetbackTip);
+                    base.AddMouseTooltip(_leftSetbackTip);
+                    base.AddMouseTooltip(_rightSetbackTip);
                 }
             }            
         }
