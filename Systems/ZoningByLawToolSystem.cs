@@ -1,9 +1,12 @@
-﻿using Game.Common;
+﻿using Colossal.Entities;
+using Game.Buildings;
+using Game.Common;
 using Game.Input;
 using Game.Notifications;
 using Game.Prefabs;
 using Game.Simulation;
 using Game.Tools;
+using Trejak.ZoningByLaw.Prefab;
 using Trejak.ZoningByLaw.UI;
 using Trejak.ZoningByLaw.UISystems;
 using Unity.Entities;
@@ -32,18 +35,22 @@ namespace Trejak.ZoningByLaw.Systems
 
         private TerrainSystem _terrainSystem;
         private ByLawRenderPreviewSystem _previewRenderSystem;
+        private IndexBuildingsSystem _indexSystem;
         private ConfigPanelUISystem _bylawUISystem;
         private ProxyAction _applyAction;
+
+        private Entity _lastHoveredEntity;
 
         protected override void OnCreate()
         {
             base.OnCreate();
             _terrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
+            _indexSystem = World.GetOrCreateSystemManaged<IndexBuildingsSystem>();
             _previewRenderSystem = World.GetOrCreateSystemManaged<ByLawRenderPreviewSystem>();
 
             _applyAction = InputManager.instance.FindAction("Tool", "Apply");
             _bylawUISystem = World.GetOrCreateSystemManaged<ConfigPanelUISystem>();
-            
+            _lastHoveredEntity = Entity.Null;
 
             Enabled = false;            
         }
@@ -119,6 +126,14 @@ namespace Trejak.ZoningByLaw.Systems
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
+            switch(this.state)
+            {
+                case State.Default:
+                default:
+                    HighlightHoveredBuilding();
+                    break;
+            }
+
             if (byLawZoneData.HasValue)
             {                                
                 if (_applyAction.WasPressedThisFrame())
@@ -135,6 +150,34 @@ namespace Trejak.ZoningByLaw.Systems
                 }
             }            
             return base.OnUpdate(inputDeps);
+        }
+
+        private void HighlightHoveredBuilding()
+        {
+            if (GetRaycastResult(out Entity entity, out RaycastHit hit, out bool forceUpdate)
+                && !forceUpdate
+                && EntityManager.HasComponent<Building>(entity)
+                && EntityManager.TryGetComponent<PrefabRef>(entity, out var prefabRef)
+                && _indexSystem.TryGetProperties(prefabRef, out BuildingByLawProperties properties)                
+                && !EntityManager.HasComponent<Highlighted>(entity))
+            {
+                ClearLastHoveredBuilding();                
+                EntityManager.AddComponent<Highlighted>(entity);
+                EntityManager.AddComponent<BatchesUpdated>(entity);
+                _lastHoveredEntity = entity;
+            } else {
+                ClearLastHoveredBuilding();
+            }
+        }
+
+        private void ClearLastHoveredBuilding()
+        {
+            if (_lastHoveredEntity != Entity.Null)
+            {
+                EntityManager.RemoveComponent<Highlighted>(_lastHoveredEntity);
+                EntityManager.AddComponent<BatchesUpdated>(_lastHoveredEntity);
+                _lastHoveredEntity = Entity.Null;
+            }            
         }
 
         public void SetByLawData(ZoningByLawBinding bylawData)
