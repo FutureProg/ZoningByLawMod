@@ -62,6 +62,8 @@ public class Mod : IMod
         updateSystem.UpdateAt<ZoningByLawToolSystem>(SystemUpdatePhase.ToolUpdate);
         updateSystem.UpdateAfter<ByLawRenderPreviewSystem, AreaRenderSystem>(SystemUpdatePhase.Rendering);
 
+        updateSystem.UpdateAt<BuildingPropertiesToolTipSystem>(SystemUpdatePhase.UITooltip);
+
         var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
         var prefabs = Traverse.Create(prefabSystem).Field<List<PrefabBase>>("m_Prefabs").Value;
         var basePrefab = prefabs.FirstOrDefault(p => p.name == "NA Residential Medium");

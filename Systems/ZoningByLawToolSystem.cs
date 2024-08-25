@@ -1,25 +1,13 @@
-﻿using Colossal.IO.AssetDatabase.Internal;
-using Colossal.Mathematics;
-using Game;
-using Game.Common;
+﻿using Game.Common;
 using Game.Input;
+using Game.Notifications;
 using Game.Prefabs;
-using Game.Rendering;
 using Game.Simulation;
 using Game.Tools;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Trejak.ZoningByLaw.Prefab;
 using Trejak.ZoningByLaw.UI;
 using Trejak.ZoningByLaw.UISystems;
-using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
-using UnityEngine;
 
 namespace Trejak.ZoningByLaw.Systems
 {
@@ -112,8 +100,21 @@ namespace Trejak.ZoningByLaw.Systems
         public override void InitializeRaycast()
         {
             base.InitializeRaycast();
-            m_ToolRaycastSystem.collisionMask = (CollisionMask.OnGround | CollisionMask.Overground);
-            m_ToolRaycastSystem.typeMask = TypeMask.Terrain;            
+            switch(state)
+            {                
+                case State.PlopPreview:
+                    m_ToolRaycastSystem.collisionMask = (CollisionMask.OnGround | CollisionMask.Overground);
+                    m_ToolRaycastSystem.typeMask = TypeMask.Terrain;
+                    break;
+                case State.Default:
+                default:                    
+                    m_ToolRaycastSystem.typeMask = TypeMask.StaticObjects;
+                    m_ToolRaycastSystem.collisionMask = (CollisionMask.OnGround | CollisionMask.Overground);
+                    m_ToolRaycastSystem.netLayerMask = Game.Net.Layer.None;
+                    m_ToolRaycastSystem.iconLayerMask = IconLayerMask.Default;
+                    m_ToolRaycastSystem.raycastFlags |= RaycastFlags.SubBuildings;
+                    break;
+            }
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)

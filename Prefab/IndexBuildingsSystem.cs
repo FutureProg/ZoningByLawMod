@@ -1,21 +1,13 @@
-﻿using Colossal.Collections;
-using Colossal.Json;
+﻿using Colossal.Json;
 using Colossal.Serialization.Entities;
 using Game;
-using Game.Areas;
 using Game.Buildings;
 using Game.Common;
 using Game.Prefabs;
-using Game.Rendering;
-using Game.UI.Editor;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Trejak.ZoningByLaw.Serialization;
-using Unity.Burst.Intrinsics;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -261,6 +253,12 @@ namespace Trejak.ZoningByLaw.Prefab
         public void AddPropertiesReader(JobHandle jobHandle)
         {
             this._propertiesReaders = JobHandle.CombineDependencies(this._propertiesReaders, jobHandle);
+        }
+
+        public bool TryGetProperties(PrefabRef prefabRef, out BuildingByLawProperties properties)
+        {
+            var prefabData = SystemAPI.GetComponentRO<PrefabData>(prefabRef.m_Prefab);
+            return TryGetProperties(prefabData.ValueRO, out properties);
         }
 
         public bool TryGetProperties(PrefabData prefabData, out BuildingByLawProperties properties)
