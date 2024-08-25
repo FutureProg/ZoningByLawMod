@@ -25,6 +25,7 @@ using System.Text;
 using Colossal.UI;
 using Trejak.ZoningByLaw.Tests;
 using Game.UI.InGame;
+using Game.Settings;
 
 namespace Trejak.ZoningByLaw;
 
@@ -109,6 +110,22 @@ public class Mod : IMod
         foreach (var patchedMethod in patchedMethods)
         {
             log.Info($"Patched method: {patchedMethod.Module.Name}:{patchedMethod.Name}");
+        }
+    }
+
+    public static InterfaceSettings GameInterfaceSettings
+    {
+        get
+        {
+            return GameManager.instance?.settings?.userInterface;
+        }
+    }
+
+    public static InterfaceSettings.UnitSystem GameMeasurementUnitSystem
+    {
+        get
+        {
+            return GameInterfaceSettings?.unitSystem ?? InterfaceSettings.UnitSystem.Metric;
         }
     }
 

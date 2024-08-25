@@ -11,6 +11,7 @@ using Trejak.ZoningByLaw.Serialization;
 using Trejak.ZoningByLaw.UISystems;
 using System.Linq;
 using UnityEngine.Profiling;
+using Game.Settings;
 
 namespace Trejak.ZoningByLaw
 {
@@ -37,6 +38,14 @@ namespace Trejak.ZoningByLaw
             //GameManager.instance.localizationManager.activeDictionary.Add(textId, text);
         }        
 
+        public static float GetMeasurement(float metres)
+        {
+            return Mod.GameMeasurementUnitSystem switch
+            {
+                InterfaceSettings.UnitSystem.Freedom => metres * 3f,
+                _ => metres,
+            };
+        }
         public static ByLawRecord ByLawRecordFromEntity(Entity entity, EntityManager em)
         {
             var zonePrefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(entity);
