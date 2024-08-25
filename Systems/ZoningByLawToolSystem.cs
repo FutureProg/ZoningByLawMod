@@ -3,6 +3,7 @@ using Game.Buildings;
 using Game.Common;
 using Game.Input;
 using Game.Notifications;
+using Game.Objects;
 using Game.Prefabs;
 using Game.Simulation;
 using Game.Tools;
@@ -158,13 +159,16 @@ namespace Trejak.ZoningByLaw.Systems
                 && !forceUpdate
                 && EntityManager.HasComponent<Building>(entity)
                 && EntityManager.TryGetComponent<PrefabRef>(entity, out var prefabRef)
-                && _indexSystem.TryGetProperties(prefabRef, out BuildingByLawProperties properties)                
-                && !EntityManager.HasComponent<Highlighted>(entity))
+                && !EntityManager.HasComponent<UnderConstruction>(entity)
+                && _indexSystem.TryGetProperties(prefabRef, out BuildingByLawProperties properties))
             {
-                ClearLastHoveredBuilding();                
-                EntityManager.AddComponent<Highlighted>(entity);
-                EntityManager.AddComponent<BatchesUpdated>(entity);
-                _lastHoveredEntity = entity;
+                if (!EntityManager.HasComponent<Highlighted>(entity))
+                {
+                    ClearLastHoveredBuilding();
+                    EntityManager.AddComponent<Highlighted>(entity);
+                    EntityManager.AddComponent<BatchesUpdated>(entity);
+                    _lastHoveredEntity = entity;
+                }
             } else {
                 ClearLastHoveredBuilding();
             }
