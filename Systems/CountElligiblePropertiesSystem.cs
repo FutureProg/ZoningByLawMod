@@ -9,20 +9,17 @@ using Trejak.ZoningByLaw.BuildingBlocks;
 using Trejak.ZoningByLaw.Prefab;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using ZoningByLaw.BuildingBlocks;
 
 namespace Trejak.ZoningByLaw.Systems
 {
     public partial class CountElligiblePropertiesSystem : GameSystemBase
     {
-        EntityQuery _bylawsQuery;
+        public NativeQueue<Entity> byLawQueue;
+        private EntityQuery _bylawsQuery;
         EntityQuery _buildingsQuery;
         private IndexBuildingsSystem _indexBuildingsSystem;
-
-        public override int GetUpdateInterval(SystemUpdatePhase phase)
-        {
-            return 8;
-        }
 
         protected override void OnCreate()
         {
@@ -40,11 +37,16 @@ namespace Trejak.ZoningByLaw.Systems
             );
 
             _indexBuildingsSystem = World.GetOrCreateSystemManaged<IndexBuildingsSystem>();
-            this.RequireForUpdate(_bylawsQuery);
+            byLawQueue = new NativeQueue<Entity>(Allocator.Persistent);
             this.RequireForUpdate(_buildingsQuery);
+            this.RequireForUpdate(_bylawsQuery);
         }
         protected override void OnUpdate()
         {
+            if (byLawQueue.Count == 0)
+            {
+                return;
+            }
             var evalParams = new BuildingBlockSystem.EvaluationParams()
             {
                 objectdataLookup = SystemAPI.GetComponentLookup<ObjectData>(true),
@@ -66,14 +68,33 @@ namespace Trejak.ZoningByLaw.Systems
                 prefabDataLookup = SystemAPI.GetComponentLookup<PrefabData>(true),
                 buildingDataLookup = GetComponentLookup<BuildingData>(true),
                 buildingPropertyDataLookup = GetComponentLookup<BuildingPropertyData>(true),
-                objectGeometryLookup = GetComponentLookup<ObjectGeometryData>(true)
+                objectGeometryLookup = GetComponentLookup<ObjectGeometryData>(true),
+                bylaws = byLawQueue.ToArray(Allocator.TempJob)
             };
-            this.Dependency = elligiblePropertiesJob.Schedule(_bylawsQuery, this.Dependency);
+            byLawQueue.Clear();
+            this.Dependency = elligiblePropertiesJob.ScheduleParallel(this.Dependency);          
         }
 
+        public void EnqueueUpdate(Entity byLawZoneDataEntity)
+        {
+            byLawQueue.Enqueue(byLawZoneDataEntity);
+        }
+
+        protected override void OnStartRunning()
+        {
+            base.OnStartRunning();
+            byLawQueue = new NativeQueue<Entity>(Allocator.Persistent);
+        }
+
+        protected override void OnStopRunning()
+        {
+            base.OnStopRunning();
+            byLawQueue.Dispose(this.Dependency);
+        }
 
         public partial struct CountElligiblePropertiesJob : IJobEntity
         {
+            public NativeArray<Entity> bylaws;
             public NativeArray<Entity> buildingEntities;
             public BuildingByLawPropertiesLookup buildingByLawPropertiesLookup;
             public ComponentLookup<BuildingData> buildingDataLookup;
@@ -88,9 +109,12 @@ namespace Trejak.ZoningByLaw.Systems
 
             public BuildingBlockSystem.EvaluationParams evaluationParams;            
 
-            public void Execute(ref ByLawZoneData bylaw, DynamicBuffer<ByLawBlockReference> blockReferences)
+            public void Execute(Entity entity, ref ByLawZoneData bylaw, DynamicBuffer<ByLawBlockReference> blockReferences)
             {
-
+                if (!bylaws.Contains(entity))
+                {
+                    return;
+                }
                 int elligibleCount = 0;
                 foreach(Entity buildingEntity in buildingEntities)
                 {
