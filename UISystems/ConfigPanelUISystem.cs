@@ -34,6 +34,8 @@ namespace Trejak.ZoningByLaw.UI
         private PrefabSystem _prefabSystem;
         private ZoningByLawToolSystem _byLawToolSystem;
         private ToolSystem _toolSystem;
+        private CountElligiblePropertiesSystem _elligibleBuildingsSystem;
+
         //private ToolbarUISystem _toolbarUISystem;
         //private RawMapBinding<Entity> _toolBarUIAssetsBinding;
         //private Traverse _toolbarUIClearAssetSelection;
@@ -88,6 +90,7 @@ namespace Trejak.ZoningByLaw.UI
             _endFrameBarrier = this.World.GetOrCreateSystemManaged<EndFrameBarrier>();
             _byLawToolSystem = this.World.GetOrCreateSystemManaged<ZoningByLawToolSystem>();
             _toolSystem = this.World.GetOrCreateSystemManaged<ToolSystem>();
+            _elligibleBuildingsSystem = this.World.GetOrCreateSystemManaged<CountElligiblePropertiesSystem>();
             GetBasePrefab();
 
             this.AddBinding(_selectedByLaw = new ValueBinding<Entity>(uiGroupName, "SelectedByLaw", Entity.Null));
@@ -100,15 +103,26 @@ namespace Trejak.ZoningByLaw.UI
             this.AddBinding(_setActiveByLaw = new TriggerBinding<Entity>(uiGroupName, "SetActiveByLaw", SetActiveByLaw));
             _setByLawData = CreateTrigger<ZoningByLawBinding>("SetByLawData", SetByLawData);
             _createNewByLaw =  CreateTrigger("CreateNewByLaw", CreateNewByLaw);
-            _deleteByLaw = CreateTrigger("DeleteByLaw", DeleteByLaw);            
+            _deleteByLaw = CreateTrigger("DeleteByLaw", DeleteByLaw);
+
+            this.AddUpdateBinding(new GetterValueBinding<int>(uiGroupName, "ElligibleBuildings", GetElligibleBuildingCount));
             this.AddBinding(_setConfigPanelOpen = new TriggerBinding<bool>(uiGroupName, "SetConfigPanelOpen", SetConfigPanelOpen));
             this.CreateTrigger("ToggleTool", this.ToggleTool);
             this.AddBinding(_setByLawName = new TriggerBinding<string>(uiGroupName, "SetByLawName", SetByLawName));
-            this.AddBinding(_setByLawZoneColour = new TriggerBinding<Color, Color>(uiGroupName, "SetByLawZoneColour", SetByLawZoneColour));
+            this.AddBinding(_setByLawZoneColour = new TriggerBinding<Color, Color>(uiGroupName, "SetByLawZoneColour", SetByLawZoneColour));            
             //this.AddBinding(_toggleByLawRenderPreview = new TriggerBinding(uiGroupName, "ToggleByLawRenderPreview", ToggleByLawRenderPreview));
 
             eqb.Dispose();
         }        
+
+        int GetElligibleBuildingCount()
+        {
+            if (_selectedByLaw.value == Entity.Null || !EntityManager.TryGetComponent<ByLawZoneData>(_selectedByLaw.value, out var bylawData))
+            {
+                return -1;
+            }
+            return bylawData.elligibleBuildings;
+        }
 
         // TODO: this
         //void ToggleByLawRenderPreview()
@@ -173,6 +187,7 @@ namespace Trejak.ZoningByLaw.UI
             } else
             {
                 data = ZoningByLawBinding.FromEntity(entity, EntityManager);
+                _elligibleBuildingsSystem.EnqueueUpdate(entity);
             }
             bool result = _prefabSystem.TryGetPrefab<ByLawZonePrefab>(entity, out var prefab);            
             this._selectedByLawData.Value = data;
@@ -192,9 +207,11 @@ namespace Trejak.ZoningByLaw.UI
             Mod.log.Info("Set By Law Data: " + data.ToJSONString());
             data.UpdateEntity(_selectedByLaw.value, this.EntityManager);            
             var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(_selectedByLaw.value);            
-            prefab.Update(data);     
+            prefab.Update(data);
+            _elligibleBuildingsSystem.EnqueueUpdate(_selectedByLaw.value);
             GameManager.instance.localizationManager.ReloadActiveLocale();
-            Utils.SetPrefabText(prefab, data);            
+            Utils.SetPrefabText(prefab, data);  
+            
             this._selectedByLawData.Value = data;
             SaveActiveByLawToDisk();
         }
