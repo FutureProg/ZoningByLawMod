@@ -19,9 +19,9 @@ namespace Trejak.ZoningByLaw.Prefab
         public Bounds1 frontage;
         [Obsolete]
         public Bounds1 parking;
-        
 
 
+        public int elligibleBuildings;
         public bool deleted; // deleted bylaws shouldn't show up in the UI, and won't be serialized
 
         //public void Read(IJsonReader reader)
