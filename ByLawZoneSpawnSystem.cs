@@ -433,69 +433,7 @@ namespace Trejak.ZoningByLaw
                     }                    
                 }
                 return true;
-            }
-
-            [Obsolete]
-            private bool CompliesWithByLaw(ByLawZoneData byLaw, Entity buildingEntity, ObjectGeometryData objGeomData, ZoneData zoneData, BuildingData buildingData, BuildingPropertyData propertyData, ObjectData objectData)
-            {                
-                bool re = true;
-                PrefabData prefabData = prefabDataLookup[buildingEntity];
-                BuildingByLawProperties byLawProperties = buildingByLawPropertiesLookup[prefabData];
-                bool hasByLawProperties = byLawProperties.initialized;
-
-                //// Height
-                re = re && (byLaw.height.min >= 0 ? objGeomData.m_Size.y >= byLaw.height.min : true);
-                re = re && (byLaw.height.max >= 0 ? objGeomData.m_Size.y <= byLaw.height.max : true);
-                //// Lot Frontage
-                re = re && (byLaw.frontage.min >= 0 ? buildingData.m_LotSize.x * 8 >= byLaw.frontage.min : true);
-                re = re && (byLaw.frontage.max >= 0 ? buildingData.m_LotSize.x * 8 <= byLaw.frontage.max : true);
-                //// Lot Size
-                var lotSize = (buildingData.m_LotSize.x * 8) * (buildingData.m_LotSize.y * 8);
-                re = re && (byLaw.lotSize.min >= 0 ? lotSize >= byLaw.lotSize.min : true);
-                re = re && (byLaw.lotSize.max >= 0 ? lotSize <= byLaw.lotSize.max : true);
-                //// Parking
-                if (byLaw.parking.min > 0)
-                {
-                    re = re && hasByLawProperties && byLawProperties.parkingCount >= byLaw.parking.min;
-                }
-                if (byLaw.parking.max >= 0)
-                {
-                    re = re && hasByLawProperties && byLawProperties.parkingCount <= byLaw.parking.max;
-                }
-                if (!re) return re;
-
-                // Permitted Uses
-                var archetypeComponents = objectData.m_Archetype.GetComponentTypes();
-                bool isOffice = archetypeComponents.Contains(ComponentType.ReadOnly<OfficeProperty>());//(zoneData.m_ZoneFlags & ZoneFlags.Office) != 0;
-                bool isIndustry = archetypeComponents.Contains(ComponentType.ReadOnly<IndustrialProperty>()); //(zoneData.m_AreaType & Game.Zones.AreaType.Industrial) != 0;                
-                bool isExtractor = archetypeComponents.Contains(ComponentType.ReadOnly<ExtractorProperty>());
-                bool isResidential = propertyData.m_ResidentialProperties > 0;
-                bool isCommercial = archetypeComponents.Contains(ComponentType.ReadOnly<CommercialProperty>());
-                if (isExtractor) // extractors only function when plopped down, so won't be spawning them
-                {
-                    return false;
-                }
-                if ((ByLawZoneType.Residential & byLaw.zoneType) == 0 && isResidential)
-                {
-                    return false;
-                }
-                if ((ByLawZoneType.Office & byLaw.zoneType) == 0 && isOffice) {
-                    return false;
-                }
-                if ((ByLawZoneType.Commercial & byLaw.zoneType) == 0 && isCommercial)
-                {
-                    return false;
-                }
-                if ((ByLawZoneType.Industrial & byLaw.zoneType) == 0 && isIndustry)
-                {
-                    return false;
-                }
-                //re = re && (ByLawZoneType.Office & byLaw.zoneType) == 0 ? !isOffice : true;
-                //re = re && (ByLawZoneType.Residential & byLaw.zoneType) == 0? !isResidential : true;
-                //re = re && (ByLawZoneType.Commercial & byLaw.zoneType) == 0 ? !isCommercial : true;
-                //re = re && (ByLawZoneType.Industrial & byLaw.zoneType) == 0 ? !isIndustry : true;
-                return re;
-            }
+            }            
 
             private bool SelectBuilding(ByLawZoneData byLawData, DynamicBuffer<ByLawBlockReference> byLawBlockRef, ref ZoneSpawnSystem.SpawnLocation location, ref Unity.Mathematics.Random random, DynamicBuffer<ResourceAvailability> availabilities,
                 ZoneData zoneData, float curvePos, float2 pollution, float landValue, float maxHeight, DynamicBuffer<ProcessEstimate> estimates,
