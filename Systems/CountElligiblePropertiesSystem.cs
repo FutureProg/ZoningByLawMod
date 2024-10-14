@@ -20,6 +20,7 @@ namespace Trejak.ZoningByLaw.Systems
         private EntityQuery _bylawsQuery;
         EntityQuery _buildingsQuery;
         private IndexBuildingsSystem _indexBuildingsSystem;
+        public bool isEvaluating { get; private set; }
 
         protected override void OnCreate()
         {
@@ -45,8 +46,10 @@ namespace Trejak.ZoningByLaw.Systems
         {
             if (byLawQueue.Count == 0)
             {
+                this.isEvaluating = false;
                 return;
             }
+            this.isEvaluating = true;
             var evalParams = new BuildingBlockSystem.EvaluationParams()
             {
                 objectdataLookup = SystemAPI.GetComponentLookup<ObjectData>(true),
@@ -72,7 +75,7 @@ namespace Trejak.ZoningByLaw.Systems
                 bylaws = byLawQueue.ToArray(Allocator.TempJob)
             };
             byLawQueue.Clear();
-            this.Dependency = elligiblePropertiesJob.ScheduleParallel(this.Dependency);          
+            this.Dependency = elligiblePropertiesJob.ScheduleParallel(this.Dependency);                          
         }
 
         public void EnqueueUpdate(Entity byLawZoneDataEntity)

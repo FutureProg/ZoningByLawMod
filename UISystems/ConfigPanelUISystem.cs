@@ -59,6 +59,7 @@ namespace Trejak.ZoningByLaw.UI
         private TriggerBinding<bool> _setConfigPanelOpen;
         private TriggerBinding<string> _setByLawName;
         private TriggerBinding<Color, Color> _setByLawZoneColour;
+        private int _lastElligibleBuildingCount;
 
         //private TriggerBinding _toggleByLawRenderPreview;
 
@@ -117,11 +118,17 @@ namespace Trejak.ZoningByLaw.UI
 
         int GetElligibleBuildingCount()
         {
-            if (_selectedByLaw.value == Entity.Null || !EntityManager.TryGetComponent<ByLawZoneData>(_selectedByLaw.value, out var bylawData))
+            if (!_elligibleBuildingsSystem.isEvaluating)
             {
-                return -1;
+                if (_selectedByLaw.value == Entity.Null || !EntityManager.TryGetComponent<ByLawZoneData>(_selectedByLaw.value, out var bylawData))
+                {
+                    _lastElligibleBuildingCount = -1;
+                } else
+                {
+                    _lastElligibleBuildingCount = bylawData.elligibleBuildings;
+                }                
             }
-            return bylawData.elligibleBuildings;
+            return _lastElligibleBuildingCount;
         }
 
         // TODO: this
