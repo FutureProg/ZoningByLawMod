@@ -1,7 +1,7 @@
 import { Scrollable } from 'cs2/ui';
 import styles from './ByLawEditorView.module.scss';
 import { useValue } from 'cs2/api';
-import { selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor } from 'mods/bindings';
+import { elligibleBuildingCount$, selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor } from 'mods/bindings';
 import { ByLawItem, ByLawItemType } from 'mods/types';
 import { ConstraintListItem } from 'mods/components/ConstraintListItem/ConstraintListItem';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
@@ -15,6 +15,7 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
     let byLawData = useValue(selectedByLawData$);
     let byLawName = useValue(selectedByLawName$);
     let byLawColor = useValue(selectedByLawColor$);
+    let elligibleBuildings = useValue(elligibleBuildingCount$);
     let [_byLawName, set_ByLawName] = useState(byLawName);
     let [colorText, setColorText] = useState(utils.rgbaToHex(byLawColor[0]));
 
@@ -114,6 +115,10 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
                         onBlur={onColorChangeHex}
                     />
                 </div>
+            </div>
+            <div className={classNames(styles.nameItem, { [styles.invisible]: searchQuery ? "BUILDINGS".indexOf(searchQuery.toUpperCase()) < 0 : false })}>
+                <label>Elligible Buildings</label>
+                <div>{elligibleBuildings}</div>
             </div>
             {listItems}
         </Scrollable>

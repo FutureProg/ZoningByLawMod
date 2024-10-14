@@ -13,6 +13,7 @@ export const selectedByLawName$ = bindValue<string>(mod.fullname, "SelectedByLaw
 export const defaultColor = {r: 1, g: 1, b: 1, a: 1};
 export const selectedByLawColor$ = bindValue<Color[]>(mod.fullname, "SelectedByLawColour", [defaultColor, defaultColor]);
 export const selectedByLaw$ = bindValue<Entity>(mod.fullname, "SelectedByLaw");
+export const elligibleBuildingCount$ = bindValue<number>(mod.fullname, "ElligibleBuildings", -1);
 
 export const setConfigPanelOpen = (open : boolean) => {
     trigger(mod.fullname, "SetConfigPanelOpen", open);
