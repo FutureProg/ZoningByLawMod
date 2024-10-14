@@ -11,7 +11,13 @@ namespace ZoningByLaw.BuildingBlocks
     public static class BuildingBlockSystem
     {
 
-        public static bool Evaluate(Entity building, BuildingData buildingData, BuildingPropertyData propertyData, BuildingByLawProperties properties, ByLawItem item, ByLawZoneSpawnSystem.EvaluateSpawnAreas job)
+        public struct EvaluationParams
+        {
+            public PollutionThresholdsSet pollutionsThresholds;
+            public ComponentLookup<ObjectData> objectdataLookup;
+        }
+
+        public static bool Evaluate(Entity building, BuildingData buildingData, BuildingPropertyData propertyData, BuildingByLawProperties properties, ByLawItem item, EvaluationParams evalParams)
         {
             if (!properties.initialized)
             {
@@ -20,38 +26,38 @@ namespace ZoningByLaw.BuildingBlocks
             switch(item.constraintType)
             {
                 case ByLawConstraintType.Count:
-                    return EvaluateCount(building, properties, item, job);
+                    return EvaluateCount(building, properties, item, evalParams);
                 case ByLawConstraintType.Length:
-                    return EvaluateLength(building, buildingData, properties, item, job);
+                    return EvaluateLength(building, buildingData, properties, item, evalParams);
                 case ByLawConstraintType.MultiSelect:
-                    return EvaluateMultiSelect(building, propertyData, properties, item, job);
+                    return EvaluateMultiSelect(building, propertyData, properties, item, evalParams);
                 case ByLawConstraintType.SingleSelect:
-                    return EvaluateSingleSelect(building, properties, item, job);
+                    return EvaluateSingleSelect(building, properties, item, evalParams);
                 case ByLawConstraintType.None:
                 default:
                     return false;
             }
         }
 
-        private static bool EvaluateSingleSelect(Entity building, BuildingByLawProperties properties, ByLawItem item, ByLawZoneSpawnSystem.EvaluateSpawnAreas job)
+        private static bool EvaluateSingleSelect(Entity building, BuildingByLawProperties properties, ByLawItem item, EvaluationParams evalParams)
         {
             switch (item.byLawItemType)
             {
                 case ByLawItemType.AirPollutionLevel:
                 case ByLawItemType.GroundPollutionLevel:
                 case ByLawItemType.NoisePollutionLevel:
-                    return EvalPollution(building, properties, item, job);
+                    return EvalPollution(building, properties, item, evalParams);
                 default:
                     return false;
             }
         }
 
-        private static bool EvaluateMultiSelect(Entity building, BuildingPropertyData propertyData, BuildingByLawProperties properties, ByLawItem item, ByLawZoneSpawnSystem.EvaluateSpawnAreas job)
+        private static bool EvaluateMultiSelect(Entity building, BuildingPropertyData propertyData, BuildingByLawProperties properties, ByLawItem item, EvaluationParams evalParams)
         {
             switch(item.byLawItemType)
             {
                 case ByLawItemType.Uses:
-                    return EvalLandUse(building, properties, item, job);
+                    return EvalLandUse(building, properties, item, evalParams);
                 default:
                     return false;
             }
@@ -65,18 +71,18 @@ namespace ZoningByLaw.BuildingBlocks
             _ => 0.0f
         };
 
-        public static bool EvalPollution(Entity building, BuildingByLawProperties properties, ByLawItem item, ByLawZoneSpawnSystem.EvaluateSpawnAreas job)
+        public static bool EvalPollution(Entity building, BuildingByLawProperties properties, ByLawItem item, EvaluationParams evalParams)
         {
             float basePollutionValue = PollutionLevelValue(item.byLawItemType, properties);
             var pollutionLimit = (ByLawPollutionThreshold) item.valueByteFlag;
-            var thresholdData = job.pollutionsThresholds.ground;
+            var thresholdData = evalParams.pollutionsThresholds.ground;
             if (item.byLawItemType == ByLawItemType.AirPollutionLevel)
             {
-                thresholdData = job.pollutionsThresholds.air;
+                thresholdData = evalParams.pollutionsThresholds.air;
             } 
             else if (item.byLawItemType == ByLawItemType.NoisePollutionLevel)
             {
-                thresholdData = job.pollutionsThresholds.noise;
+                thresholdData = evalParams.pollutionsThresholds.noise;
             }
 
             if (basePollutionValue > thresholdData.low && pollutionLimit == ByLawPollutionThreshold.None)
@@ -94,9 +100,9 @@ namespace ZoningByLaw.BuildingBlocks
             return true;
         }
 
-        public static bool EvalLandUse(Entity building, BuildingByLawProperties properties, ByLawItem item, ByLawZoneSpawnSystem.EvaluateSpawnAreas job)
+        public static bool EvalLandUse(Entity building, BuildingByLawProperties properties, ByLawItem item, EvaluationParams evalParams)
         {
-            var objectData = job.objectdataLookup[building];
+            var objectData = evalParams.objectdataLookup[building];
 
             int matchCount = 0;
             int missCount = 0;
@@ -146,7 +152,7 @@ namespace ZoningByLaw.BuildingBlocks
             return (flag & value) != 0;
         }
 
-        private static bool EvaluateLength(Entity building, BuildingData buildingData, BuildingByLawProperties properties, ByLawItem item, ByLawZoneSpawnSystem.EvaluateSpawnAreas job)
+        private static bool EvaluateLength(Entity building, BuildingData buildingData, BuildingByLawProperties properties, ByLawItem item, EvaluationParams evalParams)
         {            
             switch (item.byLawItemType)
             {
@@ -170,7 +176,7 @@ namespace ZoningByLaw.BuildingBlocks
             }
         }
 
-        public static bool EvaluateCount(Entity building, BuildingByLawProperties properties, ByLawItem item, ByLawZoneSpawnSystem.EvaluateSpawnAreas job)
+        public static bool EvaluateCount(Entity building, BuildingByLawProperties properties, ByLawItem item, EvaluationParams evalParams)
         {
             switch(item.byLawItemType)
             {

@@ -420,7 +420,12 @@ namespace Trejak.ZoningByLaw
                     var itemData = bylawItemBufferLookup[blockRef.block];
                     foreach(var item in itemData)
                     {
-                        result = result && BuildingBlockSystem.Evaluate(buildingEntity, buildingData, propertyData, byLawProperties, item, this);
+                        var evaluationParams = new BuildingBlockSystem.EvaluationParams()
+                        {
+                            objectdataLookup = this.objectdataLookup,
+                            pollutionsThresholds = this.pollutionsThresholds
+                        };
+                        result = result && BuildingBlockSystem.Evaluate(buildingEntity, buildingData, propertyData, byLawProperties, item, evaluationParams);
                         if (!result)
                         {
                             return false;
