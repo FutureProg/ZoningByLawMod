@@ -58,6 +58,7 @@ module.exports = {
             options: {
               url: true,
               importLoaders: 1,
+              sourceMap: true,
               modules: {
                 auto: true,
                 exportLocalsConvention: "camelCase",
@@ -68,7 +69,11 @@ module.exports = {
           {
             loader: "sass-loader",
             options: {
-              api: "modern"
+              api: "modern",
+              sourceMap: true,
+              sassOptions: {
+                style: "expanded"
+              }
             }
           }          
         ],
