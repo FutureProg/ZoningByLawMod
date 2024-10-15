@@ -59,7 +59,7 @@ public class Mod : IMod
         updateSystem.UpdateAt<IndexBuildingsSystem>(SystemUpdatePhase.PrefabUpdate);
 
         updateSystem.UpdateAt<ConfigPanelUISystem>(SystemUpdatePhase.UIUpdate);
-        updateSystem.UpdateAt<CountElligiblePropertiesSystem>(SystemUpdatePhase.GameSimulation);
+        updateSystem.UpdateAt<CountElligiblePropertiesSystem>(SystemUpdatePhase.UIUpdate);
         updateSystem.UpdateAt<ResetGameToolbarUISystem>(SystemUpdatePhase.Modification1);
         updateSystem.UpdateAt<ZoningByLawToolSystem>(SystemUpdatePhase.ToolUpdate);
         updateSystem.UpdateAfter<ByLawRenderPreviewSystem, AreaRenderSystem>(SystemUpdatePhase.Rendering);
