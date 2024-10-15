@@ -56,6 +56,7 @@ namespace Trejak.ZoningByLaw.UI
         private TriggerBinding<ZoningByLawBinding> _setByLawData;
         private TriggerBinding _createNewByLaw;
         private TriggerBinding _deleteByLaw;
+        private GetterValueBinding<int> _elligibleBuildings;
         private TriggerBinding<bool> _setConfigPanelOpen;
         private TriggerBinding<string> _setByLawName;
         private TriggerBinding<Color, Color> _setByLawZoneColour;
@@ -106,7 +107,7 @@ namespace Trejak.ZoningByLaw.UI
             _createNewByLaw =  CreateTrigger("CreateNewByLaw", CreateNewByLaw);
             _deleteByLaw = CreateTrigger("DeleteByLaw", DeleteByLaw);
 
-            this.AddUpdateBinding(new GetterValueBinding<int>(uiGroupName, "ElligibleBuildings", GetElligibleBuildingCount));
+            _elligibleBuildings = CreateBinding<int>("ElligibleBuildings", GetElligibleBuildingCount);                        
             this.AddBinding(_setConfigPanelOpen = new TriggerBinding<bool>(uiGroupName, "SetConfigPanelOpen", SetConfigPanelOpen));
             this.CreateTrigger("ToggleTool", this.ToggleTool);
             this.AddBinding(_setByLawName = new TriggerBinding<string>(uiGroupName, "SetByLawName", SetByLawName));
@@ -117,18 +118,21 @@ namespace Trejak.ZoningByLaw.UI
         }        
 
         int GetElligibleBuildingCount()
-        {
-            if (!_elligibleBuildingsSystem.isEvaluating)
+        {           
+            if (_selectedByLaw.value == Entity.Null || !EntityManager.TryGetComponent<ByLawZoneData>(_selectedByLaw.value, out var bylawData))
             {
-                if (_selectedByLaw.value == Entity.Null || !EntityManager.TryGetComponent<ByLawZoneData>(_selectedByLaw.value, out var bylawData))
-                {
-                    _lastElligibleBuildingCount = -1;
-                } else
-                {
-                    _lastElligibleBuildingCount = bylawData.elligibleBuildings;
-                }                
-            }
+                _lastElligibleBuildingCount = -1;
+            } else
+            {
+                _lastElligibleBuildingCount = bylawData.elligibleBuildings;
+            }                
             return _lastElligibleBuildingCount;
+        }
+
+        protected override void OnUpdate()
+        {
+            base.OnUpdate();
+            this._elligibleBuildings.Update();
         }
 
         // TODO: this
