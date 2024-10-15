@@ -9,7 +9,7 @@
     padding: 4rem;
 }
 
-.colorItem, .nameItem {
+.colorItem, .nameItem, .buildingCountItem {
     @include _base.panelListItem();
     display: flex;
     flex-direction: row;

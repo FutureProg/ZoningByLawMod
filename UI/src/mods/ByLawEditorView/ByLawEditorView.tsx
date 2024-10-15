@@ -116,7 +116,7 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
                     />
                 </div>
             </div>
-            <div className={classNames(styles.nameItem, { [styles.invisible]: searchQuery ? "BUILDINGS".indexOf(searchQuery.toUpperCase()) < 0 : false })}>
+            <div className={classNames(styles.buildingCountItem, { [styles.invisible]: searchQuery ? "BUILDINGS".indexOf(searchQuery.toUpperCase()) < 0 : false })}>
                 <label>Elligible Buildings</label>
                 <div>{elligibleBuildings}</div>
             </div>
