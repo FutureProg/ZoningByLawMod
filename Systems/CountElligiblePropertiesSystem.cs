@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Trejak.ZoningByLaw.BuildingBlocks;
 using Trejak.ZoningByLaw.Prefab;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -95,6 +96,7 @@ namespace Trejak.ZoningByLaw.Systems
             byLawQueue.Dispose(this.Dependency);
         }
 
+        [BurstCompile]
         public partial struct CountElligiblePropertiesJob : IJobEntity
         {
             public NativeArray<Entity> bylaws;
