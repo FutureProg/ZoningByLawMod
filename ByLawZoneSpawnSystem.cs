@@ -395,11 +395,10 @@ namespace Trejak.ZoningByLaw
                     }
                     float3 position = ZoneUtils.GetPosition(this.blockLookup[spawnLocation.m_Entity], spawnLocation.m_LotArea.xz, spawnLocation.m_LotArea.yw);
                     bool extractor = false;
-                    GroundPollution pollution = GroundPollutionSystem.GetPollution(position, this.groundPollutionMap);
-                    float2 pollution2 = new float2((float)pollution.m_Pollution, (float)(pollution.m_Pollution - pollution.m_Previous));
+                    float pollution = GroundPollutionSystem.GetPollution(position, this.groundPollutionMap).m_Pollution;
                     float landValue = this.landValueLookup[road].m_LandValue;
                     float maxHeight = (float)height - position.y;
-                    if (this.SelectBuilding(byLawData, byLawBlockRef, ref spawnLocation, ref random, availabilities, zoneData, curvePos, pollution2, landValue, maxHeight, estimates, processes, normal, storage, extractor, office)
+                    if (this.SelectBuilding(byLawData, byLawBlockRef, ref spawnLocation, ref random, availabilities, zoneData, curvePos, pollution, landValue, maxHeight, estimates, processes, normal, storage, extractor, office)
                         && spawnLocation.m_Priority > bestLocation.m_Priority)
                     {
                         bestLocation = spawnLocation;
