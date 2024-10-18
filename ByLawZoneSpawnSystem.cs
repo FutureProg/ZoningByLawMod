@@ -435,7 +435,7 @@ namespace Trejak.ZoningByLaw
             }            
 
             private bool SelectBuilding(ByLawZoneData byLawData, DynamicBuffer<ByLawBlockReference> byLawBlockRef, ref ZoneSpawnSystem.SpawnLocation location, ref Unity.Mathematics.Random random, DynamicBuffer<ResourceAvailability> availabilities,
-                ZoneData zoneData, float curvePos, float2 pollution, float landValue, float maxHeight, DynamicBuffer<ProcessEstimate> estimates,
+                ZoneData zoneData, float curvePos, float pollution, float landValue, float maxHeight, DynamicBuffer<ProcessEstimate> estimates,
                 NativeList<IndustrialProcessData> processes, bool normal, bool storage, bool extractor, bool office = false)
             {
                 int2 maxLotSize = location.m_LotArea.yw - location.m_LotArea.xz;
