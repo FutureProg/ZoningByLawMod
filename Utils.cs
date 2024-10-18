@@ -252,8 +252,7 @@ namespace Trejak.ZoningByLaw
             newUIObj.name = uiObj.name.Replace("NA Residential Medium", idName);
             newUIObj.m_Priority = uiObj.m_Priority;
             newUIObj.m_Group = _assetCategory;
-            newUIObj.m_Icon = "coui://trejak_zbl/config-icon.svg";
-            newUIObj.m_LargeIcon = "coui://trejak_zbl/config-icon.svg";
+            newUIObj.m_Icon = "coui://trejak_zbl/config-icon.svg";           
             //newUIObj.m_Group = uiObj.m_Group;
             newUIObj.active = uiObj.active;            
             prefab.AddComponentFrom(newUIObj);

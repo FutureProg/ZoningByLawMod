@@ -20,8 +20,7 @@ namespace Trejak.ZoningByLaw.Prefab
 
             UIObject uiObject = ScriptableObject.CreateInstance<UIObject>();
             uiObject.m_Group = assetCategory;            
-            uiObject.m_Icon = "coui://trejak_zbl/config-icon.svg";
-            uiObject.m_LargeIcon = "coui://trejak_zbl/config-icon.svg";
+            uiObject.m_Icon = "coui://trejak_zbl/config-icon.svg";            
             uiObject.active = true;
             uiObject.m_Priority = 0;
             uiObject.name = prefab.name;
