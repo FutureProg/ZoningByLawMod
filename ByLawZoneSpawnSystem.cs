@@ -33,6 +33,7 @@ using Game.Buildings;
 using System.Security.AccessControl;
 using Trejak.ZoningByLaw.BuildingBlocks;
 using ZoningByLaw.BuildingBlocks;
+using Game.Input;
 
 namespace Trejak.ZoningByLaw
 {
@@ -200,8 +201,9 @@ namespace Trejak.ZoningByLaw
                     air = IndexBuildingsSystem.airThresholds,
                     ground = IndexBuildingsSystem.groundThresholds,
                     noise = IndexBuildingsSystem.noiseThresholds
-                }
-            };            
+                },
+                topSpawnLocations = new NativeList<EvaluateSpawnAreas.TopSpawnLocation>(Allocator.TempJob)
+        };            
             ZoneSpawnSystem.SpawnBuildingJob spawnBuildingJob = new()
             {
                 m_BlockData = GetComponentLookup<Block>(true),
@@ -298,7 +300,15 @@ namespace Trejak.ZoningByLaw
 
             public ComponentLookup<ByLawBlock> bylawBlockLookup;
             public BufferLookup<ByLawBlockReference> bylawBlockRefLookup;
-            public BufferLookup<ByLawItem> bylawItemBufferLookup;            
+            public BufferLookup<ByLawItem> bylawItemBufferLookup;
+
+            public NativeList<TopSpawnLocation> topSpawnLocations;
+
+            public struct TopSpawnLocation
+            {
+                public ZoneSpawnSystem.SpawnLocation spawnLocation;
+                public BuildingData buildingData;
+            }
 
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
             {
@@ -306,7 +316,7 @@ namespace Trejak.ZoningByLaw
                 ZoneSpawnSystem.SpawnLocation spawnLocation = default(ZoneSpawnSystem.SpawnLocation);
 
                 NativeArray<Entity> entities = chunk.GetNativeArray(this.entityHandle);
-                BufferAccessor<VacantLot> vacantLotsAccessor = chunk.GetBufferAccessor<VacantLot>(ref this.vacantLotHandle);
+                BufferAccessor<VacantLot> vacantLotsAccessor = chunk.GetBufferAccessor<VacantLot>(ref this.vacantLotHandle);                
 
                 if (vacantLotsAccessor.Length > 0)
                 {
@@ -451,6 +461,8 @@ namespace Trejak.ZoningByLaw
                 var spawnableDataArr = buildingChunk.GetNativeArray<SpawnableBuildingData>(ref this.spawnableBuildingDataHandle);
                 var buildingPropertyDataArr = buildingChunk.GetNativeArray<BuildingPropertyData>(ref this.buildingPropertyDataHandle);
                 var objGeomDataArr = buildingChunk.GetNativeArray<ObjectGeometryData>(ref this.objGeomDataHandle);
+                topSpawnLocations.Clear();
+                int locationCounts = 0;
                 for (int i = 0; i < spawnableDataArr.Length; i++)
                 {
                     var spawnableData = spawnableDataArr[i];
@@ -502,6 +514,17 @@ namespace Trejak.ZoningByLaw
                                     location.m_AreaType = evalAreaType;
                                     buildingData = subjBuildingData;
                                     location.m_Priority = num2;
+                                    topSpawnLocations.Clear();
+                                    locationCounts = 0;
+                                }
+                                if (num2 >= location.m_Priority)
+                                {
+                                    topSpawnLocations.Add(new TopSpawnLocation()
+                                    {
+                                        buildingData = subjBuildingData,
+                                        spawnLocation = location
+                                    });
+                                    locationCounts++;
                                 }
                             }
                         }
