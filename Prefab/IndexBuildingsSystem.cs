@@ -122,7 +122,7 @@ namespace Trejak.ZoningByLaw.Prefab
 
 
             NativeArray<ArchetypeChunk> chunks;
-            if (onUpdate)
+            if (onUpdate && _initialized)
             {
                 Mod.log.Info($"Running IndexBuildingsSystem for {_buildingsPrefabsQuery.CalculateEntityCount()} entities.");
                 chunks = _buildingsPrefabsQuery.ToArchetypeChunkArray(Allocator.Temp);
@@ -212,9 +212,13 @@ namespace Trejak.ZoningByLaw.Prefab
                     _properties[prefabData.m_Index] = props;
                 }
             }
-            if (processedEnts > 0)
+            if (processedEnts > 0 && !_initialized)
             {
                 _initialized = true;
+                if (onUpdate)
+                {
+                    this.UpdateIndex(true);
+                }
             }
             Mod.log.Info($"IndexBuildingsSystem created properties for {processedEnts} entities.");            
         }
