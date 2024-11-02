@@ -311,7 +311,7 @@ namespace Trejak.ZoningByLaw.UI
                 {
                     if (option == 0)
                     {
-                        DeleteActiveByLawFromDisk();
+                        DeleteByLaw();
                     }
                 }
             );
