@@ -8,10 +8,15 @@ import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { TextInputTheme } from 'mods/components/TextInput/TextInput';
 import classNames from 'classnames';
 import { VanillaComponentResolver } from 'vanillacomponentresolver';
-import { Color } from 'cs2/bindings';
+import { Color, Entity } from 'cs2/bindings';
 import * as utils from 'mods/utils';
 
-export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
+interface _Props {
+    searchQuery?: string;
+    selectedByLaw: Entity;
+}
+
+export const ByLawEditorView = ({ searchQuery, selectedByLaw } : _Props) => {
     let byLawData = useValue(selectedByLawData$);
     let byLawName = useValue(selectedByLawName$);
     let byLawColor = useValue(selectedByLawColor$);
@@ -45,12 +50,18 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
     }
 
     let onConstraintUpdate = (newItemValue: ByLawItem) => {
+        if (selectedByLaw.index <= 0) {
+            return;
+        }
         let nByLawData = utils.deepCopy(byLawData);
         let itemData = nByLawData.blocks[0].itemData;
         nByLawData.blocks[0].itemData = itemData.map(item => item.byLawItemType == newItemValue.byLawItemType ? newItemValue : item);
         setByLawData(nByLawData);
     }
     let onChangeConstraintEnabled = (newEnabledValue: boolean, itemType: ByLawItemType) => {
+        if (selectedByLaw.index <= 0) {
+            return;
+        }
         let nByLawData = utils.deepCopy(byLawData);
         if (newEnabledValue) {
             nByLawData.blocks[0].itemData.push({
@@ -64,9 +75,9 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
             nByLawData.blocks[0].itemData = nByLawData.blocks[0].itemData.filter((item) => item.byLawItemType != itemType);
         }
         setByLawData(nByLawData);
-    }
+    }    
 
-    let items = byLawData.blocks[0].itemData;
+    let items = byLawData.blocks != null ? byLawData.blocks[0].itemData : [];
     let itemMap = useMemo(() =>
         Object.fromEntries(
             items.map((item) => [ByLawItemType[item.byLawItemType], item])
@@ -85,8 +96,10 @@ export const ByLawEditorView = ({ searchQuery }: { searchQuery?: string }) => {
             onValueChange={onConstraintUpdate}
             onChangeConstraintEnabled={onChangeConstraintEnabled}
         />
-    );
-
+    );    
+    if (selectedByLaw.index <= 0 || byLawData.blocks == null) {
+        return (<></>);
+    }
     return (
         <Scrollable className={styles.view} vertical trackVisibility='always'>
             <div className={classNames(styles.nameItem, { [styles.invisible]: searchQuery ? "NAME".indexOf(searchQuery.toUpperCase()) < 0 : false })}>

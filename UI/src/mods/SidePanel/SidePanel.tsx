@@ -27,8 +27,7 @@ export const SidePanel = () => {
     let onCreateByLaw = () => {
         createNewByLaw();
     }
-    let onDeleteByLaw = () => {        
-        setCurrentView('bylaws');
+    let onDeleteByLaw = () => {  
         deleteByLaw();                
     }
 
@@ -75,7 +74,7 @@ export const SidePanel = () => {
     return (
         <div className={styles.view}>
             <SidePanelHeader currentView={currentView} onSearchQueryChange={onSearchChange} onViewChange={onViewChange} />
-            {currentView == 'bylaws' ? <ByLawListView searchQuery={searchQuery} /> : <ByLawEditorView searchQuery={searchQuery} />}
+            {currentView == 'bylaws' ? <ByLawListView searchQuery={searchQuery} /> : <ByLawEditorView searchQuery={searchQuery} selectedByLaw={activeByLaw} />}
             {sideButtons}
         </div>
     )
