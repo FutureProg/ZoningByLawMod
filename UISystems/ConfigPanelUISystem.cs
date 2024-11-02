@@ -105,7 +105,7 @@ namespace Trejak.ZoningByLaw.UI
             this.AddBinding(_setActiveByLaw = new TriggerBinding<Entity>(uiGroupName, "SetActiveByLaw", SetActiveByLaw));
             _setByLawData = CreateTrigger<ZoningByLawBinding>("SetByLawData", SetByLawData);
             _createNewByLaw =  CreateTrigger("CreateNewByLaw", CreateNewByLaw);
-            _deleteByLaw = CreateTrigger("DeleteByLaw", DeleteByLaw);
+            _deleteByLaw = CreateTrigger("DeleteByLaw", OpenDeleteDialogue);
 
             _elligibleBuildings = CreateBinding<int>("ElligibleBuildings", GetElligibleBuildingCount);                        
             this.AddBinding(_setConfigPanelOpen = new TriggerBinding<bool>(uiGroupName, "SetConfigPanelOpen", SetConfigPanelOpen));
@@ -298,8 +298,27 @@ namespace Trejak.ZoningByLaw.UI
             Utils.SaveByLaw(_selectedByLaw.value, this.EntityManager);            
         }
 
-        void DeleteActiveByLawFromDisk()
+        void OpenDeleteDialogue()
         {
+            GameManager.instance.userInterface.appBindings.ShowConfirmationDialog(
+                new ConfirmationDialog(
+                    "Zoning ByLaw Mod",
+                    "Are you sure you want to delete this bylaw? This cannot be undone!",
+                    "Common.DIALOG_ACTION[Yes]",
+                    "Common.DIALOG_ACTION[No]"
+                ),
+                option =>
+                {
+                    if (option == 0)
+                    {
+                        DeleteActiveByLawFromDisk();
+                    }
+                }
+            );
+        }
+
+        void DeleteActiveByLawFromDisk()
+        {            
             UpdateByLawList();
             Utils.DeleteByLawFromDisk(_selectedByLaw.value, this.EntityManager);
             SetActiveByLaw(Entity.Null); 
