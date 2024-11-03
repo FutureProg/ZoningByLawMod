@@ -10,6 +10,7 @@ import classNames from 'classnames';
 import { VanillaComponentResolver } from 'vanillacomponentresolver';
 import { Color, Entity } from 'cs2/bindings';
 import * as utils from 'mods/utils';
+import { useLocalization } from 'cs2/l10n';
 
 interface _Props {
     searchQuery?: string;
@@ -23,6 +24,7 @@ export const ByLawEditorView = ({ searchQuery, selectedByLaw } : _Props) => {
     let elligibleBuildings = useValue(elligibleBuildingCount$);
     let [_byLawName, set_ByLawName] = useState(byLawName);
     let [colorText, setColorText] = useState(utils.rgbaToHex(byLawColor[0]));
+    let {translate} = useLocalization();
 
     useEffect(() => {
         set_ByLawName(byLawName);
@@ -103,7 +105,7 @@ export const ByLawEditorView = ({ searchQuery, selectedByLaw } : _Props) => {
     return (
         <Scrollable className={styles.view} vertical trackVisibility='always'>
             <div className={classNames(styles.nameItem, { [styles.invisible]: searchQuery ? "NAME".indexOf(searchQuery.toUpperCase()) < 0 : false })}>
-                <label>Name</label>
+                <label>{translate("ZBL.ByLawItemType[Name]")}</label>
                 <input
                     type={'text'}
                     value={_byLawName}
@@ -113,7 +115,7 @@ export const ByLawEditorView = ({ searchQuery, selectedByLaw } : _Props) => {
                 />
             </div>
             <div className={classNames(styles.colorItem, { [styles.invisible]: searchQuery ? "COLOR".indexOf(searchQuery.toUpperCase()) < 0 || "COLOUR".indexOf(searchQuery.toUpperCase()) < 0 : false })}>
-                <label>Colour</label>
+                <label>{translate("ZBL.ByLawItemType[Color]")}</label>
                 <div>
                     <VanillaComponentResolver.instance.ColorField
                         value={byLawColor[0]}
@@ -130,7 +132,7 @@ export const ByLawEditorView = ({ searchQuery, selectedByLaw } : _Props) => {
                 </div>
             </div>
             <div className={classNames(styles.buildingCountItem, { [styles.invisible]: searchQuery ? "BUILDINGS".indexOf(searchQuery.toUpperCase()) < 0 : false })}>
-                <label>Elligible Buildings</label>
+                <label>{translate("ZBL.ByLawPanel[ElligibleBuildings]")}</label>
                 <div>{elligibleBuildings}</div>
             </div>
             {listItems}
