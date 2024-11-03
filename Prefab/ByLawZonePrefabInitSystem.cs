@@ -1,4 +1,5 @@
-﻿using Colossal.Mono.CompilerServices.SymbolWriter;
+﻿using Colossal.Entities;
+using Colossal.Mono.CompilerServices.SymbolWriter;
 using Game;
 using Game.Common;
 using Game.Prefabs;
@@ -54,6 +55,11 @@ namespace Trejak.ZoningByLaw.Prefab
                 SetupByLawBlocks(blocks, prefab);
                 var binding = ZoningByLawBinding.FromEntity(entity, this.EntityManager);
                 UpdatePrefabFromBinding(binding, prefab);
+                if (EntityManager.TryGetComponent<ZoneData>(entity, out var zoneData))
+                {
+                    zoneData.m_ZoneFlags |= ZoneFlags.SupportLeftCorner | ZoneFlags.SupportNarrow | ZoneFlags.SupportRightCorner;
+                    EntityManager.SetComponentData<ZoneData>(entity, zoneData);
+                }
             }
             entities.Dispose();
         }
