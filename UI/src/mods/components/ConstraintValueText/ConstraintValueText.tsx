@@ -1,9 +1,11 @@
+import { useLocalization } from "cs2/l10n";
 import { BOUNDS_VALUE_DISABLED, ByLawConstraintType, ByLawItem, ByLawItemType, ByLawZoneType, PollutionValues } from "mods/types";
 
 
 //&#160; = space character code (should improve how all of this is done tbh...)
 export default (props: {className?: string, item?: ByLawItem}) => {
     let textChild = <></>;
+    let {translate} = useLocalization();
     switch(props.item?.constraintType) {
         case ByLawConstraintType.Length:
         case ByLawConstraintType.Count: {            
@@ -15,7 +17,7 @@ export default (props: {className?: string, item?: ByLawItem}) => {
             if (!middleText) {
                 textChild = <span>{minText}{minText? <span>&#160;&ge;</span> : <span>&le;&#160;</span>}{maxText}</span>; // gte sign : lte sign
             } else {
-                textChild = <span>{minText}&#160;to&#160;{maxText}</span>;
+                textChild = <span>{minText}&#160;{translate("ZBL.ByLawValueText[BoundsTo]", "TO")}&#160;{maxText}</span>;
             }
             break; 
         }
@@ -27,7 +29,7 @@ export default (props: {className?: string, item?: ByLawItem}) => {
                         .filter(key => !isNaN(Number(key)))                        
                         .map((key, _) => ((Number(key) & value) != 0? 1 : 0) as number)
                         .reduce((prevValue, currentValue) => prevValue + currentValue, 0);
-                    textChild = <span>{count}&#160;item(s)</span>;
+                    textChild = <span>{count}&#160;{translate("ZBL.ByLawValueText[Items]", "item[s]")}</span>;
                     break;
                 }
             }
@@ -39,7 +41,7 @@ export default (props: {className?: string, item?: ByLawItem}) => {
                 case ByLawItemType.AirPollutionLevel:
                 case ByLawItemType.GroundPollutionLevel:
                 case ByLawItemType.NoisePollutionLevel:
-                    textChild = <span>{PollutionValues[value]}</span>;
+                    textChild = <span>{translate(`ZBL.FlagValues[${PollutionValues[value]}]`, PollutionValues[value])}</span>;
                     break;
             }
         }

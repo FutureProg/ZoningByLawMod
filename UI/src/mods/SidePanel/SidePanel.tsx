@@ -41,7 +41,7 @@ export const SidePanel = () => {
 
     let editorButtons = currentView == 'editor' ? (
         <>
-        <Tooltip tooltip={translate("Editor.LIST_ITEM_DUPLICATE", "Duplicate (Not Implemented)")} direction='right'>
+        <Tooltip tooltip={translate("ZBL.Tooltip[Duplicate]", "Duplicate (Not Implemented)")} direction='right'>
             <div className={classNames(styles.sideButton)}>
                 <img src="coui://uil/Dark/RectangleCopy.svg" />
             </div>
@@ -52,7 +52,7 @@ export const SidePanel = () => {
             </div>
         </Tooltip>
         <div className={styles.divider}></div>
-        <Tooltip tooltip={translate("ZBL.Tooltip[Preview]", "Preview Zone (Not Implemented)")} direction='right'>
+        <Tooltip tooltip={translate("ZBL.Tooltip[PreviewZoneButton]", "Preview Zone (Not Implemented)")} direction='right'>
             <div className={styles.sideButton}>
                 <img src="coui://uil/Dark/Cube.svg" />
             </div>

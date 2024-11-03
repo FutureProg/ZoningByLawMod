@@ -1,7 +1,7 @@
-import { ByLawZoneType } from "mods/types";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { VanillaComponentResolver } from "vanillacomponentresolver";
 import styles from './EnumFieldCheckboxes.module.scss';
+import { useLocalization } from "cs2/l10n";
 
 export interface EnumFieldCheckboxesProps {
     enum: number, 
@@ -10,7 +10,8 @@ export interface EnumFieldCheckboxesProps {
     onChange?: (enumValue: number) => any    
     showZero?: boolean
 }
-export default <T,>(props: EnumFieldCheckboxesProps) => {                
+export default <T,>(props: EnumFieldCheckboxesProps) => {      
+    let {translate} = useLocalization();          
     let preEntries = props.enumEntries;  
     let entries : {[key: string]: number} = Object.fromEntries(
         preEntries.filter(([v, k], idx) => isNaN(Number(k)) && (props.showZero? true: Number(v) != 0)).map(([k,v]) => [v,k])
@@ -41,7 +42,7 @@ export default <T,>(props: EnumFieldCheckboxesProps) => {
     
     const list = Object.entries(entries).map(([key, value], idx) => 
         <div key={key}>
-            <label>{key}</label>
+            <label>{translate(`ZBL.FlagValues[${key}]`, key)}</label>
             <VanillaComponentResolver.instance.Checkbox 
                 checked={checked[key]}
                 onChange={onCheckboxChange(key)} 

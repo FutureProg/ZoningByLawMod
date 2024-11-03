@@ -24,7 +24,7 @@ export const SidePanelHeader = (props: SidePanelHeaderProps) => {
     });
     return (
         <div className={styles.view}>
-            <div className={styles.title}>{translate('ZBL.ByLawPanel[Title]', "Zoning By Laws")}</div>
+            <div className={styles.title}>{translate('ZBL.ByLawPanel[ListTitle]', "Zoning By Laws")}</div>
             <div className={styles.buttonRow}>
                 <div
                     className={classNames(styles.viewButton, { [styles.selected]: props.currentView == 'bylaws' })}
@@ -36,7 +36,7 @@ export const SidePanelHeader = (props: SidePanelHeaderProps) => {
                     className={editorClassNames}
                     onClick={() => activeByLaw.index <= 0? null : props.onViewChange('editor')}
                 >
-                    {translate('ZBL.ByLawPanel[Editor]', "Editor")}
+                    {translate('ZBL.ByLawPanel[EditorTitle]', "Editor")}
                 </div>
             </div>
             <div>

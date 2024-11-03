@@ -7,6 +7,7 @@ import ConstraintValueText from '../ConstraintValueText/ConstraintValueText';
 import ByLawPropertyEditSection from '../Details/ByLawPropertyEditSection';
 import classNames from 'classnames';
 import ConstraintOperatorText from '../ConstraintOperatorText/ConstraintOperatorText';
+import { useLocalization } from 'cs2/l10n';
 
 type ConstraintListItemProps = {
     itemType: ByLawItemType,
@@ -19,6 +20,7 @@ type ConstraintListItemProps = {
 export const ConstraintListItem = (props: ConstraintListItemProps) => {
     let [isOpen, setIsOpen] = useState(false);    
     let enabled = props.value != undefined;   
+    let {translate} = useLocalization();
     let toggleOpen = () => {
         if (!enabled && props.onChangeConstraintEnabled) {
             props.onChangeConstraintEnabled(!enabled, props.itemType);
@@ -47,7 +49,7 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
                     onChange={onChangeEnabled}
                     checked={enabled}
                 />
-                <div className={styles.constraintName}>{props.readableName}</div>
+                <div className={styles.constraintName}>{translate(`ZBL.ByLawItemType[${ByLawItemType[props.itemType]}]`,props.readableName)}</div>
                 <ConstraintOperatorText className={styles.operator} item={props.value}/>
                 <ConstraintValueText className={styles.valueDescription} item={props.value} />
             </div>
