@@ -235,6 +235,7 @@ namespace Trejak.ZoningByLaw.Prefab
                 {
                     Dictionary<string, object> t = new Dictionary<string, object>();
                     t["index"] = i;
+                    t["prefabName"] = _prefabSystem.GetPrefab<PrefabBase>(new PrefabData() { m_Index = i }).name;
                     t["data"] = _properties[i];
                     file.Write(JSON.Dump(t) + ",\n");
                 }
