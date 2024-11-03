@@ -131,7 +131,7 @@ namespace ZoningByLaw.BuildingBlocks
             matchCount += (ByLawZoneType.Residential & flag) != 0 && properties.isResidential ? 1 : 0;
             matchCount += (ByLawZoneType.Office & flag) != 0 && properties.isOffice ? 1 : 0;
             matchCount += (ByLawZoneType.Industrial & flag) != 0 && properties.isIndustry ? 1 : 0;
-            matchCount += (ByLawZoneType.Residential & flag) != 0 && properties.isResidential ? 1 : 0;
+            matchCount += (ByLawZoneType.Commercial & flag) != 0 && properties.isCommercial ? 1 : 0;
 
             switch (item.propertyOperator)
             {
