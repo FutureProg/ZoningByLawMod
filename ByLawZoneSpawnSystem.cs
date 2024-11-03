@@ -489,7 +489,7 @@ namespace Trejak.ZoningByLaw
                                 num2 /= (float)(maxLotSize.x * maxLotSize.y);
                                 num2 *= (float)(num + 1);
                                 float accessMatchInfluence = 0.5f;
-                                float accessMisMatchInfluence = 0.01f;
+                                float accessMisMatchInfluence = 0.00f;
                                 num2 *= math.csum(math.select(accessMisMatchInfluence, accessMatchInfluence, lotAccess == buildingAccess));
                                 if (!extractor)
                                 {
@@ -511,7 +511,7 @@ namespace Trejak.ZoningByLaw
                                     num5 = math.select(num5, math.max(0f, num5) + 1f, this.minDemand == 0);
                                     num2 *= num5;
                                 }
-                                if (num2 > location.m_Priority)
+                                if (num2 > location.m_Priority && num2 > 0)
                                 {
                                     location.m_Building = buildingEntities[i];
                                     location.m_AreaType = evalAreaType;
