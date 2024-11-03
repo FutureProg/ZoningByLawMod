@@ -450,7 +450,7 @@ namespace Trejak.ZoningByLaw
             {
                 int2 maxLotSize = location.m_LotArea.yw - location.m_LotArea.xz;
                 BuildingData buildingData = default(BuildingData);
-                bool2 lhs = new bool2((location.m_LotFlags & LotFlags.CornerLeft) > (LotFlags)0, (location.m_LotFlags & LotFlags.CornerRight) > (LotFlags)0);
+                bool2 lotAccess = new bool2((location.m_LotFlags & LotFlags.CornerLeft) > (LotFlags)0, (location.m_LotFlags & LotFlags.CornerRight) > (LotFlags)0);
                 bool supportsNarrow = (zoneData.m_ZoneFlags & ZoneFlags.SupportNarrow) == (ZoneFlags)0;
 
                 var chunkIdx = random.NextInt(0, buildingChunks.Length);
@@ -470,8 +470,9 @@ namespace Trejak.ZoningByLaw
                     {
                         BuildingData subjBuildingData = buildingDataArr[i];
                         int2 lotSize = subjBuildingData.m_LotSize;
-                        bool2 rhs = new bool2((subjBuildingData.m_Flags & Game.Prefabs.BuildingFlags.LeftAccess) > (Game.Prefabs.BuildingFlags)0U, (subjBuildingData.m_Flags & Game.Prefabs.BuildingFlags.RightAccess) > (Game.Prefabs.BuildingFlags)0U);
+                        bool2 buildingAccess = new bool2((subjBuildingData.m_Flags & Game.Prefabs.BuildingFlags.LeftAccess) > (Game.Prefabs.BuildingFlags)0U, (subjBuildingData.m_Flags & Game.Prefabs.BuildingFlags.RightAccess) > (Game.Prefabs.BuildingFlags)0U);
                         float bldgHeight = objGeomDataArr[i].m_Size.y;
+                        
                         if (math.all(lotSize <= maxLotSize) && bldgHeight <= maxHeight 
                             && CompliesWithByLaw(byLawData, byLawBlockRef, buildingEntities[i], objGeomDataArr[i], zoneData, subjBuildingData, buildingPropertyDataArr[i], objectdataLookup[buildingEntities[i]]))
                         {
@@ -487,7 +488,9 @@ namespace Trejak.ZoningByLaw
                                 num2 += (float)(maxLotSize.x * int2.y) * random.NextFloat(0.55f, 0.6f);
                                 num2 /= (float)(maxLotSize.x * maxLotSize.y);
                                 num2 *= (float)(num + 1);
-                                num2 *= math.csum(math.select(0.01f, 0.5f, lhs == rhs));
+                                float accessMatchInfluence = 0.5f;
+                                float accessMisMatchInfluence = 0.01f;
+                                num2 *= math.csum(math.select(accessMisMatchInfluence, accessMatchInfluence, lotAccess == buildingAccess));
                                 if (!extractor)
                                 {
                                     float num3 = landValue;
