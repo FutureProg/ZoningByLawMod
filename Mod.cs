@@ -51,6 +51,12 @@ public class Mod : IMod
 
         var path = Path.GetDirectoryName(asset.GetMeta().path);
         UIManager.defaultUISystem.AddHostLocation("trejak_zbl", Path.Combine(path, "Images/"));
+
+        foreach (var item in new LocaleHelper("ZoningByLaw.Locale.json").GetAvailableLanguages())
+        {
+            GameManager.instance.localizationManager.AddSource(item.LocaleId, item);
+        }        
+
         ApplyPatches();
 
         World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<ZoneCheckSystem>().Enabled = false;
