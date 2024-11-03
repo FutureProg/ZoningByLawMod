@@ -1,5 +1,5 @@
-import { ChangeEvent, ForwardedRef, MutableRefObject, RefObject, createRef, forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { VanillaComponentResolver } from "vanillacomponentresolver"
+import { ChangeEvent, ForwardedRef, forwardRef, useCallback, useImperativeHandle, useRef } from "react";
+import { VanillaComponentResolver } from "vanillacomponentresolver";
 import styles from './ButtonedNumberInput.module.scss';
 
 const couiStandard =                         "coui://uil/Standard/";
@@ -40,6 +40,10 @@ export const ButtonedNumberInput = forwardRef(({onChange, value, limit, step} : 
         }
         onChange && onChange(nValue);
     }, [onChange, limit, value]);
+
+    let handleClick = (evt: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
+        evt.stopPropagation();
+    };
     
     useImperativeHandle(ref, () => {
         return {
@@ -81,7 +85,7 @@ export const ButtonedNumberInput = forwardRef(({onChange, value, limit, step} : 
                 onSelect={changeValueByButton(-1)}
                 focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}                                
             ></VanillaComponentResolver.instance.ToolButton>
-            <input className={textInputTheme.input} type="number" ref={_ref} value={value} onChange={handleChange}/>
+            <input className={textInputTheme.input} type="number" ref={_ref} value={value} onChange={handleChange} onClick={handleClick}/>
             <VanillaComponentResolver.instance.ToolButton
                 className={VanillaComponentResolver.instance.mouseToolOptionsTheme.endButton}       
                 src={arrowUpSrc}
