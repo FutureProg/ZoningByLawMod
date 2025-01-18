@@ -29,7 +29,7 @@ export const MainPanel = () => {
         if (isPanelOpen) {
             toolbar.clearAssetSelection();
         } else {          
-            toolbar.selectAsset(prevSelectedAsset);
+            toolbar.selectAsset(prevSelectedAsset, true);
             setPrevSelectedAsset({index: 0, version: 0});           
         }
     }, [isPanelOpen]);    
@@ -60,7 +60,7 @@ export const MainPanel = () => {
     const onDeleteByLaw = () => {
         deleteByLaw();
         setSelectedListItem(-1);
-        toolbar.selectAsset({index: 0, version: 0});
+        toolbar.selectAsset({index: 0, version: 0}, true);
     }
 
     let topRightSection = (

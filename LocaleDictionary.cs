@@ -36,7 +36,8 @@ namespace Trejak.ZoningByLaw
                 var prefabData = bylawPrefabArr[i];
                 var zoneData = bylawZoneDataArr[i];
                 var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(prefabData);
-                _prefabUISystem.GetTitleAndDescription(prefab, out string titleId, out string descId);
+                var prefabEntity = _prefabSystem.GetEntity(prefab);
+                _prefabUISystem.GetTitleAndDescription(prefabEntity, out string titleId, out string descId);
 
                 yield return new(titleId, prefab.bylawName);
                 yield return new(descId, "A Custom ByLaw");
