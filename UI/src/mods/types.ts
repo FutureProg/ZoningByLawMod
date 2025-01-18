@@ -65,6 +65,13 @@ export enum ByLawConstraintType {
     SingleSelect
 }
 
+export enum ByLawMeasurement {
+    Default = 0,
+    Metres = 1,
+    Imperial = 2,
+    Units = 3
+}
+
 export enum ByLawItemCategory {
     None = 0,
     Building = 1,
