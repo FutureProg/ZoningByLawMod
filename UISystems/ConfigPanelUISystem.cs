@@ -117,7 +117,7 @@ namespace Trejak.ZoningByLaw.UI
             this.AddBinding(_setByLawZoneColour = new TriggerBinding<Color, Color>(uiGroupName, "SetByLawZoneColour", SetByLawZoneColour));
             //this.AddBinding(_toggleByLawRenderPreview = new TriggerBinding(uiGroupName, "ToggleByLawRenderPreview", ToggleByLawRenderPreview));
 
-            _writeToFileTimer = new Timer(3000);
+            _writeToFileTimer = new Timer(4500);
             _writeToFileTimer.AutoReset = true;
             _writeToFileTimer.Elapsed += (sender, e) => SaveActiveByLawToDisk();
 
