@@ -84,21 +84,21 @@ namespace Trejak.ZoningByLaw.Systems
             switch (state)
             {
                 case State.None:
-                    _applyAction.shouldBeEnabled = false;
+                    //_applyAction.shouldBeEnabled = false;
                     _previewRenderSystem.Enabled = false;
                     _previewRenderSystem.drawPosition = null;
                     byLawZoneData = null;
                     _bylawUISystem.SetConfigPanelOpen(false);
                     break;
                 case State.Default:
-                    _applyAction.shouldBeEnabled = false;
+                    //_applyAction.shouldBeEnabled = false;
                     _bylawUISystem.SetConfigPanelOpen(true);
                     break;
                 case State.PlopPreview:
-                    _applyAction.shouldBeEnabled = true;
+                    //_applyAction.shouldBeEnabled = true;
                     break;
                 case State.PreviewRunning:
-                    _applyAction.shouldBeEnabled = false;
+                    //_applyAction.shouldBeEnabled = false;
                     break;
                 default:
                     break;
