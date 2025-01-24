@@ -193,7 +193,7 @@ namespace Trejak.ZoningByLaw.Prefab
                         hasParkingGarage = hasParkingGarage,
                         buildingHeight = objGeom.m_Size.y,
                         isOffice = archetypeComponents.Contains(ComponentType.ReadOnly<OfficeProperty>()),
-                        isIndustry = archetypeComponents.Contains(ComponentType.ReadOnly<IndustrialProperty>()),
+                        isIndustry = archetypeComponents.Contains(ComponentType.ReadOnly<IndustrialProperty>()) && !archetypeComponents.Contains(ComponentType.ReadOnly<OfficeProperty>()),
                         isExtractor = archetypeComponents.Contains(ComponentType.ReadOnly<ExtractorProperty>()),
                         isResidential = propertyData.m_ResidentialProperties > 0,
                         isCommercial = archetypeComponents.Contains(ComponentType.ReadOnly<CommercialProperty>()),
