@@ -29,18 +29,20 @@ export default ({byLawItem, isOpen, onChange: onChangeCallback}: Props) : JSX.El
     if (constraintType == ByLawConstraintType.Length || constraintType == ByLawConstraintType.Count) {
         const measurementSuffix = getMeasurementString(byLawItem.byLawItemType, byLawItem.constraintType);
         let onChange = (name: string, newValue: Bounds1) => {            
+            console.log(newValue);
             // Handle conversions to metric
-            if (measurementSuffix.indexOf("units") >= 0) {
+            if (measurementSuffix.indexOf("cells") >= 0) {
                 newValue = {
-                    max: newValue.max * 8,
-                    min: newValue.min * 8
+                    min: newValue.min * 8,
+                    max: newValue.max * 8                    
                 }
             } else if (['m', 'ft'].includes(measurementSuffix) && localization.unitSettings.unitSystem == 1){
                 newValue = {
-                    max: newValue.max / 3,
-                    min: newValue.min / 3
+                    min: Math.round(newValue.min / 3),
+                    max: Math.round(newValue.max / 3)                    
                 }
             } 
+            console.log(newValue);
             let nItemVal = {
                 ...byLawItem,
                 valueBounds1: newValue                
@@ -48,7 +50,8 @@ export default ({byLawItem, isOpen, onChange: onChangeCallback}: Props) : JSX.El
             onChangeCallback && onChangeCallback(nItemVal);
         }
         let boundsValue = byLawItem.valueBounds1;
-        if (measurementSuffix.indexOf("units") >= 0) {
+        let step = 1;
+        if (measurementSuffix.indexOf("cells") >= 0) {
             boundsValue = {
                 max: boundsValue.max / 8,
                 min: boundsValue.min / 8
@@ -58,10 +61,12 @@ export default ({byLawItem, isOpen, onChange: onChangeCallback}: Props) : JSX.El
                 max: boundsValue.max * 3,
                 min: boundsValue.min * 3
             }
+            step = 3;
         } 
         return ByLawItemBounds1Editor({
             name: ByLawItemType[byLawItem.byLawItemType], 
             bounds: boundsValue,   
+            step: step,
             onChange
         });
     }

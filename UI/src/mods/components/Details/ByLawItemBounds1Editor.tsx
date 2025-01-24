@@ -8,7 +8,7 @@ export const ByLawItemBounds1Editor = (props: ByLawItemBounds1EditorProps) => {
 
     return (
         <div className={styles.view} >
-            <Bounds1Field name={props.name} bounds={props.bounds} onChange={props.onChange} />
+            <Bounds1Field name={props.name} bounds={props.bounds} step={props.step} onChange={props.onChange} />
         </div>        
     )
 

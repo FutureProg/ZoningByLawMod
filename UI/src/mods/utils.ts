@@ -93,7 +93,7 @@ export const getMeasurementString = (itemType: ByLawItemType, constraintType: By
     switch(itemType) {        
         case ByLawItemType.LotSize:
         case ByLawItemType.LotWidth:
-            return " units";
+            return " cells";
         case ByLawItemType.Height:
         case ByLawItemType.FrontSetback:
         case ByLawItemType.LeftSetback:

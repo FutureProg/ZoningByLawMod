@@ -41,5 +41,7 @@
     "ZBL.FlagValues[Residential]": "Residential",
     "ZBL.FlagValues[Industrial]": "Industrial",
     "ZBL.FlagValues[Commercial]": "Commercial",
-    "ZBL.FlagValues[Office]": "Office"
+    "ZBL.FlagValues[Office]": "Office",
+
+    "ZBL.MeasurementFormat[Units]": "{VALUE} cells"
 }

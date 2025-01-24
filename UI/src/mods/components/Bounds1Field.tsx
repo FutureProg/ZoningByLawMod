@@ -10,6 +10,7 @@ export interface Bounds1FieldProps {
     bounds: Bounds1,
     name: string,
     onChange?: (name: string, newValue: Bounds1) => void
+    step?: number
 };
 
 export const Bounds1Field = (props: Bounds1FieldProps) => {
@@ -62,7 +63,7 @@ export const Bounds1Field = (props: Bounds1FieldProps) => {
                     checked={isMinEnabled}
                 />
                 <div className={styles.label}>Minimum</div>
-                {isMinEnabled ? <ButtonedNumberInput value={props.bounds.min} onChange={onInputChange('min')} ref={minRef} limit={{ min: -1 }} /> : <div></div>}
+                {isMinEnabled ? <ButtonedNumberInput value={props.bounds.min} onChange={onInputChange('min')} ref={minRef} step={props.step} limit={{ min: -1 }} /> : <div></div>}
             </div>
             <div className={styles.inputContainer}>
                 <VanillaComponentResolver.instance.Checkbox
@@ -71,7 +72,7 @@ export const Bounds1Field = (props: Bounds1FieldProps) => {
                     checked={isMaxEnabled}
                 />
                 <div className={styles.label}>Maximum</div>
-                {isMaxEnabled ? <ButtonedNumberInput onChange={onInputChange('max')} value={props.bounds.max} ref={maxRef} limit={{ min: -1 }} /> : <div></div>}
+                {isMaxEnabled ? <ButtonedNumberInput onChange={onInputChange('max')} value={props.bounds.max} step={props.step} ref={maxRef} limit={{ min: -1 }} /> : <div></div>}
             </div>
         </div>
     )

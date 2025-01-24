@@ -1,25 +1,33 @@
 import { UnitSystem, useLocalization } from "cs2/l10n";
 import { BOUNDS_VALUE_DISABLED, ByLawConstraintType, ByLawItem, ByLawItemType, ByLawZoneType, PollutionValues } from "mods/types";
+import { getMeasurementString } from "mods/utils";
 
 
 //&#160; = space character code (should improve how all of this is done tbh...)
 export default (props: {className?: string, item?: ByLawItem}) => {
     let textChild = <></>;
     let {translate, unitSettings} = useLocalization();
-    console.log(unitSettings);
     switch(props.item?.constraintType) {
         case ByLawConstraintType.Length:
-        case ByLawConstraintType.Count: {            
+        case ByLawConstraintType.Count: {       
+            
+            //TODO: Refactor next lines to find proper suffix
+            //TODO: Fix how conversion is handled
             let value = props.item.valueBounds1;
-            if(unitSettings.unitSystem == 1) {
+            let measurementSuffix = getMeasurementString(props.item.byLawItemType, props.item.constraintType, unitSettings.unitSystem);
+            let isUnits = measurementSuffix == ' cells';
+            if(unitSettings.unitSystem == 1 && !isUnits) {
                 value = {
                     min: value.min * 3,
                     max: value.max * 3
                 }
-            }
+            }            
             let measurement = props.item?.constraintType == ByLawConstraintType.Length? (unitSettings.unitSystem == 0? 'm': 'ft') : '';
-            let minText = value.min > BOUNDS_VALUE_DISABLED? `${value.min}${measurement}` : "";
-            let maxText = value.max > BOUNDS_VALUE_DISABLED? `${value.max}${measurement}` : "";            
+            if (isUnits) {
+                measurement = measurementSuffix;
+            }
+            let minText = value.min > BOUNDS_VALUE_DISABLED? `${isUnits? value.min/8 : value.min}${measurement}` : "";
+            let maxText = value.max > BOUNDS_VALUE_DISABLED? `${isUnits? value.max/8 : value.max}${measurement}` : "";            
             let middleText = minText && maxText? " to " : "";
             if (!middleText) {
                 textChild = <span>{minText}{minText? <span>&#160;&ge;</span> : <span>&le;&#160;</span>}{maxText}</span>; // gte sign : lte sign
