@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using Trejak.ZoningByLaw.BuildingBlocks;
 using Trejak.ZoningByLaw.Prefab;
 using Trejak.ZoningByLaw.Serialization;
@@ -61,6 +62,8 @@ namespace Trejak.ZoningByLaw.UI
         private TriggerBinding<string> _setByLawName;
         private TriggerBinding<Color, Color> _setByLawZoneColour;
         private int _lastElligibleBuildingCount;
+
+        private Timer _writeToFileTimer;
 
         //private TriggerBinding _toggleByLawRenderPreview;
 
@@ -111,8 +114,12 @@ namespace Trejak.ZoningByLaw.UI
             this.AddBinding(_setConfigPanelOpen = new TriggerBinding<bool>(uiGroupName, "SetConfigPanelOpen", SetConfigPanelOpen));
             this.CreateTrigger("ToggleTool", this.ToggleTool);
             this.AddBinding(_setByLawName = new TriggerBinding<string>(uiGroupName, "SetByLawName", SetByLawName));
-            this.AddBinding(_setByLawZoneColour = new TriggerBinding<Color, Color>(uiGroupName, "SetByLawZoneColour", SetByLawZoneColour));            
+            this.AddBinding(_setByLawZoneColour = new TriggerBinding<Color, Color>(uiGroupName, "SetByLawZoneColour", SetByLawZoneColour));
             //this.AddBinding(_toggleByLawRenderPreview = new TriggerBinding(uiGroupName, "ToggleByLawRenderPreview", ToggleByLawRenderPreview));
+
+            _writeToFileTimer = new Timer(3000);
+            _writeToFileTimer.AutoReset = true;
+            _writeToFileTimer.Elapsed += (sender, e) => SaveActiveByLawToDisk();
 
             eqb.Dispose();
         }        
@@ -176,13 +183,24 @@ namespace Trejak.ZoningByLaw.UI
         {
             if (newValue)
             {
-                UpdateByLawList();                
+                UpdateByLawList();            
+                _writeToFileTimer.Start();
+            } else
+            {
+                _writeToFileTimer.Stop();
+                SaveActiveByLawToDisk();                
             }
             _configPanelOpen.Update(newValue);            
         }
 
         void SetActiveByLaw(Entity entity)
         {
+            if(_selectedByLaw.value != Entity.Null && _selectedByLaw.value != entity)
+            {
+                _writeToFileTimer.Stop();
+                SaveActiveByLawToDisk();
+                _writeToFileTimer.Start();
+            }
             if (entity != Entity.Null && !EntityManager.HasComponent<ByLawZoneData>(entity))
             {                 
                 Mod.log.Warn("Entity " + entity.Index + ", " + entity.Version + " doesn't have the ByLawZoneData component! Clearing active bylaw.");
@@ -223,6 +241,8 @@ namespace Trejak.ZoningByLaw.UI
             GameManager.instance.localizationManager.ReloadActiveLocale();
             Utils.SetPrefabText(prefab, data);  
             
+            _writeToFileTimer.Stop();
+            _writeToFileTimer.Start();
             this._selectedByLawData.Value = data;
             SaveActiveByLawToDisk();
         }
@@ -295,6 +315,10 @@ namespace Trejak.ZoningByLaw.UI
 
         void SaveActiveByLawToDisk()
         {
+            if (_selectedByLaw.value == Entity.Null)
+            {
+                return;
+            }
             Utils.SaveByLaw(_selectedByLaw.value, this.EntityManager);            
         }
 
