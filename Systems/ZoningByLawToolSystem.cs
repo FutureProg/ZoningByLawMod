@@ -66,6 +66,7 @@ namespace Trejak.ZoningByLaw.Systems
         {
             base.OnStopRunning();            
             this.SetState(State.None);
+            ClearLastHoveredBuilding();
         }
 
         public override PrefabBase GetPrefab()
@@ -88,6 +89,7 @@ namespace Trejak.ZoningByLaw.Systems
                     _previewRenderSystem.Enabled = false;
                     _previewRenderSystem.drawPosition = null;
                     byLawZoneData = null;
+                    ClearLastHoveredBuilding();
                     _bylawUISystem.SetConfigPanelOpen(false);
                     break;
                 case State.Default:
