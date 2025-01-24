@@ -342,16 +342,18 @@ namespace Trejak.ZoningByLaw.UI
         }
 
         void DeleteActiveByLawFromDisk()
-        {            
+        {
+            _writeToFileTimer.Stop();
             UpdateByLawList();
             Utils.DeleteByLawFromDisk(_selectedByLaw.value, this.EntityManager);
-            SetActiveByLaw(Entity.Null); 
+            SetActiveByLaw(Entity.Null);
+            _writeToFileTimer.Start();
         }
 
         void DeleteByLaw()
         {
             var ecb = _endFrameBarrier.CreateCommandBuffer();
-
+            
             var entity = _selectedByLaw.value;
             var data = EntityManager.GetComponentData<ByLawZoneData>(entity);            
             data.deleted = true;
