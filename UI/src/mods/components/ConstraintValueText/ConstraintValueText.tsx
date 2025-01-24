@@ -1,16 +1,23 @@
-import { useLocalization } from "cs2/l10n";
+import { UnitSystem, useLocalization } from "cs2/l10n";
 import { BOUNDS_VALUE_DISABLED, ByLawConstraintType, ByLawItem, ByLawItemType, ByLawZoneType, PollutionValues } from "mods/types";
 
 
 //&#160; = space character code (should improve how all of this is done tbh...)
 export default (props: {className?: string, item?: ByLawItem}) => {
     let textChild = <></>;
-    let {translate} = useLocalization();
+    let {translate, unitSettings} = useLocalization();
+    console.log(unitSettings);
     switch(props.item?.constraintType) {
         case ByLawConstraintType.Length:
         case ByLawConstraintType.Count: {            
             let value = props.item.valueBounds1;
-            let measurement = props.item?.constraintType == ByLawConstraintType.Length? 'm' : '';
+            if(unitSettings.unitSystem == 1) {
+                value = {
+                    min: value.min * 3,
+                    max: value.max * 3
+                }
+            }
+            let measurement = props.item?.constraintType == ByLawConstraintType.Length? (unitSettings.unitSystem == 0? 'm': 'ft') : '';
             let minText = value.min > BOUNDS_VALUE_DISABLED? `${value.min}${measurement}` : "";
             let maxText = value.max > BOUNDS_VALUE_DISABLED? `${value.max}${measurement}` : "";            
             let middleText = minText && maxText? " to " : "";

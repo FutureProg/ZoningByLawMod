@@ -4,6 +4,8 @@ import { ByLawItemBounds1Editor } from "./ByLawItemBounds1Editor";
 import { Bounds1 } from "cs2/bindings";
 import { useState } from "react";
 import ByLawItemEnumEditor from "./ByLawItemEnumEditor";
+import { getMeasurementString } from "mods/utils";
+import { UnitSystem, useLocalization } from "cs2/l10n";
 
 type Props = {
     byLawItem : ByLawItem;  
@@ -14,7 +16,8 @@ type Props = {
 /**
  * Responsible for choosing which editor to display based on the property type
  */
-export default ({byLawItem, isOpen, onChange: onChangeCallback}: Props) : JSX.Element => {     
+export default ({byLawItem, isOpen, onChange: onChangeCallback}: Props) : JSX.Element => {  
+    let localization = useLocalization();   
     if (!isOpen) {
         return (<></>);
     }
@@ -24,16 +27,41 @@ export default ({byLawItem, isOpen, onChange: onChangeCallback}: Props) : JSX.El
     // let [localByLawItem, updateLocalByLawItem] = useState(byLawItem); 
     
     if (constraintType == ByLawConstraintType.Length || constraintType == ByLawConstraintType.Count) {
-        let onChange = (name: string, newValue: Bounds1) => {
+        const measurementSuffix = getMeasurementString(byLawItem.byLawItemType, byLawItem.constraintType);
+        let onChange = (name: string, newValue: Bounds1) => {            
+            // Handle conversions to metric
+            if (measurementSuffix.indexOf("units") >= 0) {
+                newValue = {
+                    max: newValue.max * 8,
+                    min: newValue.min * 8
+                }
+            } else if (['m', 'ft'].includes(measurementSuffix) && localization.unitSettings.unitSystem == 1){
+                newValue = {
+                    max: newValue.max / 3,
+                    min: newValue.min / 3
+                }
+            } 
             let nItemVal = {
                 ...byLawItem,
                 valueBounds1: newValue                
             };
             onChangeCallback && onChangeCallback(nItemVal);
         }
+        let boundsValue = byLawItem.valueBounds1;
+        if (measurementSuffix.indexOf("units") >= 0) {
+            boundsValue = {
+                max: boundsValue.max / 8,
+                min: boundsValue.min / 8
+            }
+        } else if (['m', 'ft'].includes(measurementSuffix) && localization.unitSettings.unitSystem == 1){
+            boundsValue = {
+                max: boundsValue.max * 3,
+                min: boundsValue.min * 3
+            }
+        } 
         return ByLawItemBounds1Editor({
             name: ByLawItemType[byLawItem.byLawItemType], 
-            bounds: byLawItem.valueBounds1,   
+            bounds: boundsValue,   
             onChange
         });
     }

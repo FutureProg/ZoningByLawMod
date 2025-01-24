@@ -89,18 +89,19 @@ export const useLocalizedMeasurement = (value: number) => {
     return { measurementText, valueLocalized, convertToMetric };
 }
 
-export const getMeasurementString = (itemType: ByLawItemType, constraintType: ByLawConstraintType) => {
+export const getMeasurementString = (itemType: ByLawItemType, constraintType: ByLawConstraintType, unitSystem: UnitSystem = 0) => {
     switch(itemType) {        
-        case ByLawItemType.Height:
-            return "m";
-        case ByLawItemType.LandUse:        
-        case ByLawItemType.LotWidth:
         case ByLawItemType.LotSize:
-        case ByLawItemType.Parking:
+        case ByLawItemType.LotWidth:
+            return " units";
+        case ByLawItemType.Height:
         case ByLawItemType.FrontSetback:
         case ByLawItemType.LeftSetback:
         case ByLawItemType.RightSetback:
         case ByLawItemType.RearSetback:
+            return unitSystem == 0? "m" : "ft";
+        case ByLawItemType.LandUse:                        
+        case ByLawItemType.Parking:        
         case ByLawItemType.AirPollutionLevel:
         case ByLawItemType.GroundPollutionLevel:
         case ByLawItemType.NoisePollutionLevel:
