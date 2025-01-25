@@ -6,6 +6,7 @@ import { useState } from "react";
 import ByLawItemEnumEditor from "./ByLawItemEnumEditor";
 import { getMeasurementString } from "mods/utils";
 import { UnitSystem, useLocalization } from "cs2/l10n";
+import React from "react";
 
 type Props = {
     byLawItem : ByLawItem;  
@@ -17,21 +18,20 @@ type Props = {
  * Responsible for choosing which editor to display based on the property type
  */
 export default ({byLawItem, isOpen, onChange: onChangeCallback}: Props) : JSX.Element => {  
-    let localization = useLocalization();   
+    let localization = useLocalization();  
+    const measurementSuffix = getMeasurementString(byLawItem.byLawItemType, byLawItem.constraintType);
+    let isCellMeasurement = measurementSuffix.indexOf("cells") >= 0;
     if (!isOpen) {
         return (<></>);
     }
 
     let {constraintType: constraintType, byLawItemType: itemType} = byLawItem;
 
-    // let [localByLawItem, updateLocalByLawItem] = useState(byLawItem); 
-    
     if (constraintType == ByLawConstraintType.Length || constraintType == ByLawConstraintType.Count) {
-        const measurementSuffix = getMeasurementString(byLawItem.byLawItemType, byLawItem.constraintType);
+        
         let onChange = (name: string, newValue: Bounds1) => {            
-            console.log(newValue);
             // Handle conversions to metric
-            if (measurementSuffix.indexOf("cells") >= 0) {
+            if (isCellMeasurement) {
                 newValue = {
                     min: newValue.min * 8,
                     max: newValue.max * 8                    
@@ -51,7 +51,7 @@ export default ({byLawItem, isOpen, onChange: onChangeCallback}: Props) : JSX.El
         }
         let boundsValue = byLawItem.valueBounds1;
         let step = 1;
-        if (measurementSuffix.indexOf("cells") >= 0) {
+        if (isCellMeasurement) {
             boundsValue = {
                 max: boundsValue.max / 8,
                 min: boundsValue.min / 8
@@ -63,7 +63,7 @@ export default ({byLawItem, isOpen, onChange: onChangeCallback}: Props) : JSX.El
             }
             step = 3;
         } 
-        return ByLawItemBounds1Editor({
+        return React.createElement(ByLawItemBounds1Editor, {
             name: ByLawItemType[byLawItem.byLawItemType], 
             bounds: boundsValue,   
             step: step,
@@ -76,17 +76,18 @@ export default ({byLawItem, isOpen, onChange: onChangeCallback}: Props) : JSX.El
             let nItemVal = {
                 ...byLawItem,
                 valueByteFlag: nValue
-            }
-            // updateLocalByLawItem(nItemVal);            
+            }     
             onChangeCallback && onChangeCallback(nItemVal);
         }
 
-        return ByLawItemEnumEditor({
-            constraintType: byLawItem.constraintType,
-            itemType: byLawItem.byLawItemType,
-            itemValue: byLawItem.valueByteFlag,
-            onChange
-        });
+        return (
+            <ByLawItemEnumEditor
+            constraintType={byLawItem.constraintType}
+            itemType={byLawItem.byLawItemType}
+            itemValue={byLawItem.valueByteFlag}
+            onChange={onChange}
+            />
+        )
     }
     return (<></>);
 }

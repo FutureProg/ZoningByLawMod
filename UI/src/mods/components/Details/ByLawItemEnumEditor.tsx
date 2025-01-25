@@ -1,8 +1,7 @@
-import { ByLawConstraintType, ByLawItem, ByLawItemType, ByLawZoneType, PollutionValues } from 'mods/types';
-import EnumFieldCheckboxes, { EnumFieldCheckboxesProps } from '../EnumFieldCheckboxes';
+import { ByLawConstraintType, ByLawItemType, ByLawZoneType, PollutionValues } from 'mods/types';
+import EnumFieldCheckboxes from '../EnumFieldCheckboxes';
 import styles from './ByLawItemEnumEditor.module.scss';
 import { useMemo, useState } from 'react';
-import { Pollution } from 'cs2/bindings';
 
 export interface ByLawItemEnumEditorProps {
     itemType: ByLawItemType;
@@ -10,8 +9,6 @@ export interface ByLawItemEnumEditorProps {
     constraintType: ByLawConstraintType;
     onChange?: (enumValue: any) => void;
 };
-
-enum bad {}
 
 export default (props: ByLawItemEnumEditorProps) => {        
     let selectType : 'multi' | 'single' = props.constraintType == ByLawConstraintType.MultiSelect? 'multi' : 'single';
