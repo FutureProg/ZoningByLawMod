@@ -41,22 +41,23 @@ export const SidePanel = () => {
 
     let editorButtons = currentView == 'editor' ? (
         <>
-        <Tooltip tooltip={translate("ZBL.Tooltip[Duplicate]", "Duplicate (Not Implemented)")} direction='right'>
+        {/* <Tooltip tooltip={translate("ZBL.Tooltip[Duplicate]", "Duplicate (Not Implemented)")} direction='right'>
             <div className={classNames(styles.sideButton)}>
                 <img src="coui://uil/Dark/RectangleCopy.svg" />
             </div>
-        </Tooltip>
+        </Tooltip> */}
+        <div className={styles.divider}></div>
         <Tooltip tooltip={translate("Common.DELETE_TOOLTIP", "Delete")} direction='right'>
             <div onClick={onDeleteByLaw} className={classNames(styles.sideButton, styles.warningButton)}>
                 <img src="coui://uil/Dark/Trash.svg" />
             </div>
         </Tooltip>
-        <div className={styles.divider}></div>
+        {/* <div className={styles.divider}></div>
         <Tooltip tooltip={translate("ZBL.Tooltip[PreviewZoneButton]", "Preview Zone (Not Implemented)")} direction='right'>
             <div className={styles.sideButton}>
                 <img src="coui://uil/Dark/Cube.svg" />
             </div>
-        </Tooltip>                    
+        </Tooltip>                     */}
         </>
     ) : <></>;
 
