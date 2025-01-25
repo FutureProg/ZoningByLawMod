@@ -159,7 +159,7 @@ namespace ZoningByLaw.BuildingBlocks
                 case ByLawItemType.Height:
                     return EvalBounds(item.valueBounds1, properties.buildingHeight);
                 case ByLawItemType.LotSize:
-                    var lotSize = (buildingData.m_LotSize.x * 8) * (buildingData.m_LotSize.y * 8);
+                    var lotSize = buildingData.m_LotSize.x * buildingData.m_LotSize.y * 8;
                     return EvalBounds(item.valueBounds1, lotSize);
                 case ByLawItemType.LotWidth:
                     return EvalBounds(item.valueBounds1, buildingData.m_LotSize.x * 8);
