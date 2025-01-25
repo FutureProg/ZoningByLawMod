@@ -67,7 +67,7 @@
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="UnityEngine.AudioModule">
-		  <HintPath>E:\SteamLibrary\steamapps\common\Cities Skylines II\Cities2_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
+      <Private>false</Private>
 		</Reference>
 		<Reference Include="UnityEngine.CoreModule">
 			<Private>false</Private>
