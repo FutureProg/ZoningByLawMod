@@ -1,5 +1,6 @@
 import { ModRegistrar } from "cs2/modding";
 import { ConfigPanelToggleButton } from "mods/ConfigPanelToggleButton";
+import { MainModToggle } from "mods/MainModToggle";
 import { ModView } from "mods/ModView/ModView";
 import { VanillaComponentResolver } from "vanillacomponentresolver";
 
@@ -9,6 +10,7 @@ const register: ModRegistrar = (moduleRegistry) => {
     //game-ui/game/components/tool-options/mouse-tool-options/mouse-tool-options.tsx
     moduleRegistry.extend("game-ui/game/components/tool-options/mouse-tool-options/mouse-tool-options.tsx", "MouseToolOptions", ConfigPanelToggleButton);
     moduleRegistry.append('Game', ModView);
+    moduleRegistry.append("GameTopLeft", MainModToggle);
 }
 
 export default register;
