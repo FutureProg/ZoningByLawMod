@@ -5,17 +5,21 @@ import { SidePanelHeader } from 'mods/SidePanelHeader/SidePanelHeader';
 import { SidePanelViews } from 'mods/types';
 import { ByLawEditorView } from 'mods/ByLawEditorView/ByLawEditorView';
 import { useValue } from 'cs2/api';
-import { createNewByLaw, deleteByLaw, selectedByLaw$ } from 'mods/bindings';
+import { createNewByLaw, deleteByLaw, elligibleBuildingCount$, selectedByLaw$ } from 'mods/bindings';
 import { createPortal } from 'react-dom';
 import { Tooltip } from 'cs2/ui';
 import { useLocalization } from 'cs2/l10n';
 import classNames from 'classnames';
+import { CounterTile } from 'mods/components/CounterTile';
+
+import CityIcon from '../../images/city-icon.svg'
 
 export const SidePanel = () => {
     let { translate } = useLocalization();
     let [currentView, setCurrentView] = useState<SidePanelViews>('bylaws');
     let [searchQuery, setSearchQuery] = useState<string | undefined>();
     let activeByLaw = useValue(selectedByLaw$);
+    let elligibleBuildings = useValue(elligibleBuildingCount$);
 
     let onSearchChange = (text: string) => {
         setSearchQuery(text);
@@ -41,6 +45,11 @@ export const SidePanel = () => {
 
     let editorButtons = currentView == 'editor' ? (
         <>
+        <CounterTile 
+            value={elligibleBuildings} 
+            thresholds={{danger: 2, warning: 20}} 
+            iconSrc={CityIcon}
+            hint={translate("ZBL.Tooltip[EligibleBuildingCount]", "The number of elligible buildings") as string} />
         {/* <Tooltip tooltip={translate("ZBL.Tooltip[Duplicate]", "Duplicate (Not Implemented)")} direction='right'>
             <div className={classNames(styles.sideButton)}>
                 <img src="coui://uil/Dark/RectangleCopy.svg" />
