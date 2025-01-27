@@ -1,0 +1,13 @@
+.view {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+
+    padding: 1rem 2rem;
+    gap: 1rem;
+    font-size: var(--fontSizeM);
+
+    img {
+        height: 100%;
+    }
+}
