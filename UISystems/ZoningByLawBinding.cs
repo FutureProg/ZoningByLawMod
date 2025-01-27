@@ -35,11 +35,12 @@ namespace Trejak.ZoningByLaw.UISystems
             return buffer.Build();
         }
 
-        public void UpdateEntity(Entity byLawEntity, EntityManager em)
+        public void UpdateEntity(Entity byLawEntity, EntityManager em, int eligibleBuildingCount = 0)
         {
             ByLawZoneData data = new()
             {
-                deleted = this.deleted
+                deleted = this.deleted,
+                elligibleBuildings = eligibleBuildingCount
             };
             em.SetComponentData(byLawEntity, data);
 

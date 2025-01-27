@@ -234,7 +234,7 @@ namespace Trejak.ZoningByLaw.UI
         void SetByLawData(ZoningByLawBinding data)
         {
             Mod.log.Info("Set By Law Data: " + data.ToJSONString());
-            data.UpdateEntity(_selectedByLaw.value, this.EntityManager);            
+            data.UpdateEntity(_selectedByLaw.value, this.EntityManager, GetElligibleBuildingCount());
             var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(_selectedByLaw.value);            
             prefab.Update(data);
             _elligibleBuildingsSystem.EnqueueUpdate(_selectedByLaw.value);
