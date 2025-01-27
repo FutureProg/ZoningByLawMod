@@ -2,9 +2,10 @@
     "ZBL.Tooltip[PreviewZoneButton]": "Preview Zone (Not Implemented)",
     "ZBL.Tooltip[CreateNewByLaw]": "Create A New ByLaw",
     "ZBL.Tooltip[Duplicate]": "Duplicate (Not Implemented)",
+    "ZBL.Tooltip[EligibleBuildingCount]": "The Number of Eligible Buildings",
     "ZBL.ByLawPanel[ListTitle]": "Zoning By Laws",
     "ZBL.ByLawPanel[Editor]": "Editor",
-    "ZBL.ByLawPanel[ElligibleBuildings]":  "Elligible Buildings",
+    "ZBL.ByLawPanel[ElligibleBuildings]": "Elligible Buildings",
 
     "ZBL.PropertyOperator[None]": "NONE",
     "ZBL.PropertyOperator[Is]": "Is",
