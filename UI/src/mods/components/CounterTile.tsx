@@ -8,7 +8,7 @@ export const CounterTile = ({thresholds = {danger: 2, warning: 20}, ...props}: {
     iconSrc?: string,
     hint?: string,
     className?: string;
-    thresholds: { // if less than x, then change the colour
+    thresholds?: { // if less than x, then change the colour
         danger: number,
         warning: number
     }

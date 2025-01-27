@@ -2,12 +2,22 @@
     position: relative;
     display: flex;
     flex-direction: row;
+    align-items: center;
 
     padding: 1rem 2rem;
     gap: 1rem;
     font-size: var(--fontSizeM);
+    background-color: rgba(148, 250, 206, 0.8);
+    backdrop-filter: blur(2px);
+    border-radius: 10px;
 
     img {
         height: 100%;
+    }
+    .danger {
+        background: rgba(250, 148, 148, 0.8);
+    }
+    .warning {
+        background: rgba(242, 250, 148, 0.8);
     }
 }
