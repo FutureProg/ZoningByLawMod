@@ -27,12 +27,16 @@
 .sideButtons {
     position: absolute;
     left: 345rem;
-    top: 108rem;
+    top: 100rem;
 
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: left;
+
+    > * {
+        margin-bottom: 4rem;
+    }
 
     .divider {
         width: 40rem;

@@ -44,12 +44,7 @@ export const SidePanel = () => {
     }, [activeByLaw.index]);
 
     let editorButtons = currentView == 'editor' ? (
-        <>
-        <CounterTile 
-            value={elligibleBuildings} 
-            thresholds={{danger: 2, warning: 20}} 
-            iconSrc={CityIcon}
-            hint={translate("ZBL.Tooltip[EligibleBuildingCount]", "The number of elligible buildings") as string} />
+        <>        
         {/* <Tooltip tooltip={translate("ZBL.Tooltip[Duplicate]", "Duplicate (Not Implemented)")} direction='right'>
             <div className={classNames(styles.sideButton)}>
                 <img src="coui://uil/Dark/RectangleCopy.svg" />
@@ -72,6 +67,11 @@ export const SidePanel = () => {
 
     let sideButtons = createPortal((
         <div className={styles.sideButtons}>
+            {currentView == 'editor'? <CounterTile 
+                value={elligibleBuildings} 
+                thresholds={{danger: 2, warning: 20}} 
+                iconSrc={CityIcon}
+                hint={translate("ZBL.Tooltip[EligibleBuildingCount]", "The number of elligible buildings") as string} /> : null}
             <Tooltip tooltip={translate("ZBL.Tooltip[CreateNewByLaw]", "Create A New ByLaw")} direction='right'>
                 <div onClick={onCreateByLaw} className={styles.sideButton}>
                     <img src="coui://uil/Dark/Plus.svg" />
