@@ -1,4 +1,4 @@
-import { Tooltip } from 'cs2/ui';
+import { BalloonDirection, Tooltip } from 'cs2/ui';
 import styles from './CounterTile.module.scss';
 import { CSSProperties } from 'react';
 import classNames from 'classnames';
@@ -6,7 +6,10 @@ import classNames from 'classnames';
 export const CounterTile = ({thresholds = {danger: 2, warning: 20}, ...props}: {
     value: number,
     iconSrc?: string,
-    hint?: string,
+    tooltip?: {
+        text?: string,
+        direction?: BalloonDirection
+    },
     className?: string;
     thresholds?: { // if less than x, then change the colour
         danger: number,
@@ -20,7 +23,7 @@ export const CounterTile = ({thresholds = {danger: 2, warning: 20}, ...props}: {
     const isWarning = !isDanger && props.value <= thresholds.warning;
     const status = isDanger ? 'danger' : ( isWarning ? 'warning': 'good');
     return (
-        <Tooltip tooltip={props.hint} disabled={!props.hint}>
+        <Tooltip tooltip={props.tooltip?.text} disabled={!props.tooltip || !props.tooltip.text} direction={props.tooltip?.direction}>
             <div className={classes} data-status={status}>
                 {props.iconSrc? <img src={props.iconSrc} /> : null }
                 <div>{props.value}</div>

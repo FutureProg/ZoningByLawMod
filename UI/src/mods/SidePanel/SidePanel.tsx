@@ -67,11 +67,16 @@ export const SidePanel = () => {
 
     let sideButtons = createPortal((
         <div className={styles.sideButtons}>
-            {currentView == 'editor'? <CounterTile 
+            {currentView == 'editor'? 
+                <CounterTile 
                 value={elligibleBuildings} 
                 thresholds={{danger: 2, warning: 20}} 
                 iconSrc={CityIcon}
-                hint={translate("ZBL.Tooltip[EligibleBuildingCount]", "The number of elligible buildings") as string} /> : null}
+                tooltip={{
+                    text: translate("ZBL.Tooltip[EligibleBuildingCount]", "The number of eligible buildings") as string,
+                    direction: 'right'
+                }} /> 
+                : null} 
             <Tooltip tooltip={translate("ZBL.Tooltip[CreateNewByLaw]", "Create A New ByLaw")} direction='right'>
                 <div onClick={onCreateByLaw} className={styles.sideButton}>
                     <img src="coui://uil/Dark/Plus.svg" />
