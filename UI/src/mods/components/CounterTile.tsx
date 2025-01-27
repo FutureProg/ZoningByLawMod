@@ -14,13 +14,14 @@ export const CounterTile = ({thresholds = {danger: 2, warning: 20}, ...props}: {
     }
 }) => {
     const classes = classNames(styles.view,{
-        [props.className ?? 'null']: props.className != undefined,
-        [styles.danger]: props.value <= thresholds.danger,
-        [styles.warning]: props.value <= thresholds.warning && props.value > thresholds.danger
+        [props.className ?? 'null']: props.className != undefined
     });
+    const isDanger = props.value <= thresholds.danger;
+    const isWarning = !isDanger && props.value <= thresholds.warning;
+    const status = isDanger ? 'danger' : ( isWarning ? 'warning': 'good');
     return (
         <Tooltip tooltip={props.hint} disabled={!props.hint}>
-            <div className={classes}>
+            <div className={classes} data-status={status}>
                 {props.iconSrc? <img src={props.iconSrc} /> : null }
                 <div>{props.value}</div>
             </div>
