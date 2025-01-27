@@ -49,7 +49,6 @@ export default (
                     max: Math.round(newValue.max / 3),
                 };
             }
-            console.log(newValue);
             let nItemVal = {
                 ...byLawItem,
                 valueBounds1: newValue,
