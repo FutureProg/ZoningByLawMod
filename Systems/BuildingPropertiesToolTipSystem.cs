@@ -3,6 +3,7 @@ using Game.Buildings;
 using Game.Common;
 using Game.Prefabs;
 using Game.Tools;
+using Game.UI.Localization;
 using Game.UI.Tooltip;
 using Trejak.ZoningByLaw.Prefab;
 
@@ -35,42 +36,42 @@ namespace Trejak.ZoningByLaw.Systems
             {
                 path = "BuildingHeight",
                 icon = "Media/Glyphs/Length.svg",
-                label = "Height",//LocalizedString.Id("ZBL.Constraints[HEIGHT]"),
+                label = LocalizedString.Id("ZBL.Constraints[Height]"),
                 unit = "length"
             };
             _lotSizeTip = new FloatTooltip()
             {
                 path = "BuildingLotSize",
                 icon = "Media/Glyphs/Length.svg",
-                label = "Lot Size",
+                label = LocalizedString.Id("ZBL.Constraints[LotSize]"),
                 unit = "length"
             };
             _frontSetbackTip = new FloatTooltip()
             {
                 path = "BuildingFrontSetback",
                 icon = "Media/Glyphs/Length.svg",
-                label = "Front Setback",
+                label = LocalizedString.Id("ZBL.Constraints[FrontSetback]"),
                 unit = "length"
             };
             _rearSetbackTip = new FloatTooltip()
             {
                 path = "BuildingRearSetback",
                 icon = "Media/Glyphs/Length.svg",
-                label = "Rear Setback",
+                label = LocalizedString.Id("ZBL.Constraints[RearSetback]"),
                 unit = "length"
             };
             _leftSetbackTip = new FloatTooltip()
             {
                 path = "BuildingLeftSetback",
                 icon = "Media/Glyphs/Length.svg",
-                label = "Rear Setback",
+                label = LocalizedString.Id("ZBL.Constraints[LeftSetback]"),
                 unit = "length"
             };
             _rightSetbackTip = new FloatTooltip()
             {
                 path = "BuildingRightSetback",
                 icon = "Media/Glyphs/Length.svg",
-                label = "Right Setback",
+                label = LocalizedString.Id("ZBL.Constraints[RightSetback]"),
                 unit = "length"
             };
         }
