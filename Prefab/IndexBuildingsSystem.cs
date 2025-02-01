@@ -195,7 +195,7 @@ namespace Trejak.ZoningByLaw.Prefab
                         isOffice = archetypeComponents.Contains(ComponentType.ReadOnly<OfficeProperty>()),
                         isIndustry = archetypeComponents.Contains(ComponentType.ReadOnly<IndustrialProperty>()) && !archetypeComponents.Contains(ComponentType.ReadOnly<OfficeProperty>()),
                         isExtractor = archetypeComponents.Contains(ComponentType.ReadOnly<ExtractorProperty>()),
-                        isResidential = propertyData.m_ResidentialProperties > 0,
+                        isResidential = propertyData.m_ResidentialProperties > 0 || archetypeComponents.Contains(ComponentType.ReadOnly<ResidentialProperty>()),
                         isCommercial = archetypeComponents.Contains(ComponentType.ReadOnly<CommercialProperty>()),
                         pollutionData = hasPollutionData? pollutionData : default
                     };
