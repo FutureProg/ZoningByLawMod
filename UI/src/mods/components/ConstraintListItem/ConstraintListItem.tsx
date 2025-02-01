@@ -8,7 +8,7 @@ import ByLawPropertyEditSection from '../Details/ByLawPropertyEditSection';
 import classNames from 'classnames';
 import ConstraintOperatorText from '../ConstraintOperatorText/ConstraintOperatorText';
 import { useLocalization } from 'cs2/l10n';
-import { Dropdown, DropdownItem, DropdownToggle } from 'cs2/ui';
+import { Dropdown, DropdownItem, DropdownToggle, FOCUS_DISABLED } from 'cs2/ui';
 import { deepCopy, getOperationTypes } from 'mods/utils';
 import { Theme } from 'cs2/bindings';
 import { getModule } from 'cs2/modding';
@@ -58,6 +58,7 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
     const operatorOptions = getOperationTypes(props.itemType).map((operator, index) => {
         return (
             <DropdownItem 
+                focusKey={FOCUS_DISABLED}
                 onChange={onPropertyOperatorChange} 
                 value={operator} 
                 selected={operator == props.value?.propertyOperator}>
@@ -83,7 +84,7 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
                 {enabled ?
                     <>
                     { operatorOptions.length > 1 && isOpen? 
-                    <Dropdown theme={DropdownStyle} content={operatorOptions}>
+                    <Dropdown focusKey={FOCUS_DISABLED} theme={DropdownStyle} content={operatorOptions}>
                         <DropdownToggle>
                             {currentOperatorText}
                         </DropdownToggle>                        
