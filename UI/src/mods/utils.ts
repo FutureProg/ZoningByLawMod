@@ -158,15 +158,15 @@ export const getOperationTypes = (byLawItemType: ByLawItemType) : ByLawPropertyO
         case ByLawItemType.RightSetback:
         case ByLawItemType.RearSetback:                
             re.push(ByLawPropertyOperator.Is); 
-            re.push(ByLawPropertyOperator.IsNot);                                   
+            // re.push(ByLawPropertyOperator.IsNot);                                   
             return re;
         case ByLawItemType.NoisePollutionLevel:
         case ByLawItemType.GroundPollutionLevel:
         case ByLawItemType.AirPollutionLevel:
             re.push(ByLawPropertyOperator.AtMost);
-            re.push(ByLawPropertyOperator.AtLeast);
-            re.push(ByLawPropertyOperator.Is);
-            re.push(ByLawPropertyOperator.IsNot);
+            // re.push(ByLawPropertyOperator.AtLeast);
+            // re.push(ByLawPropertyOperator.Is);
+            // re.push(ByLawPropertyOperator.IsNot);
             return re;
         case ByLawItemType.None:
         default:

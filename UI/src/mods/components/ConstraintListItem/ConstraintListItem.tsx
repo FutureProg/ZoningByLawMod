@@ -1,4 +1,4 @@
-import { ByLawItem, ByLawItemType } from 'mods/types';
+import { ByLawItem, ByLawItemType, ByLawPropertyOperator } from 'mods/types';
 import styles from './ConstraintListItem.module.scss';
 import checkboxTheme from '../../themes/RoundCheckboxTheme.module.scss';
 import { VanillaComponentResolver } from 'vanillacomponentresolver';
@@ -8,6 +8,12 @@ import ByLawPropertyEditSection from '../Details/ByLawPropertyEditSection';
 import classNames from 'classnames';
 import ConstraintOperatorText from '../ConstraintOperatorText/ConstraintOperatorText';
 import { useLocalization } from 'cs2/l10n';
+import { Dropdown, DropdownItem, DropdownToggle } from 'cs2/ui';
+import { deepCopy, getOperationTypes } from 'mods/utils';
+import { Theme } from 'cs2/bindings';
+import { getModule } from 'cs2/modding';
+
+const DropdownStyle: Theme | any = getModule("game-ui/menu/themes/dropdown.module.scss", "classes");
 
 type ConstraintListItemProps = {
     itemType: ByLawItemType,
@@ -41,6 +47,26 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
     let onItemChange = (newItemValue: ByLawItem) => {
         props.onValueChange && props.onValueChange(newItemValue);
     }
+
+    let onPropertyOperatorChange = (operator: ByLawPropertyOperator) => {
+        onItemChange({
+            ...deepCopy(props.value!),
+            propertyOperator: operator
+        });
+    }
+
+    const operatorOptions = getOperationTypes(props.itemType).map((operator, index) => {
+        return (
+            <DropdownItem 
+                onChange={onPropertyOperatorChange} 
+                value={operator} 
+                selected={operator == props.value?.propertyOperator}>
+                {translate(`ZBL.PropertyOperator[${ByLawPropertyOperator[operator]}]`)}
+            </DropdownItem>
+        )
+    });
+    const currentOperatorText = props.value? translate(`ZBL.PropertyOperator[${ByLawPropertyOperator[props.value.propertyOperator]}]`) : '';
+
     return (
         <div className={styles.view} onClick={toggleOpen}>
             <div className={styles.infoRow}>
@@ -55,7 +81,16 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
             </div>
             <div className={classNames(styles.editorSection, {[styles.open]: isOpen && enabled})}>
                 {enabled ?
+                    <>
+                    { operatorOptions.length > 1 && isOpen? 
+                    <Dropdown theme={DropdownStyle} content={operatorOptions}>
+                        <DropdownToggle>
+                            {currentOperatorText}
+                        </DropdownToggle>                        
+                    </Dropdown>: null
+                    }
                     <ByLawPropertyEditSection byLawItem={props.value!} isOpen={isOpen} onChange={onItemChange} />
+                    </>                    
                     : <></>
                 }
             </div>
