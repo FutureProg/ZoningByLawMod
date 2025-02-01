@@ -36,42 +36,42 @@ namespace Trejak.ZoningByLaw.Systems
             {
                 path = "BuildingHeight",
                 icon = "Media/Glyphs/Length.svg",
-                label = LocalizedString.Id("ZBL.Constraints[Height]"),
+                label = LocalizedString.Id("ZBL.ByLawItemType[Height]"),
                 unit = "length"
             };
             _lotSizeTip = new FloatTooltip()
             {
                 path = "BuildingLotSize",
                 icon = "Media/Glyphs/Length.svg",
-                label = LocalizedString.Id("ZBL.Constraints[LotSize]"),
+                label = LocalizedString.Id("ZBL.ByLawItemType[LotSize]"),
                 unit = "length"
             };
             _frontSetbackTip = new FloatTooltip()
             {
                 path = "BuildingFrontSetback",
                 icon = "Media/Glyphs/Length.svg",
-                label = LocalizedString.Id("ZBL.Constraints[FrontSetback]"),
+                label = LocalizedString.Id("ZBL.ByLawItemType[FrontSetback]"),
                 unit = "length"
             };
             _rearSetbackTip = new FloatTooltip()
             {
                 path = "BuildingRearSetback",
                 icon = "Media/Glyphs/Length.svg",
-                label = LocalizedString.Id("ZBL.Constraints[RearSetback]"),
+                label = LocalizedString.Id("ZBL.ByLawItemType[RearSetback]"),
                 unit = "length"
             };
             _leftSetbackTip = new FloatTooltip()
             {
                 path = "BuildingLeftSetback",
                 icon = "Media/Glyphs/Length.svg",
-                label = LocalizedString.Id("ZBL.Constraints[LeftSetback]"),
+                label = LocalizedString.Id("ZBL.ByLawItemType[LeftSetback]"),
                 unit = "length"
             };
             _rightSetbackTip = new FloatTooltip()
             {
                 path = "BuildingRightSetback",
                 icon = "Media/Glyphs/Length.svg",
-                label = LocalizedString.Id("ZBL.Constraints[RightSetback]"),
+                label = LocalizedString.Id("ZBL.ByLawItemType[RightSetback]"),
                 unit = "length"
             };
         }
