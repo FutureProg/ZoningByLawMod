@@ -44,5 +44,8 @@
     "ZBL.FlagValues[Commercial]": "Commercial",
     "ZBL.FlagValues[Office]": "Office",
 
-    "ZBL.MeasurementFormat[Units]": "{VALUE} cells"
+    "ZBL.MeasurementFormat[Units]": "{VALUE} cells",
+
+    "SubServices.NAME[ByLawZones]": "Zoning ByLaws",
+    "Assets.SUB_SERVICE_DESCRIPTION[ByLawZones]": "Custom contraint zones created by you, the player."
 }

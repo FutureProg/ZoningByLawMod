@@ -41,10 +41,7 @@ namespace Trejak.ZoningByLaw
 
                 yield return new(titleId, prefab.bylawName);
                 yield return new(descId, "A Custom ByLaw");
-            }
-
-            yield return new($"SubServices.NAME[ByLawZones]", "Zoning ByLaws");
-            yield return new($"Assets.SUB_SERVICE_DESCRIPTION[ByLawZones]", "Custom contraint zones created by you, the player.");
+            }            
         }
 
         public void Unload()
