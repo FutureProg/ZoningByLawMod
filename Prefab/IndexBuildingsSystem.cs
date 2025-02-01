@@ -197,6 +197,7 @@ namespace Trejak.ZoningByLaw.Prefab
                         isExtractor = archetypeComponents.Contains(ComponentType.ReadOnly<ExtractorProperty>()),
                         isResidential = propertyData.m_ResidentialProperties > 0 || archetypeComponents.Contains(ComponentType.ReadOnly<ResidentialProperty>()),
                         isCommercial = archetypeComponents.Contains(ComponentType.ReadOnly<CommercialProperty>()),
+                        isStorage = archetypeComponents.Contains(ComponentType.ReadOnly<StorageProperty>()) && archetypeComponents.Contains(ComponentType.ReadOnly<IndustrialProperty>()),
                         pollutionData = hasPollutionData? pollutionData : default
                     };
 
@@ -220,7 +221,7 @@ namespace Trejak.ZoningByLaw.Prefab
                     this.UpdateIndex(true);
                 }
             }
-            Mod.log.Info($"IndexBuildingsSystem created properties for {processedEnts} entities.");            
+            Mod.log.Info($"IndexBuildingsSystem created properties for {processedEnts} entities.");
         }
         
         public void WriteToFile()
@@ -429,6 +430,7 @@ namespace Trejak.ZoningByLaw.Prefab
         public bool isOffice;
         public bool isIndustry;
         public bool isExtractor;
+        public bool isStorage;
 
         public float buildingSetbackFront;
         public float buildingSetBackLeft;
