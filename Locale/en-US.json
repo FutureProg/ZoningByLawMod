@@ -47,5 +47,5 @@
     "ZBL.MeasurementFormat[Units]": "{VALUE} cells",
 
     "SubServices.NAME[ByLawZones]": "Zoning ByLaws",
-    "Assets.SUB_SERVICE_DESCRIPTION[ByLawZones]": "Custom contraint zones created by you, the player."
+    "Assets.SUB_SERVICE_DESCRIPTION[ByLawZones]": "Custom contraint-based zones created by you, the player."
 }
