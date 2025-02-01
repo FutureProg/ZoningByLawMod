@@ -1,5 +1,6 @@
 ﻿using Colossal.Mathematics;
 using Game.Prefabs;
+using System;
 using Trejak.ZoningByLaw;
 using Trejak.ZoningByLaw.BuildingBlocks;
 using Trejak.ZoningByLaw.Prefab;
@@ -199,6 +200,21 @@ namespace ZoningByLaw.BuildingBlocks
                 re = re && value <= bounds.max;
             }
             return re;
+        }
+
+        public static Type GetConstraintEnumType(ByLawItemType itemType)
+        {
+            switch (itemType)
+            {
+                case ByLawItemType.Uses:
+                    return typeof(ByLawZoneType);
+                case ByLawItemType.AirPollutionLevel:
+                case ByLawItemType.GroundPollutionLevel:
+                case ByLawItemType.NoisePollutionLevel:
+                    return typeof(ByLawPollutionThreshold);
+                default:
+                    return null;
+            }            
         }
 
         public static ByLawConstraintType GetConstraintTypes(ByLawItemType itemType)

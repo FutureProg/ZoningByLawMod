@@ -40,7 +40,7 @@ namespace Trejak.ZoningByLaw
                 _prefabUISystem.GetTitleAndDescription(prefabEntity, out string titleId, out string descId);
 
                 yield return new(titleId, prefab.bylawName);
-                yield return new(descId, "A Custom ByLaw");
+                yield return new(descId, prefab.CreateDescription());
             }            
         }
 

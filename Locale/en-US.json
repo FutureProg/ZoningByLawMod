@@ -17,6 +17,7 @@
 
     "ZBL.ByLawItemType[None]": "None",
     "ZBL.ByLawItemType[LandUse]": "Land Use",
+    "ZBL.ByLawItemType[Uses]": "Land Use",
     "ZBL.ByLawItemType[Height]": "Height",
     "ZBL.ByLawItemType[LotWidth]": "Lot Width",
     "ZBL.ByLawItemType[LotSize]": "Lot Size",

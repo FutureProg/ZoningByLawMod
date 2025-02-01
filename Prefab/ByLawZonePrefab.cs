@@ -1,7 +1,10 @@
 ﻿using Colossal.Mathematics;
 using Colossal.UI.Binding;
 using Game.Prefabs;
+using Game.SceneFlow;
+using Game.UI.Localization;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +13,7 @@ using Trejak.ZoningByLaw.BuildingBlocks;
 using Trejak.ZoningByLaw.UISystems;
 using Unity.Entities;
 using Unity.Mathematics;
+using ZoningByLaw.BuildingBlocks;
 
 namespace Trejak.ZoningByLaw.Prefab
 {   
@@ -48,29 +52,50 @@ namespace Trejak.ZoningByLaw.Prefab
         public string CreateDescription()
         {
             string re = "";
-
-            re += "Permitted Uses: ";
-            var usesValArr = Enum.GetValues(typeof(ByLawZoneType));
-            for (int i = 0; i < usesValArr.Length; i++)
-            {
-                ByLawZoneType val = (ByLawZoneType)usesValArr.GetValue(i);
-                if ((val & zoneType) != 0)
+            if (this.blocks.Count() == 0) {
+                return "";
+            }
+            ByLawBlockBinding block = this.blocks.FirstOrDefault();
+            Array.ForEach(block.itemData, item =>
+            {                
+                Type enumType = BuildingBlockSystem.GetConstraintEnumType(item.byLawItemType);
+                var localeDict = GameManager.instance.localizationManager.activeDictionary;
+                localeDict.TryGetValue("ZBL.PropertyOperator[" + item.propertyOperator.ToString() + "]", out string operatorString);
+                localeDict.TryGetValue("ZBL.ByLawItemType[" + Enum.GetName(typeof(ByLawItemType), item.byLawItemType) + "]", out string itemTypeString);
+                re +=  itemTypeString + " " + operatorString + ": ";
+                if (enumType != null)
+                { 
+                    ArrayList valueStrings = new ArrayList();
+                    foreach (object enumValue in Enum.GetValues(enumType))
+                    {
+                        bool isFlag = enumValue is int || enumValue is byte;
+                        if((item.valueByteFlag & Convert.ToInt32(enumValue)) != 0)
+                        {
+                            if (localeDict.TryGetValue($"ZBL.FlagValues[{Enum.GetName(enumType, enumValue)}]", out string valueString)) {
+                                valueStrings.Add(valueString);
+                            }
+                            else
+                            {
+                                valueStrings.Add(Enum.GetName(enumType, enumValue));
+                            }                            
+                        }                        
+                    }
+                    if (valueStrings.Count > 0)
+                    {
+                        re += valueStrings.ToArray().Aggregate((a, b) => a + ", " + b);
+                    }                    
+                }  
+                else if (item.valueNumber != 0)
                 {
-                    re += Enum.GetName(typeof(ByLawZoneType), val) + ", ";
+                    re += ": " + item.valueNumber;
                 }
-            }
-            if (re.EndsWith(", "))
-            {
-                re = re.Substring(0, re.Length - 2);
-            }
-            else
-            {
-                re += "None";
-            }
-            re += "\n";
-            re += $"Height: Min={(height.min >= 0 ? height.min : "None")}, Max={(height.max >= 0 ? height.max : "None")}\n";
-            re += $"Lot Size: Min={(lotSize.min >= 0 ? lotSize.min : "None")}, Max={(lotSize.max >= 0 ? lotSize.max : "None")}\n";
-            re += $"Frontage: Min={(frontage.min >= 0 ? frontage.min : "None")}, Max={(frontage.max >= 0 ? frontage.max : "None")}\n";
+                else if (item.valueBounds1.min != -1 || item.valueBounds1.max != -1)
+                {
+                    re += " min: " + (item.valueBounds1.min == -1? "None": item.valueBounds1.min) + " max: " + (item.valueBounds1.max == -1? "None": item.valueBounds1.max);
+                }
+                re += "\n";
+            });
+
             return re;
         }
 
