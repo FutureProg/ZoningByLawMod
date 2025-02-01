@@ -138,7 +138,7 @@ namespace ZoningByLaw.BuildingBlocks
                 case ByLawPropertyOperator.AtLeastOne:
                     return matchCount >= 1;
                 case ByLawPropertyOperator.OnlyOneOf:
-                    return matchCount == 1;
+                    return matchCount == 1 && missCount == 0;
                 case ByLawPropertyOperator.IsNot:
                     return matchCount == 0;
                 case ByLawPropertyOperator.Is:
