@@ -34,7 +34,7 @@ namespace Trejak.ZoningByLaw.Tests
                 .ToList();
             int SuccessCount = 0;
             int FailureCount = 0;
-            NotificationUISystem.NotificationInfo notifInfo = notifSystem.AddOrUpdateNotification(Mod.Id + ".TestsRunning", "Running Tests", $"Running {tests.Count}", null, Colossal.PSI.Common.ProgressState.Progressing, 0);
+            NotificationUISystem.NotificationInfo notifInfo = notifSystem.AddOrUpdateNotification(Mod.Id + ".TestsRunning", "Zoning ByLaw Builder is Running Tests", $"Running {tests.Count}", null, Colossal.PSI.Common.ProgressState.Progressing, 0);
             foreach (MethodInfo test in tests)
             {                                
                 var obj = Activator.CreateInstance(test.DeclaringType);
