@@ -46,7 +46,6 @@
 	<!--Thumbnail-->
 	<Thumbnail Value="Properties/Thumbnail.png" />
 	<!--Screenshot, can be set multiple times-->
-	<Screenshot Value="Properties/Thumbnail.png" />
   <Screenshot Value="Properties/screenshot-02.png" />
   <Screenshot Value="Properties/screenshot-03.png" />
 	<!--Tag, can be set multiple times-->
@@ -54,13 +53,13 @@
 	<!--Link to the forum post where the mod can be discussed-->
 	<!--<ForumLink Value="" />-->
 	<!--Version of the mod-->
-	<ModVersion Value="0.1.0" />
+	<ModVersion Value="0.1.1" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.2.*" />
 	<!--Dependency for the mod, can be set multiple times-->
 	<Dependency Id="74417" />
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
-	<ChangeLog Value="Public Beta Release" />
+	<ChangeLog Value="Quick-fix for UI breaking bug -- A new bylaw will be added whenever you delete another one." />
 	<!--ChangeLog>
 	</ChangeLog-->
 	<!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
