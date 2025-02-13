@@ -7,42 +7,42 @@
 	<ShortDescription Value="Constraint-based Zoning: Mix Land-uses, Create Parking Requirements, Set the Built Form; create your Zoning By-Laws" />
 	<!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
 	<!--LongDescription Value="This is a long description" /-->
-	<LongDescription>
-    # Zoning By-Law Builder
-    ** Keep in mind this mod is in beta, and might have bugs. **
+<LongDescription>
+# Zoning By-Law Builder
+** Keep in mind this mod is in beta, and might have bugs. **
 
-    **Beta Feature Reel - [YouTube](https://www.youtube.com/watch?v=_PaNeeFAT-w)**
+**Beta Feature Reel - [YouTube](https://www.youtube.com/watch?v=_PaNeeFAT-w)**
 
-    Using the constraint-based Zoning By-Law builder, craft the city of your dreams.
+Using the constraint-based Zoning By-Law builder, craft the city of your dreams.
 
-    Only want buildings of a certain height? How about requiring surface parking? Maybe wanna mix all the W2W buildings across regions into one zone?
-    All that and more is possible with the Zoning By-Law Builder.
+Only want buildings of a certain height? How about requiring surface parking? Maybe wanna mix all the W2W buildings across regions into one zone?
+All that and more is possible with the Zoning By-Law Builder.
 
-		## Upcoming Features
-    - Localization
-    - Icons for By-Laws
-    - New Constraints:
-			- Asset Pack
-      - Region
-			- Height-to-Setback Ratio
-      - Storage Building
-    - Preview buildings as you create the By-Law
-    - City/District Policy to ensure building upgrades match By-Laws
+## Upcoming Features
+- Localization
+- Icons for By-Laws
+- New Constraints:
+	- Asset Pack
+  - Region
+	- Height-to-Setback Ratio
+  - Storage Building
+- Preview buildings as you create the By-Law
+- City/District Policy to ensure building upgrades match By-Laws
 
-    ## Limitations
-    - This mod **does not** edit or create new buildings. When you zone a constraint-based zone, the system will try to find a building that fits the constraints.
-    - Currently the mod does not take your unlock progress into account, so buildings above your level might appear in your city.
-    - Parking requirements don't fully account for garages (this is because they currently don't function in vanilla).
-    - When a building upgrades, it might not conform to the by-law, a future City/District policy will change that.
+## Limitations
+- This mod **does not** edit or create new buildings. When you zone a constraint-based zone, the system will try to find a building that fits the constraints.
+- Currently the mod does not take your unlock progress into account, so buildings above your level might appear in your city.
+- Parking requirements don't fully account for garages (this is because they currently don't function in vanilla).
+- When a building upgrades, it might not conform to the by-law, a future City/District policy will change that.
 
-    ## Bug Reporting and Discussions
-    Please report bug reports and have discussions on the mod's thread in the [Cities: Skylines Modding Discord](https://discord.com/invite/DgH7rDKZ6r).
+## Bug Reporting and Discussions
+Please report bug reports and have discussions on the mod's thread in the [Cities: Skylines Modding Discord](https://discord.com/invite/DgH7rDKZ6r).
 
-    ## Known Issues
-    - Corner buildings spawn on a non-corner lot (this might be vanilla behaviour that the mod brings out more)
-    - Scrollbar is invisible in editor (it's there, so you can use the mouse wheel or guess where it is)
+## Known Issues
+- Corner buildings spawn on a non-corner lot (this might be vanilla behaviour that the mod brings out more)
+- Scrollbar is invisible in editor (it's there, so you can use the mouse wheel or guess where it is)
 
-  </LongDescription>
+</LongDescription>
 	<!--Thumbnail-->
 	<Thumbnail Value="Properties/Thumbnail.png" />
 	<!--Screenshot, can be set multiple times-->
