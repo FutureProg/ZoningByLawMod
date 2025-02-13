@@ -46,6 +46,14 @@ namespace Trejak.ZoningByLaw.Prefab
             }
             this.blocks.Clear();      
             this.blocks.AddRange(binding.blocks);       
+            if (this.blocks.Count == 0)
+            {
+                this.blocks.Add(new()
+                {
+                    blockData = new ByLawBlock() { blockType = BlockType.Instruction, logicOperation = LogicOperation.None },
+                    itemData = new ByLawItem[0]
+                });
+            }
             this.deleted = binding.deleted;
         }
 

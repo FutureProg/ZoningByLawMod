@@ -220,6 +220,16 @@ namespace Trejak.ZoningByLaw
             //prefab.frontage = data.frontage;
             //prefab.parking = data.parking;
             prefab.bylawName = bylawName;
+            if (data.blocks == null || data.blocks.Length == 0)
+            {
+                data.blocks = new[] {
+                    new ByLawBlockBinding()
+                    {
+                        blockData = new BuildingBlocks.ByLawBlock() { blockType = BuildingBlocks.BlockType.Instruction, logicOperation = BuildingBlocks.LogicOperation.None },
+                        itemData = new BuildingBlocks.ByLawItem[0]
+                    }
+                };
+            }
             prefab.Update(data);
 
             // Typical Zoning Stuff
@@ -256,7 +266,6 @@ namespace Trejak.ZoningByLaw
             //newUIObj.m_Group = uiObj.m_Group;
             newUIObj.active = uiObj.active;            
             prefab.AddComponentFrom(newUIObj);
-            SetPrefabText(prefab, data);
             return prefab;
         }
 

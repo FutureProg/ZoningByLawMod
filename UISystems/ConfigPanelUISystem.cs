@@ -233,13 +233,27 @@ namespace Trejak.ZoningByLaw.UI
 
         void SetByLawData(ZoningByLawBinding data)
         {
+            if(data.blocks.Length == 0 || data.blocks == null)
+            {
+                Mod.log.Warn("ByLawData has no blocks! Filling with one empty block.");
+                data.blocks = new ByLawBlockBinding[]
+                {
+                    new()
+                    {
+                        blockData = new ByLawBlock()
+                        {
+                            blockType = BuildingBlocks.BlockType.Instruction
+                        },
+                        itemData = new BuildingBlocks.ByLawItem[0]
+                    }
+                };
+            }
             Mod.log.Info("Set By Law Data: " + data.ToJSONString());
             data.UpdateEntity(_selectedByLaw.value, this.EntityManager, GetElligibleBuildingCount());
             var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(_selectedByLaw.value);            
             prefab.Update(data);
             _elligibleBuildingsSystem.EnqueueUpdate(_selectedByLaw.value);
             GameManager.instance.localizationManager.ReloadActiveLocale();
-            Utils.SetPrefabText(prefab, data);  
             
             _writeToFileTimer.Stop();
             _writeToFileTimer.Start();

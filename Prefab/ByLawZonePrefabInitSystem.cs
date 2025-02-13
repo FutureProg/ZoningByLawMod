@@ -3,6 +3,7 @@ using Colossal.Mono.CompilerServices.SymbolWriter;
 using Game;
 using Game.Common;
 using Game.Prefabs;
+using System.Linq;
 using Trejak.ZoningByLaw;
 using Trejak.ZoningByLaw.BuildingBlocks;
 using Trejak.ZoningByLaw.Prefab;
@@ -66,8 +67,18 @@ namespace Trejak.ZoningByLaw.Prefab
 
         void UpdatePrefabFromBinding(ZoningByLawBinding binding, ByLawZonePrefab prefab)
         {
+            if (binding.blocks == null || binding.blocks.Length == 0)
+            {
+                binding.blocks = new ByLawBlockBinding[]
+                {
+                    new ByLawBlockBinding()
+                    {
+                        blockData = new ByLawBlock() { blockType = BlockType.Instruction, logicOperation = LogicOperation.None },
+                        itemData = new ByLawItem[0]
+                    }
+                };
+            }
             prefab.Update(binding);
-            Utils.SetPrefabText(prefab, binding);
         }
 
         void SetupByLawBlocks(DynamicBuffer<ByLawBlockReference> blockRefs, ByLawZonePrefab prefab)
