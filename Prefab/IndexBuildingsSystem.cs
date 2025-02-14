@@ -466,6 +466,7 @@ namespace Trejak.ZoningByLaw.Prefab
         public float buildingSetBackRight;
         public float buildingSetBackRear;
         public float buildingHeight;
+        
 
         public PollutionData pollutionData;
         public NativeArray<int> assetPacks; // 32-bit hashes for the names of each of the asset packs this building is part of

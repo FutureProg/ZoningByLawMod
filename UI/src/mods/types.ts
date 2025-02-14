@@ -53,7 +53,6 @@ export enum ByLawItemType {
     LeftSetback,
     RightSetback,
     RearSetback,
-    HeightSetbackRatio,
     AirPollutionLevel,
     GroundPollutionLevel,
     NoisePollutionLevel

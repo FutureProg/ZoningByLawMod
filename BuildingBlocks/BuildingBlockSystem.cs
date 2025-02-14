@@ -223,7 +223,6 @@ namespace ZoningByLaw.BuildingBlocks
             {
                 case ByLawItemType.Uses:
                     return ByLawConstraintType.MultiSelect;
-
                 case ByLawItemType.Height:
                 case ByLawItemType.LotWidth:
                 case ByLawItemType.LotSize:
@@ -233,13 +232,11 @@ namespace ZoningByLaw.BuildingBlocks
                 case ByLawItemType.LeftSetback:
                 case ByLawItemType.RightSetback:
                 case ByLawItemType.RearSetback:
-                case ByLawItemType.HeightSetbackRatio:
                     return ByLawConstraintType.Length;
                 case ByLawItemType.NoisePollutionLevel:
                 case ByLawItemType.GroundPollutionLevel:
                 case ByLawItemType.AirPollutionLevel:
                     return ByLawConstraintType.SingleSelect;
-
                 case ByLawItemType.None:
                 default:
                     return ByLawConstraintType.None;

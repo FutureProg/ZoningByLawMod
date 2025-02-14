@@ -37,7 +37,6 @@ namespace Trejak.ZoningByLaw.BuildingBlocks
         LeftSetback,
         RightSetback,
         RearSetback,
-        HeightSetbackRatio,
         AirPollutionLevel,
         GroundPollutionLevel,
         NoisePollutionLevel
