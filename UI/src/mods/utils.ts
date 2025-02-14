@@ -187,7 +187,8 @@ export const getConstraintTypes = (byLawItemType: ByLawItemType) : ByLawConstrai
             break;
         case ByLawItemType.Height:
         case ByLawItemType.LotWidth:
-        case ByLawItemType.LotSize:        
+        case ByLawItemType.LotSize:      
+        case ByLawItemType.LotDepth:  
         case ByLawItemType.FrontSetback:
         case ByLawItemType.LeftSetback:
         case ByLawItemType.RightSetback:
