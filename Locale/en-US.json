@@ -1,12 +1,11 @@
 {
-    "ZBL.Tooltip[PreviewZoneButton]": "Preview Zone (Not Implemented)",
+    "ZBL.Tooltip[PreviewZoneButton]": "Preview This ByLaw",
     "ZBL.Tooltip[CreateNewByLaw]": "Create A New ByLaw",
-    "ZBL.Tooltip[Duplicate]": "Duplicate (Not Implemented)",
+    "ZBL.Tooltip[Duplicate]": "Duplicate",
     "ZBL.Tooltip[EligibleBuildingCount]": "The Number of Eligible Buildings",
     "ZBL.ByLawPanel[ListTitle]": "Zoning By Laws",
     "ZBL.ByLawPanel[Editor]": "Editor",
     "ZBL.ByLawPanel[ElligibleBuildings]": "Elligible Buildings",
-
     "ZBL.PropertyOperator[None]": "NONE",
     "ZBL.PropertyOperator[Is]": "Is",
     "ZBL.PropertyOperator[IsNot]": "Is Not",
@@ -14,7 +13,6 @@
     "ZBL.PropertyOperator[OnlyOneOf]": "Only One Of",
     "ZBL.PropertyOperator[AtMost]": "At Most",
     "ZBL.PropertyOperator[AtLeast]": "At Least",
-
     "ZBL.ByLawItemType[None]": "None",
     "ZBL.ByLawItemType[LandUse]": "Land Use",
     "ZBL.ByLawItemType[Uses]": "Land Use",
@@ -32,22 +30,17 @@
     "ZBL.ByLawItemType[NoisePollutionLevel]": "Noise Pollution Level",
     "ZBL.ByLawItemType[Name]": "Name",
     "ZBL.ByLawItemType[Color]": "Colour",
-
     "ZBL.ByLawValueText[Items]": "item(s)",
     "ZBL.ByLawValueText[BoundsTo]": "to",
-
     "ZBL.FlagValues[None]": "None",
     "ZBL.FlagValues[Low]": "Low",
     "ZBL.FlagValues[Medium]": "Medium",
     "ZBL.FlagValues[High]": "High",
-
     "ZBL.FlagValues[Residential]": "Residential",
     "ZBL.FlagValues[Industrial]": "Industrial",
     "ZBL.FlagValues[Commercial]": "Commercial",
     "ZBL.FlagValues[Office]": "Office",
-
     "ZBL.MeasurementFormat[Units]": "{VALUE} cells",
-
     "SubServices.NAME[ByLawZones]": "Zoning ByLaws",
     "Assets.SUB_SERVICE_DESCRIPTION[ByLawZones]": "Custom contraint-based zones created by you, the player."
 }
