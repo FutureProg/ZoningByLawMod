@@ -1,4 +1,5 @@
-﻿using Colossal.Json;
+﻿using Colossal.Entities;
+using Colossal.Json;
 using Colossal.Serialization.Entities;
 using Game;
 using Game.Buildings;
@@ -25,6 +26,7 @@ namespace Trejak.ZoningByLaw.Prefab
         private NativeList<BuildingByLawProperties> _properties;
         private JobHandle _propertiesReaders;
         private bool _initialized;
+        private List<AssetPackPrefab> _assetPackPrefabs;
 
         private PrefabSystem _prefabSystem;
         private EntityQuery _UIConfigQuery;
@@ -36,6 +38,7 @@ namespace Trejak.ZoningByLaw.Prefab
         protected override void OnCreate()
         {
             base.OnCreate();
+            _assetPackPrefabs = new List<AssetPackPrefab>();
             _buildingsPrefabsQuery = GetEntityQuery(
                 new EntityQueryDesc[] 
                 {
@@ -140,19 +143,32 @@ namespace Trejak.ZoningByLaw.Prefab
             BufferLookup<SubMesh> subMeshBufferLookup = GetBufferLookup<SubMesh>(true);
             ComponentLookup<BuildingData> buildingDataLookup = GetComponentLookup<BuildingData>(true);
             ComponentLookup<ObjectGeometryData> objectGeomDataLookup = GetComponentLookup<ObjectGeometryData>(true);
-            ComponentLookup<PollutionData> pollutionDataLookup = SystemAPI.GetComponentLookup<PollutionData>(true);
+            ComponentLookup<PollutionData> pollutionDataLookup = SystemAPI.GetComponentLookup<PollutionData>(true);                 
             foreach (ArchetypeChunk chunk in chunks)
             {
                 var buildingEntities = chunk.GetNativeArray(entityHandle);
 
                 for (int i = 0; i < buildingEntities.Length; i++)
                 {
-                    Entity buildingEntity = buildingEntities[i];                    
+                    Entity buildingEntity = buildingEntities[i];
                     if (!subObjectLookup.TryGetBuffer(buildingEntity, out var buildingSubObjects))
                     {
                         continue;
                     }
                     PrefabData prefabData = prefabDataLookup[buildingEntity];
+                    PrefabBase prefab = _prefabSystem.GetPrefab<PrefabBase>(prefabData);
+                    IEnumerable<AssetPackPrefab> nonNullAssetPacks;
+                    if (prefab.TryGet<AssetPackItem>(out var assetPacks))
+                    {
+                        nonNullAssetPacks = assetPacks.m_Packs.Where(p => p != null);                        
+                        _assetPackPrefabs.AddRange(
+                            nonNullAssetPacks.Where(p => !_assetPackPrefabs.Contains(p))
+                        );                        
+                    }
+                    else
+                    {
+                        nonNullAssetPacks = new List<AssetPackPrefab>();
+                    }
                     while (prefabData.m_Index >= _properties.Length)
                     {
                         _properties.Add(new BuildingByLawProperties() { initialized = false });
@@ -198,7 +214,8 @@ namespace Trejak.ZoningByLaw.Prefab
                         isResidential = propertyData.m_ResidentialProperties > 0 || archetypeComponents.Contains(ComponentType.ReadOnly<ResidentialProperty>()),
                         isCommercial = archetypeComponents.Contains(ComponentType.ReadOnly<CommercialProperty>()),
                         isStorage = archetypeComponents.Contains(ComponentType.ReadOnly<StorageProperty>()) && archetypeComponents.Contains(ComponentType.ReadOnly<IndustrialProperty>()),
-                        pollutionData = hasPollutionData? pollutionData : default
+                        pollutionData = hasPollutionData ? pollutionData : default,
+                        assetPacks = new NativeArray<int>(nonNullAssetPacks.Select(p => p.name.GetHashCode()).ToArray(), Allocator.Persistent)
                     };
 
                     if (subMeshBufferLookup.TryGetBuffer(buildingEntity, out var buildingSubMeshes))
@@ -213,6 +230,8 @@ namespace Trejak.ZoningByLaw.Prefab
                     _properties[prefabData.m_Index] = props;
                 }
             }
+            var assetPacksNames = _assetPackPrefabs.Select(p => p.name).Aggregate((a, b) => a + ", " + b);
+            Mod.log.Info($"IndexBuildingsSystem loaded the following AssetPacks:\n{assetPacksNames}");
             if (processedEnts > 0 && !_initialized)
             {
                 _initialized = true;
@@ -281,6 +300,16 @@ namespace Trejak.ZoningByLaw.Prefab
         public BuildingByLawPropertiesLookup GetPropertiesLookup()
         {
             return new BuildingByLawPropertiesLookup(this._properties.AsArray());
+        }
+
+        public List<AssetPackPrefab> GetAssetPacks()
+        {
+            return _assetPackPrefabs;
+        }
+
+        public AssetPackPrefab GetAssetPackByHash(int hash)
+        {
+            return _assetPackPrefabs.Find(p => p.name.GetHashCode() == hash);
         }
 
         public int AssessSubObject(SubObject subObj, BufferLookup<SubLane> subLaneBufferLookup, ComponentLookup<ParkingLaneData> parkingLaneDataLookup, out bool hasParkingGarage)
@@ -439,5 +468,7 @@ namespace Trejak.ZoningByLaw.Prefab
         public float buildingHeight;
 
         public PollutionData pollutionData;
+        public NativeArray<int> assetPacks; // 32-bit hashes for the names of each of the asset packs this building is part of
     }
+
 }
