@@ -217,6 +217,7 @@ export const getItemCategories = (itemType: ByLawItemType) : ByLawItemCategory =
         case ByLawItemType.LotWidth:
         case ByLawItemType.LotSize:
         case ByLawItemType.Parking:
+        case ByLawItemType.LotDepth:
             return ByLawItemCategory.Lot;
     
         case ByLawItemType.Height:               
