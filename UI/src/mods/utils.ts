@@ -93,12 +93,14 @@ export const getMeasurementString = (itemType: ByLawItemType, constraintType: By
     switch(itemType) {        
         case ByLawItemType.LotSize:
         case ByLawItemType.LotWidth:
+        case ByLawItemType.LotDepth:
             return " cells";
         case ByLawItemType.Height:
         case ByLawItemType.FrontSetback:
         case ByLawItemType.LeftSetback:
         case ByLawItemType.RightSetback:
         case ByLawItemType.RearSetback:
+        case ByLawItemType.HeightSetbackRatio:        
             return unitSystem == 0? "m" : "ft";
         case ByLawItemType.LandUse:                        
         case ByLawItemType.Parking:        
@@ -156,7 +158,9 @@ export const getOperationTypes = (byLawItemType: ByLawItemType) : ByLawPropertyO
         case ByLawItemType.FrontSetback:
         case ByLawItemType.LeftSetback:
         case ByLawItemType.RightSetback:
-        case ByLawItemType.RearSetback:                
+        case ByLawItemType.RearSetback:
+        case ByLawItemType.HeightSetbackRatio:
+        case ByLawItemType.LotDepth:
             re.push(ByLawPropertyOperator.Is); 
             // re.push(ByLawPropertyOperator.IsNot);                                   
             return re;

@@ -227,13 +227,14 @@ namespace ZoningByLaw.BuildingBlocks
                 case ByLawItemType.Height:
                 case ByLawItemType.LotWidth:
                 case ByLawItemType.LotSize:
+                case ByLawItemType.LotDepth:
                 case ByLawItemType.Parking:
                 case ByLawItemType.FrontSetback:
                 case ByLawItemType.LeftSetback:
                 case ByLawItemType.RightSetback:
-                case ByLawItemType.RearSetback:                
-                    return ByLawConstraintType.Length;                                   
-
+                case ByLawItemType.RearSetback:
+                case ByLawItemType.HeightSetbackRatio:
+                    return ByLawConstraintType.Length;
                 case ByLawItemType.NoisePollutionLevel:
                 case ByLawItemType.GroundPollutionLevel:
                 case ByLawItemType.AirPollutionLevel:

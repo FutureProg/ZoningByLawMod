@@ -31,11 +31,13 @@ namespace Trejak.ZoningByLaw.BuildingBlocks
         Height,
         LotWidth,
         LotSize,
+        LotDepth,
         Parking,
         FrontSetback,
         LeftSetback,
         RightSetback,
         RearSetback,
+        HeightSetbackRatio,
         AirPollutionLevel,
         GroundPollutionLevel,
         NoisePollutionLevel

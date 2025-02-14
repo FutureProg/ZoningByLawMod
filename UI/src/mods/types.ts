@@ -47,11 +47,13 @@ export enum ByLawItemType {
     Height,
     LotWidth,
     LotSize,
+    LotDepth,
     Parking,
     FrontSetback,
     LeftSetback,
     RightSetback,
     RearSetback,
+    HeightSetbackRatio,
     AirPollutionLevel,
     GroundPollutionLevel,
     NoisePollutionLevel
