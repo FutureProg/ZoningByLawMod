@@ -20,6 +20,7 @@
     "ZBL.ByLawItemType[Uses]": "Land Use",
     "ZBL.ByLawItemType[Height]": "Height",
     "ZBL.ByLawItemType[LotWidth]": "Lot Width",
+    "ZBL.ByLawItemType[LotDepth]": "Lot Depth",
     "ZBL.ByLawItemType[LotSize]": "Lot Size",
     "ZBL.ByLawItemType[Parking]": "Parking",
     "ZBL.ByLawItemType[FrontSetback]": "Front Setback",
