@@ -1,11 +1,10 @@
-﻿using Game.Debug;
-using Game.Debug.Tests;
-using Game.Prefabs;
+﻿using Game.Prefabs;
 using System;
 using System.IO;
 using Trejak.ZoningByLaw.Prefab;
 using Trejak.ZoningByLaw.Serialization;
 using Trejak.ZoningByLaw.UISystems;
+using Unity.Assertions;
 using UnityEngine;
 
 namespace Trejak.ZoningByLaw.Tests.Serialization
@@ -62,6 +61,16 @@ namespace Trejak.ZoningByLaw.Tests.Serialization
         }
 
         [Test]
-        public void TestSaveToFile_Null() => Assert.Throws<NullReferenceException>(() => FileUtils.SaveToFile(null));        
+        public void TestSaveToFile_Null()
+        {
+            try
+            {
+                FileUtils.SaveToFile(null);
+                Assert.IsTrue(false, "Expected an exception to be thrown");
+            } catch (Exception e)
+            {
+                Assert.IsTrue(e is NullReferenceException, "Expected NullReferenceException");
+            }
+        }
     }
 }
