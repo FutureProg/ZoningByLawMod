@@ -69,6 +69,11 @@ namespace Trejak.ZoningByLaw
             return 16;
         }
 
+        public override int GetUpdateOffset(SystemUpdatePhase phase)
+        {
+            return 13;
+        }
+
         protected override void OnCreate()
         {
             base.OnCreate();
