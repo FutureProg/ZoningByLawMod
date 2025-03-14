@@ -97,7 +97,7 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
                 }
             </div>
             <div className={styles.caretSection}>
-                <div></div>
+                <div style={{"maskImage": "url('Media/Glyphs/StrokeArrowDown.svg');"}}></div>
             </div>
         </div>
     )
