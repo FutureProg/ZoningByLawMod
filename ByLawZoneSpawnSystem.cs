@@ -64,15 +64,15 @@ namespace Trejak.ZoningByLaw
 
         IndexBuildingsSystem _indexBuildingsSystem;
 
-        public override int GetUpdateInterval(SystemUpdatePhase phase)
-        {
-            return 16;
-        }
+        //public override int GetUpdateInterval(SystemUpdatePhase phase)
+        //{
+        //    return 16;
+        //}
 
-        public override int GetUpdateOffset(SystemUpdatePhase phase)
-        {
-            return 13;
-        }
+        //public override int GetUpdateOffset(SystemUpdatePhase phase)
+        //{
+        //    return 13;
+        //}
 
         protected override void OnCreate()
         {

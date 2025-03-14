@@ -60,7 +60,7 @@ public class Mod : IMod
         ApplyPatches();
 
         World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<ZoneCheckSystem>().Enabled = false;
-        updateSystem.UpdateAfter<ByLawZoneSpawnSystem, ZoneSpawnSystem>(SystemUpdatePhase.GameSimulation);
+        updateSystem.UpdateBefore<ByLawZoneSpawnSystem, ZoneSpawnSystem>(SystemUpdatePhase.GameSimulation);
         updateSystem.UpdateAt<ByLawZonePrefabInitSystem>(SystemUpdatePhase.PrefabUpdate);
         updateSystem.UpdateAt<IndexBuildingsSystem>(SystemUpdatePhase.PrefabUpdate);
 
