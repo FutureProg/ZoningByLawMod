@@ -59,9 +59,26 @@ namespace ZoningByLaw.BuildingBlocks
             {
                 case ByLawItemType.Uses:
                     return EvalLandUse(building, properties, item, evalParams);
+                case ByLawItemType.AssetPack:
+                    return EvalAssetPack(item, properties);
                 default:
                     return false;
             }
+        }
+
+        public static bool EvalAssetPack(ByLawItem item, BuildingByLawProperties properties)
+        {
+            for(int i = 0; i < item.valueArrInt.Length; i++)
+            {
+                for(int j = 0; j < properties.assetPacks.Length; j++)
+                {
+                    if (properties.assetPacks[j] == item.valueArrInt[i])
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         private static float PollutionLevelValue(ByLawItemType itemType, BuildingByLawProperties properties) => itemType switch
@@ -224,6 +241,7 @@ namespace ZoningByLaw.BuildingBlocks
             switch(itemType)
             {
                 case ByLawItemType.Uses:
+                case ByLawItemType.AssetPack:
                     return ByLawConstraintType.MultiSelect;
                 case ByLawItemType.Height:
                 case ByLawItemType.LotWidth:
@@ -255,6 +273,7 @@ namespace ZoningByLaw.BuildingBlocks
                 case ByLawItemType.LotSize:
                 case ByLawItemType.LotDepth:
                 case ByLawItemType.Parking:
+                case ByLawItemType.AssetPack:
                     return ByLawItemCategory.Lot;
 
                 case ByLawItemType.Height:               

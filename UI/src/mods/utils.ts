@@ -150,6 +150,9 @@ export const getOperationTypes = (byLawItemType: ByLawItemType) : ByLawPropertyO
             re.push(ByLawPropertyOperator.OnlyOneOf);
             re.push(ByLawPropertyOperator.IsNot);
             return re;
+        case ByLawItemType.AssetPack:
+            re.push(ByLawPropertyOperator.OnlyOneOf);
+            return re;
         case ByLawItemType.Height:
         case ByLawItemType.LotWidth:
         case ByLawItemType.LotSize:
@@ -183,6 +186,7 @@ export const getConstraintTypes = (byLawItemType: ByLawItemType) : ByLawConstrai
     let re : ByLawConstraintType[] = [];
     switch(byLawItemType) {
         case ByLawItemType.LandUse:
+        case ByLawItemType.AssetPack:
             re.push(ByLawConstraintType.MultiSelect);
             break;
         case ByLawItemType.Height:
@@ -219,6 +223,7 @@ export const getItemCategories = (itemType: ByLawItemType) : ByLawItemCategory =
         case ByLawItemType.LotSize:
         case ByLawItemType.Parking:
         case ByLawItemType.LotDepth:
+        case ByLawItemType.AssetPack:
             return ByLawItemCategory.Lot;
     
         case ByLawItemType.Height:               
