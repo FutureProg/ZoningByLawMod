@@ -88,16 +88,18 @@ export const ByLawEditorView = ({ searchQuery, selectedByLaw } : _Props) => {
         .filter((key) => isNaN(Number(key)) && key != 'None')
         .map((key) => [key, key.split(/(?<![A-Z])(?=[A-Z])/).join(' ')] as [keyof typeof ByLawItemType, string])
         .filter(([key, readableName]) => searchQuery && readableName ? readableName.toUpperCase().indexOf(searchQuery.toUpperCase()) >= 0 : true);
-    let listItems = types.map(([key, readableName]: [keyof typeof ByLawItemType, string], idx) =>
-        <ConstraintListItem
-            key={idx}
-            readableName={readableName}
-            itemType={ByLawItemType[key]}
-            value={itemMap[key] || undefined}
-            onValueChange={onConstraintUpdate}
-            onChangeConstraintEnabled={onChangeConstraintEnabled}
-        />
-    );    
+    let listItems = types
+        .filter(([key, readableName]) => key != 'AssetPack') // TODO: Remove when AssetPacks are ready
+        .map(([key, readableName]: [keyof typeof ByLawItemType, string], idx) =>
+            <ConstraintListItem
+                key={idx}
+                readableName={readableName}
+                itemType={ByLawItemType[key]}
+                value={itemMap[key] || undefined}
+                onValueChange={onConstraintUpdate}
+                onChangeConstraintEnabled={onChangeConstraintEnabled}
+            />
+        );    
     if (selectedByLaw.index <= 0 || byLawData.blocks == null) {
         return (<></>);
     }
