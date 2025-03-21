@@ -1,4 +1,4 @@
-import { bindValue, trigger } from "cs2/api";
+import { bindMap, bindValue, trigger } from "cs2/api";
 import mod from '../../mod.json';
 import { ByLawZoneListItem, ZoningByLawBinding } from "./types";
 import { Color, Entity } from "cs2/bindings";
@@ -14,6 +14,7 @@ export const defaultColor = {r: 1, g: 1, b: 1, a: 1};
 export const selectedByLawColor$ = bindValue<Color[]>(mod.fullname, "SelectedByLawColour", [defaultColor, defaultColor]);
 export const selectedByLaw$ = bindValue<Entity>(mod.fullname, "SelectedByLaw");
 export const elligibleBuildingCount$ = bindValue<number>(mod.fullname, "ElligibleBuildings", -1);
+export const assetPackNameToHash$ = bindMap<string, number>(mod.fullname, "assetPackNameToHash");
 
 export const setConfigPanelOpen = (open : boolean) => {
     trigger(mod.fullname, "SetConfigPanelOpen", open);
