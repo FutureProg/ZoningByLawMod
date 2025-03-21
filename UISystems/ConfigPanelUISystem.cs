@@ -36,6 +36,7 @@ namespace Trejak.ZoningByLaw.UI
         private ZoningByLawToolSystem _byLawToolSystem;
         private ToolSystem _toolSystem;
         private CountElligiblePropertiesSystem _elligibleBuildingsSystem;
+        private IndexBuildingsSystem _indexBuildingsSystem;
 
         //private ToolbarUISystem _toolbarUISystem;
         //private RawMapBinding<Entity> _toolBarUIAssetsBinding;
@@ -96,6 +97,7 @@ namespace Trejak.ZoningByLaw.UI
             _byLawToolSystem = this.World.GetOrCreateSystemManaged<ZoningByLawToolSystem>();
             _toolSystem = this.World.GetOrCreateSystemManaged<ToolSystem>();
             _elligibleBuildingsSystem = this.World.GetOrCreateSystemManaged<CountElligiblePropertiesSystem>();
+            _indexBuildingsSystem = this.World.GetOrCreateSystemManaged<IndexBuildingsSystem>();
             GetBasePrefab();
 
             this.AddBinding(_selectedByLaw = new ValueBinding<Entity>(uiGroupName, "SelectedByLaw", Entity.Null));
@@ -115,6 +117,7 @@ namespace Trejak.ZoningByLaw.UI
             this.CreateTrigger("ToggleTool", this.ToggleTool);
             this.AddBinding(_setByLawName = new TriggerBinding<string>(uiGroupName, "SetByLawName", SetByLawName));
             this.AddBinding(_setByLawZoneColour = new TriggerBinding<Color, Color>(uiGroupName, "SetByLawZoneColour", SetByLawZoneColour));
+            this.AddBinding(new GetterMapBinding<string, int>(uiGroupName, "assetPackNameToHash", (string key) => key.GetHashCode()));
             //this.AddBinding(_toggleByLawRenderPreview = new TriggerBinding(uiGroupName, "ToggleByLawRenderPreview", ToggleByLawRenderPreview));
 
             _writeToFileTimer = new Timer(4500);
