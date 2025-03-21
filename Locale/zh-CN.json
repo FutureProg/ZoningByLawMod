@@ -42,5 +42,6 @@
     "ZBL.FlagValues[Office]": "办公",
     "ZBL.MeasurementFormat[Units]": "{VALUE} 格",
     "SubServices.NAME[ByLawZones]": "功能区参数管理器",
-    "Assets.SUB_SERVICE_DESCRIPTION[ByLawZones]": "完全由您创建的自定义参数的功能区。"
+    "Assets.SUB_SERVICE_DESCRIPTION[ByLawZones]": "完全由您创建的自定义参数的功能区。",
+    "ZBL.ByLawItemType[AssetPack]": "Asset Pack"
 }
