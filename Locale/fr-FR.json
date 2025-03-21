@@ -42,5 +42,6 @@
     "ZBL.FlagValues[Office]": "Bureau",
     "ZBL.MeasurementFormat[Units]": "{VALUE} cellules",
     "SubServices.NAME[ByLawZones]": "Zoning ByLaws",
-    "Assets.SUB_SERVICE_DESCRIPTION[ByLawZones]": "Zones personnalisées basées sur des contraintes, créées par vous, le joueur."
+    "Assets.SUB_SERVICE_DESCRIPTION[ByLawZones]": "Zones personnalisées basées sur des contraintes, créées par vous, le joueur.",
+    "ZBL.ByLawItemType[AssetPack]": "Asset Pack"
 }

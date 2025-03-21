@@ -42,5 +42,6 @@
     "ZBL.FlagValues[Office]": "Escritório",
     "ZBL.MeasurementFormat[Units]": "{VALUE} células",
     "SubServices.NAME[ByLawZones]": "Zoneamento por regras",
-    "Assets.SUB_SERVICE_DESCRIPTION[ByLawZones]": "Zonas personalizadas baseadas em restrições criadas por você, o jogador."
+    "Assets.SUB_SERVICE_DESCRIPTION[ByLawZones]": "Zonas personalizadas baseadas em restrições criadas por você, o jogador.",
+    "ZBL.ByLawItemType[AssetPack]": "Asset Pack"
 }
