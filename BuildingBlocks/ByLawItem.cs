@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Trejak.ZoningByLaw.Prefab;
+using Unity.Collections;
 using Unity.Entities;
 
 namespace Trejak.ZoningByLaw.BuildingBlocks
@@ -22,6 +23,7 @@ namespace Trejak.ZoningByLaw.BuildingBlocks
         public Bounds1 valueBounds1;
         public int valueByteFlag;
         public int valueNumber;
+        public NativeArray<int> valueArrInt;
     }
 
     public enum ByLawItemType : int
@@ -39,7 +41,8 @@ namespace Trejak.ZoningByLaw.BuildingBlocks
         RearSetback,
         AirPollutionLevel,
         GroundPollutionLevel,
-        NoisePollutionLevel
+        NoisePollutionLevel,
+        AssetPack
     }
 
     public enum ByLawConstraintType : int
