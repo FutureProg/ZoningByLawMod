@@ -4,6 +4,7 @@ import { Bounds1 } from "cs2/bindings";
 import ByLawItemEnumEditor from "./ByLawItemEnumEditor";
 import { getMeasurementString } from "mods/utils";
 import { useLocalization } from "cs2/l10n";
+import ByLawItemAssetPackEditor from "./ByLawItemAssetPackEditor";
 
 type Props = {
     byLawItem: ByLawItem;
@@ -86,6 +87,25 @@ export default (
         constraintType == ByLawConstraintType.MultiSelect ||
         constraintType == ByLawConstraintType.SingleSelect
     ) {
+
+        if(byLawItem.byLawItemType == ByLawItemType.AssetPack) {
+            let onChange = (newArrayValue: number[]) => {
+                let nItemVal = {
+                    ...byLawItem,
+                    valueArrInt: newArrayValue,
+                };
+                onChangeCallback && onChangeCallback(nItemVal);
+            }
+            return (
+                <ByLawItemAssetPackEditor
+                    itemType={byLawItem.byLawItemType}
+                    itemArr={byLawItem.valueArrInt}
+                    constraintType={byLawItem.constraintType}
+                    onChange={onChange}
+                />                
+            )
+        }
+
         let onChange = (nValue: number) => {
             let nItemVal = {
                 ...byLawItem,

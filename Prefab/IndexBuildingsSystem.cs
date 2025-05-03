@@ -340,7 +340,7 @@ namespace Trejak.ZoningByLaw.Prefab
 
         public void AssessSubMesh(SubMesh subMesh, BuildingData buildingData, ref BuildingByLawProperties properties)
         {            
-            if ((subMesh.m_Flags & SubMeshFlags.HasTransform) != 0 && SystemAPI.HasComponent<MeshData>(subMesh.m_SubMesh))
+            if (SystemAPI.HasComponent<MeshData>(subMesh.m_SubMesh))
             {
                 MeshData meshData = SystemAPI.GetComponent<MeshData>(subMesh.m_SubMesh);
                 if (meshData.m_DecalLayer == Game.Rendering.DecalLayers.Buildings)
@@ -393,13 +393,15 @@ namespace Trejak.ZoningByLaw.Prefab
                     float leftSetback = math.abs((lotSizeMetres.x / 2f) - maxX.x);
                     float rightSetback = math.abs((-lotSizeMetres.x / 2f) - minX.x);
 
-                    if (properties.checkedBuildingSetBack)
+                    float submeshSize = meshDimensions.x * meshDimensions.y * meshDimensions.z;
+                    if (properties.checkedBuildingSetBack && properties.largestSubmeshSize < submeshSize)
                     {
-                        properties.buildingSetbackFront = math.min(properties.buildingSetbackFront, frontSetback);
-                        properties.buildingSetBackRear = math.min(properties.buildingSetBackRear, rearSetback);
-                        properties.buildingSetBackLeft = math.min(properties.buildingSetBackLeft, leftSetback);
-                        properties.buildingSetBackRight = math.min(properties.buildingSetBackRight, rightSetback);
-                    } else
+                        properties.buildingSetbackFront = frontSetback;
+                        properties.buildingSetBackRear = rearSetback;
+                        properties.buildingSetBackLeft = leftSetback;
+                        properties.buildingSetBackRight = rightSetback;
+                        properties.largestSubmeshSize = submeshSize;
+                    } else if (!properties.checkedBuildingSetBack)
                     {
                         properties.buildingSetbackFront = frontSetback;
                         properties.buildingSetBackRear = rearSetback;
@@ -466,7 +468,8 @@ namespace Trejak.ZoningByLaw.Prefab
         public float buildingSetBackRight;
         public float buildingSetBackRear;
         public float buildingHeight;
-        
+
+        public float largestSubmeshSize;
 
         public PollutionData pollutionData;
         public NativeArray<int> assetPacks; // 32-bit hashes for the names of each of the asset packs this building is part of

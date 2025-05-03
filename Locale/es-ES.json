@@ -43,4 +43,5 @@
     "ZBL.MeasurementFormat[Units]": "{VALUE} celdas",
     "SubServices.NAME[ByLawZones]": "Zoning ByLaws",
     "Assets.SUB_SERVICE_DESCRIPTION[ByLawZones]": "Zonificaciones personalizadas basadas en restricciones creadas por ti, el jugador."
+    "ZBL.ByLawItemType[AssetPack]": "Asset Pack"
 }
