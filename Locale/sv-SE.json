@@ -30,7 +30,6 @@
     "ZBL.ByLawItemType[NoisePollutionLevel]": "Noise Pollution Level",
     "ZBL.ByLawItemType[Name]": "Name",
     "ZBL.ByLawItemType[Color]": "Colour",
-    "ZBL.ByLawItemType[AssetPack]": "Asset Pack",
     "ZBL.ByLawValueText[Items]": "item(s)",
     "ZBL.ByLawValueText[BoundsTo]": "to",
     "ZBL.FlagValues[None]": "None",
