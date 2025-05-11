@@ -27,122 +27,125 @@ using Trejak.ZoningByLaw.Tests;
 using Game.UI.InGame;
 using Game.Settings;
 
-namespace Trejak.ZoningByLaw;
-
-public class Mod : IMod
+namespace Trejak.ZoningByLaw
 {
-    public static string Id = "Trejak.ZoningByLaw";
-    public static ILog log = LogManager.GetLogger($"{nameof(ZoningByLaw)}.{nameof(Mod)}").SetShowsErrorsInUI(false);
-    private Setting m_Setting;
 
-    bool installed;
-    private Harmony _Harmony;    
-
-    //private PrefabSystem _prefabSystem;
-
-    public void OnLoad(UpdateSystem updateSystem)
+    public class Mod : IMod
     {
-        log.Info(nameof(OnLoad));
+        public static string Id = "Trejak.ZoningByLaw";
+        public static ILog log = LogManager.GetLogger($"{nameof(ZoningByLaw)}.{nameof(Mod)}").SetShowsErrorsInUI(false);
+        private Setting m_Setting;
 
-        if (GameManager.instance.modManager.TryGetExecutableAsset(this, out var asset))
-            log.Info($"Current mod asset at {asset.path}");
+        bool installed;
+        private Harmony _Harmony;
 
-        installed = false;        
+        //private PrefabSystem _prefabSystem;
 
-        var path = Path.GetDirectoryName(asset.GetMeta().path);
-        UIManager.defaultUISystem.AddHostLocation("trejak_zbl", Path.Combine(path, "Images/"));
-
-        foreach (var item in new LocaleHelper("ZoningByLaw.Locale.json").GetAvailableLanguages())
+        public void OnLoad(UpdateSystem updateSystem)
         {
-            GameManager.instance.localizationManager.AddSource(item.LocaleId, item);
-        }        
+            log.Info(nameof(OnLoad));
 
-        ApplyPatches();
+            if (GameManager.instance.modManager.TryGetExecutableAsset(this, out var asset))
+                log.Info($"Current mod asset at {asset.path}");
 
-        World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<ZoneCheckSystem>().Enabled = false;
-        updateSystem.UpdateBefore<ByLawZoneSpawnSystem, ZoneSpawnSystem>(SystemUpdatePhase.GameSimulation);
-        updateSystem.UpdateAt<ByLawZonePrefabInitSystem>(SystemUpdatePhase.PrefabUpdate);
-        updateSystem.UpdateAt<IndexBuildingsSystem>(SystemUpdatePhase.PrefabUpdate);
+            installed = false;
 
-        updateSystem.UpdateAt<ConfigPanelUISystem>(SystemUpdatePhase.UIUpdate);
-        updateSystem.UpdateAt<CountElligiblePropertiesSystem>(SystemUpdatePhase.UIUpdate);
-        updateSystem.UpdateAt<ResetGameToolbarUISystem>(SystemUpdatePhase.Modification1);
-        updateSystem.UpdateAt<ZoningByLawToolSystem>(SystemUpdatePhase.ToolUpdate);
-        updateSystem.UpdateAfter<ByLawRenderPreviewSystem, AreaRenderSystem>(SystemUpdatePhase.Rendering);
+            var path = Path.GetDirectoryName(asset.GetMeta().path);
+            UIManager.defaultUISystem.AddHostLocation("trejak_zbl", Path.Combine(path, "Images/"));
 
-        updateSystem.UpdateAt<BuildingPropertiesToolTipSystem>(SystemUpdatePhase.UITooltip);
-
-        var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
-        var prefabs = Traverse.Create(prefabSystem).Field<List<PrefabBase>>("m_Prefabs").Value;
-        var basePrefab = prefabs.FirstOrDefault(p => p.name == "NA Residential Medium");
-        var baseCategoryPrefab = prefabs.FirstOrDefault(p => p.name.StartsWith("Zones") && p is UIAssetCategoryPrefab) as UIAssetCategoryPrefab;
-
-        TestRunner.Run();
-        if (!Utils.InitData(basePrefab as ZonePrefab, baseCategoryPrefab, prefabSystem) || TestRunner.FailureCount > 0)
-        {
-            Mod.log.Error("Unable to initialize Zoning ByLaw Mod!");            
-        } else
-        {            
-            Utils.LoadByLaws();
-
-            // init localization
-            var em = updateSystem.EntityManager;
-            LocaleDictionary localeDict = new LocaleDictionary(em, em.World.GetOrCreateSystemManaged<PrefabUISystem>(), em.World.GetOrCreateSystemManaged<PrefabSystem>());
-            foreach (var localeId in GameManager.instance.localizationManager.GetSupportedLocales())
+            foreach (var item in new LocaleHelper("ZoningByLaw.Locale.json").GetAvailableLanguages())
             {
-                GameManager.instance.localizationManager.AddSource(localeId, localeDict);
+                GameManager.instance.localizationManager.AddSource(item.LocaleId, item);
             }
 
-            installed = true;
+            ApplyPatches();
+
+            World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<ZoneCheckSystem>().Enabled = false;
+            updateSystem.UpdateBefore<ByLawZoneSpawnSystem, ZoneSpawnSystem>(SystemUpdatePhase.GameSimulation);
+            updateSystem.UpdateAt<ByLawZonePrefabInitSystem>(SystemUpdatePhase.PrefabUpdate);
+            updateSystem.UpdateAt<IndexBuildingsSystem>(SystemUpdatePhase.PrefabUpdate);
+
+            updateSystem.UpdateAt<ConfigPanelUISystem>(SystemUpdatePhase.UIUpdate);
+            updateSystem.UpdateAt<CountElligiblePropertiesSystem>(SystemUpdatePhase.UIUpdate);
+            updateSystem.UpdateAt<ResetGameToolbarUISystem>(SystemUpdatePhase.Modification1);
+            updateSystem.UpdateAt<ZoningByLawToolSystem>(SystemUpdatePhase.ToolUpdate);
+            updateSystem.UpdateAfter<ByLawRenderPreviewSystem, AreaRenderSystem>(SystemUpdatePhase.Rendering);
+
+            updateSystem.UpdateAt<BuildingPropertiesToolTipSystem>(SystemUpdatePhase.UITooltip);
+
+            var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
+            var prefabs = Traverse.Create(prefabSystem).Field<List<PrefabBase>>("m_Prefabs").Value;
+            var basePrefab = prefabs.FirstOrDefault(p => p.name == "NA Residential Medium");
+            var baseCategoryPrefab = prefabs.FirstOrDefault(p => p.name.StartsWith("Zones") && p is UIAssetCategoryPrefab) as UIAssetCategoryPrefab;
+
+            TestRunner.Run();
+            if (!Utils.InitData(basePrefab as ZonePrefab, baseCategoryPrefab, prefabSystem) || TestRunner.FailureCount > 0)
+            {
+                Mod.log.Error("Unable to initialize Zoning ByLaw Mod!");
+            }
+            else
+            {
+                Utils.LoadByLaws();
+
+                // init localization
+                var em = updateSystem.EntityManager;
+                LocaleDictionary localeDict = new LocaleDictionary(em, em.World.GetOrCreateSystemManaged<PrefabUISystem>(), em.World.GetOrCreateSystemManaged<PrefabSystem>());
+                foreach (var localeId in GameManager.instance.localizationManager.GetSupportedLocales())
+                {
+                    GameManager.instance.localizationManager.AddSource(localeId, localeDict);
+                }
+
+                installed = true;
+            }
+
+            //m_Setting = new Setting(this);
+            //m_Setting.RegisterInOptionsUI();
+            //GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(m_Setting));
+
+            //AssetDatabase.global.LoadSettings(nameof(ZoningByLaw), m_Setting, new Setting(this));
+
         }
 
-        //m_Setting = new Setting(this);
-        //m_Setting.RegisterInOptionsUI();
-        //GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(m_Setting));
-
-        //AssetDatabase.global.LoadSettings(nameof(ZoningByLaw), m_Setting, new Setting(this));
-
-    }
-
-    private void ApplyPatches()
-    {
-        Assembly assembly = Assembly.GetExecutingAssembly();
-
-        _Harmony = new Harmony(typeof(Mod).Namespace);
-        _Harmony.PatchAll(assembly);
-        var patchedMethods = _Harmony.GetPatchedMethods().ToArray<MethodBase>();
-
-        log.Info($"Made patches! Patched methods: " + patchedMethods.Length);
-
-        foreach (var patchedMethod in patchedMethods)
+        private void ApplyPatches()
         {
-            log.Info($"Patched method: {patchedMethod.Module.Name}:{patchedMethod.Name}");
+            Assembly assembly = Assembly.GetExecutingAssembly();
+
+            _Harmony = new Harmony(typeof(Mod).Namespace);
+            _Harmony.PatchAll(assembly);
+            var patchedMethods = _Harmony.GetPatchedMethods().ToArray<MethodBase>();
+
+            log.Info($"Made patches! Patched methods: " + patchedMethods.Length);
+
+            foreach (var patchedMethod in patchedMethods)
+            {
+                log.Info($"Patched method: {patchedMethod.Module.Name}:{patchedMethod.Name}");
+            }
         }
-    }
 
-    public static InterfaceSettings GameInterfaceSettings
-    {
-        get
+        public static InterfaceSettings GameInterfaceSettings
         {
-            return GameManager.instance?.settings?.userInterface;
+            get
+            {
+                return GameManager.instance?.settings?.userInterface;
+            }
         }
-    }
 
-    public static InterfaceSettings.UnitSystem GameMeasurementUnitSystem
-    {
-        get
+        public static InterfaceSettings.UnitSystem GameMeasurementUnitSystem
         {
-            return GameInterfaceSettings?.unitSystem ?? InterfaceSettings.UnitSystem.Metric;
+            get
+            {
+                return GameInterfaceSettings?.unitSystem ?? InterfaceSettings.UnitSystem.Metric;
+            }
         }
-    }
 
-    public void OnDispose()
-    {
-        log.Info(nameof(OnDispose));
-        if (m_Setting != null)
+        public void OnDispose()
         {
-            m_Setting.UnregisterInOptionsUI();
-            m_Setting = null;
+            log.Info(nameof(OnDispose));
+            if (m_Setting != null)
+            {
+                m_Setting.UnregisterInOptionsUI();
+                m_Setting = null;
+            }
         }
     }
 }

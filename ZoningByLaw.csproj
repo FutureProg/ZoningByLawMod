@@ -2,8 +2,7 @@
 
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
-    <LangVersion>10</LangVersion>
-		<TargetFramework>net472</TargetFramework>
+    <LangVersion>9</LangVersion>
 		<Configurations>Debug;Release</Configurations>
 		
 		<!--The folder where Game.dll is located. Set it only if the game is not installed in the default location, otherwise keep it empty-->
@@ -25,8 +24,8 @@
 	<Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.targets" />
 
   <ItemGroup>
-    <EmbeddedResource Include="Locale/*.json"/>
-    <None Remove="Locale/*.json"/>
+    <EmbeddedResource Include="Locale/*.json" />
+    <None Remove="Locale/*.json" />
   </ItemGroup>
     
 	<ItemGroup>

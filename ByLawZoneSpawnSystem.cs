@@ -104,13 +104,13 @@ namespace Trejak.ZoningByLaw
                 ComponentType.ReadOnly<BuildingSpawnGroupData>(),
                 ComponentType.ReadOnly<PrefabData>()
             });
-            _definitionArchetype = EntityManager.CreateArchetype(new ComponentType[]
-            {
-                ComponentType.ReadWrite<CreationDefinition>(),
-                ComponentType.ReadWrite<ObjectDefinition>(),
-                ComponentType.ReadWrite<Updated>(),
-                ComponentType.ReadWrite<Deleted>()
-            });
+            //_definitionArchetype = this.EntityManager.CreateArchetype(new ComponentType[]
+            //{
+            //    ComponentType.ReadWrite<CreationDefinition>(),
+            //    ComponentType.ReadWrite<ObjectDefinition>(),
+            //    ComponentType.ReadWrite<Updated>(),
+            //    ComponentType.ReadWrite<Deleted>()
+            //});
             _processQuery = this.GetEntityQuery(new ComponentType[]
             {
                 ComponentType.ReadOnly<IndustrialProcessData>()

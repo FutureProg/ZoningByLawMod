@@ -21,7 +21,7 @@ namespace Trejak.ZoningByLaw.UISystems
 
         public static ZoningByLawBinding FromEntity(Entity byLawEntity, EntityManager em)
         {
-            var buffer = new ZoningByLawBinding.Buffer();
+            var buffer = new ZoningByLawBinding.Buffer(false);
             ByLawZoneData byLawData = em.GetComponentData<ByLawZoneData>(byLawEntity);
             var blockRefBuffer = em.GetBuffer<ByLawBlockReference>(byLawEntity);
 
@@ -93,12 +93,6 @@ namespace Trejak.ZoningByLaw.UISystems
         {
             List<ByLawBlockBinding> blocks;
             bool deleted;
-
-            public Buffer()
-            {
-                this.blocks = new List<ByLawBlockBinding>();
-                deleted = false;
-            }
 
             public Buffer(bool deleted = false)
             {
