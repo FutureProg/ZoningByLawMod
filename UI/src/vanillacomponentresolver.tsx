@@ -222,7 +222,7 @@ const registryIndex = {
     mouseToolOptionsTheme: ["game-ui/game/components/tool-options/mouse-tool-options/mouse-tool-options.module.scss", "classes"],
     ellipsesTextInputTheme: ["game-ui/common/input/text/ellipsis-text-input/ellipsis-text-input.module.scss", 'classes'],
     EllipsisTextInput: ["game-ui/common/input/text/ellipsis-text-input/ellipsis-text-input.tsx", "EllipsisTextInput"],
-    assetGridTheme: ["game-ui/game/components/asset-menu/asset-grid/asset-grid.module.scss", "classes"],
+    assetGridTheme: ["game-ui/game/components/item-grid/item-grid.module.scss", "classes"],
 
     BoundToggleField: ["game-ui/game/widgets/toggle-field/toggle-field.tsx", "BoundToggleField"],
 
