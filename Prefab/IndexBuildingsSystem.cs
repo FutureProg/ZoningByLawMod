@@ -230,7 +230,7 @@ namespace Trejak.ZoningByLaw.Prefab
                     _properties[prefabData.m_Index] = props;
                 }
             }
-            var assetPacksNames = _assetPackPrefabs.Select(p => p.name).Aggregate((a, b) => a + ", " + b);
+            var assetPacksNames = _assetPackPrefabs.Select(p => p.name).Aggregate(string.Empty, (a, b) => a + ", " + b);
             Mod.log.Info($"IndexBuildingsSystem loaded the following AssetPacks:\n{assetPacksNames}");
             if (processedEnts > 0 && !_initialized)
             {
