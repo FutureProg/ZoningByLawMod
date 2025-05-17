@@ -19,6 +19,7 @@ namespace Trejak.ZoningByLaw.Serialization
     public class ByLawRecord
     {
 
+        public FormatVersion serialVersion = FormatVersion.V_0_2_ASSET_PACKS;
         public string bylawName;
         public string idName;
         public string bylawDesc;
@@ -51,6 +52,12 @@ namespace Trejak.ZoningByLaw.Serialization
             this.edgeColor = edgeColor;
             this.bylawDesc = description;
             this.idName = prefabID.GetName();
+        }
+
+        public enum FormatVersion
+        {
+            V_0_1_BASE = 0,
+            V_0_2_ASSET_PACKS = 1,
         }
 
     }

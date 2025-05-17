@@ -23,7 +23,7 @@ namespace Trejak.ZoningByLaw.BuildingBlocks
         public Bounds1 valueBounds1;
         public int valueByteFlag;
         public int valueNumber;
-        //public NativeArray<int> valueArrInt;
+        public NativeArray<int> valueArrInt;
     }
 
     public enum ByLawItemType : int
