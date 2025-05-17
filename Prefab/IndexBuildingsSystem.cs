@@ -23,7 +23,8 @@ namespace Trejak.ZoningByLaw.Prefab
 
         private EntityQuery _buildingsPrefabsQuery;
         private EntityQuery _initQuery;
-        private NativeList<BuildingByLawProperties> _properties;
+        private NativeList<BuildingByLawProperties> _propertiesList;
+        private BuildingByLawPropertiesLookup _propertiesLookup;
         private JobHandle _propertiesReaders;
         private bool _initialized;
         private List<AssetPackPrefab> _assetPackPrefabs;
@@ -73,7 +74,7 @@ namespace Trejak.ZoningByLaw.Prefab
                     }
                 }
             );
-            _properties = new NativeList<BuildingByLawProperties>(20, Allocator.Persistent);
+            _propertiesList = new NativeList<BuildingByLawProperties>(512, Allocator.Persistent);
             _propertiesReaders = default;
             _initialized = false;
             _prefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
@@ -169,9 +170,9 @@ namespace Trejak.ZoningByLaw.Prefab
                     {
                         nonNullAssetPacks = new List<AssetPackPrefab>();
                     }
-                    while (prefabData.m_Index >= _properties.Length)
+                    while (prefabData.m_Index >= _propertiesList.Length)
                     {
-                        _properties.Add(new BuildingByLawProperties() { initialized = false });
+                        _propertiesList.Add(new BuildingByLawProperties() { initialized = false });
                     }
                     int parkingCount = 0;
                     bool hasParkingGarage = false;
@@ -227,7 +228,7 @@ namespace Trejak.ZoningByLaw.Prefab
                     }
 
                     processedEnts++;
-                    _properties[prefabData.m_Index] = props;
+                    _propertiesList[prefabData.m_Index] = props;
                 }
             }
             var assetPacksNames = _assetPackPrefabs.Select(p => p.name).Aggregate(string.Empty, (a, b) => a + ", " + b);
@@ -240,6 +241,9 @@ namespace Trejak.ZoningByLaw.Prefab
                     this.UpdateIndex(true);
                 }
             }
+            if (processedEnts > 0) { 
+                _propertiesLookup = new BuildingByLawPropertiesLookup(_propertiesList.AsArray());
+            }
             Mod.log.Info($"IndexBuildingsSystem created properties for {processedEnts} entities.");
         }
         
@@ -249,14 +253,14 @@ namespace Trejak.ZoningByLaw.Prefab
             File.Delete(filePath);
             File.WriteAllText(filePath, "[");
             var file = File.AppendText(filePath);
-            for (int i = 0; i < _properties.Length; i++)
+            for (int i = 0; i < _propertiesList.Length; i++)
             {
-                if (_properties[i].initialized)
+                if (_propertiesList[i].initialized)
                 {
                     Dictionary<string, object> t = new Dictionary<string, object>();
                     t["index"] = i;
                     t["prefabName"] = _prefabSystem.GetPrefab<PrefabBase>(new PrefabData() { m_Index = i }).name;
-                    t["data"] = _properties[i];
+                    t["data"] = _propertiesList[i];
                     file.Write(JSON.Dump(t) + ",\n");
                 }
             }
@@ -288,18 +292,18 @@ namespace Trejak.ZoningByLaw.Prefab
 
         public bool TryGetProperties(PrefabData prefabData, out BuildingByLawProperties properties)
         {
-            if (prefabData.m_Index >= _properties.Length)
+            if (prefabData.m_Index >= _propertiesList.Length)
             {
                 properties = new BuildingByLawProperties() { initialized = false };
                 return false;
             }
-            properties = _properties[prefabData.m_Index];
+            properties = _propertiesList[prefabData.m_Index];
             return properties.initialized;
         }
 
         public BuildingByLawPropertiesLookup GetPropertiesLookup()
         {
-            return new BuildingByLawPropertiesLookup(this._properties.AsArray());
+            return _propertiesLookup;
         }
 
         public List<AssetPackPrefab> GetAssetPacks()
@@ -417,7 +421,7 @@ namespace Trejak.ZoningByLaw.Prefab
         {
             base.OnDestroy();
             _propertiesReaders.Complete();
-            _properties.Dispose();            
+            _propertiesList.Dispose();            
         }
 
     }
