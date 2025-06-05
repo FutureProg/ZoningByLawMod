@@ -230,7 +230,7 @@ namespace Trejak.ZoningByLaw
                     }
                 };
             }
-            prefab.Update(data);
+            prefab.UpdateByLawData(data);
 
             // Typical Zoning Stuff
             prefab.m_Office = (prefab.zoneType & ByLawZoneType.Office) != (ByLawZoneType)0;

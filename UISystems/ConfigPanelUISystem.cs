@@ -254,7 +254,7 @@ namespace Trejak.ZoningByLaw.UI
             Mod.log.Info("Set By Law Data: " + data.ToJSONString());
             data.UpdateEntity(_selectedByLaw.value, this.EntityManager, GetElligibleBuildingCount());
             var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(_selectedByLaw.value);            
-            prefab.Update(data);
+            prefab.UpdateByLawData(data);
             _elligibleBuildingsSystem.EnqueueUpdate(_selectedByLaw.value);
             GameManager.instance.localizationManager.ReloadActiveLocale();
             

@@ -78,7 +78,7 @@ namespace Trejak.ZoningByLaw.Prefab
                     }
                 };
             }
-            prefab.Update(binding);
+            prefab.UpdateByLawData(binding);
         }
 
         void SetupByLawBlocks(DynamicBuffer<ByLawBlockReference> blockRefs, ByLawZonePrefab prefab)
