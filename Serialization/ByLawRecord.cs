@@ -18,8 +18,8 @@ namespace Trejak.ZoningByLaw.Serialization
     /// </summary>
     public class ByLawRecord
     {
-
-        public FormatVersion serialVersion = FormatVersion.V_0_2_ASSET_PACKS;
+        public static FormatVersion CURRENT_SERIALIZATION_VERSION = FormatVersion.V_0_1_BASE;
+        public FormatVersion serialVersion = CURRENT_SERIALIZATION_VERSION;
         public string bylawName;
         public string idName;
         public string bylawDesc;
@@ -56,8 +56,7 @@ namespace Trejak.ZoningByLaw.Serialization
 
         public enum FormatVersion
         {
-            V_0_1_BASE = 0,
-            V_0_2_ASSET_PACKS = 1,
+            V_0_1_BASE = 0
         }
 
     }
