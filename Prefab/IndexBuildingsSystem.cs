@@ -242,7 +242,11 @@ namespace Trejak.ZoningByLaw.Prefab
                 }
             }
             if (processedEnts > 0) { 
-                _propertiesLookup = new BuildingByLawPropertiesLookup(_propertiesList.AsArray());
+                if (_propertiesLookup.isCreated)
+                {
+                    _propertiesLookup.Dispose();
+                }
+                _propertiesLookup = new BuildingByLawPropertiesLookup(_propertiesList.ToArray(Allocator.Persistent));                
             }
             Mod.log.Info($"IndexBuildingsSystem created properties for {processedEnts} entities.");
         }
@@ -421,14 +425,15 @@ namespace Trejak.ZoningByLaw.Prefab
         {
             base.OnDestroy();
             _propertiesReaders.Complete();
-            _propertiesList.Dispose();            
+            _propertiesList.Dispose();
+            _propertiesLookup.Dispose();
         }
 
     }
 
     public struct BuildingByLawPropertiesLookup
     {
-
+        public bool isCreated { get { return _properties.IsCreated; } }
         private NativeArray<BuildingByLawProperties> _properties;
 
         public BuildingByLawPropertiesLookup(NativeArray<BuildingByLawProperties> properties)
@@ -449,6 +454,14 @@ namespace Trejak.ZoningByLaw.Prefab
             get
             {
                 return this[prefabData.m_Index];
+            }
+        }
+
+        public void Dispose()
+        {
+            if (this._properties.IsCreated)
+            {
+                this._properties.Dispose();
             }
         }
 
