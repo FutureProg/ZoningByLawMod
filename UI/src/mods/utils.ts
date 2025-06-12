@@ -19,8 +19,7 @@ export const GetDefaultByLawItem = () : ByLawItem => ({
     propertyOperator: ByLawPropertyOperator.None,
     valueBounds1: {max: 0, min: 0} as Bounds1,
     valueByteFlag: 0,
-    valueNumber: 0,
-    valueArrInt: []
+    valueNumber: 0
 });
 
 export const GetDefaultZoningByLawBinding = () : ZoningByLawBinding => ({
