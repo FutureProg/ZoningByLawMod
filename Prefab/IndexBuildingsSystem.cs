@@ -448,14 +448,6 @@ namespace Trejak.ZoningByLaw.Prefab
             }
         }
 
-        public void Dispose()
-        {
-            if (this._properties.IsCreated)
-            {
-                this._properties.Dispose();
-            }
-        }
-
     }
 
     public struct BuildingByLawProperties
