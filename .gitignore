@@ -582,5 +582,4 @@ FodyWeavers.xsd
 
 # End of https://www.toptal.com/developers/gitignore/api/csharp,visualstudio
 
-
-ilpp.pid
+/Library/ilpp.pid
