@@ -208,12 +208,12 @@ namespace Trejak.ZoningByLaw.Prefab
                         parkingCount = parkingCount,
                         hasParkingGarage = hasParkingGarage,
                         buildingHeight = objGeom.m_Size.y,
-                        isOffice = archetypeComponents.Contains(ComponentType.ReadOnly<OfficeProperty>()),
-                        isIndustry = archetypeComponents.Contains(ComponentType.ReadOnly<IndustrialProperty>()) && !archetypeComponents.Contains(ComponentType.ReadOnly<OfficeProperty>()),
-                        isExtractor = archetypeComponents.Contains(ComponentType.ReadOnly<ExtractorProperty>()),
-                        isResidential = propertyData.m_ResidentialProperties > 0 || archetypeComponents.Contains(ComponentType.ReadOnly<ResidentialProperty>()),
-                        isCommercial = archetypeComponents.Contains(ComponentType.ReadOnly<CommercialProperty>()),
-                        isStorage = archetypeComponents.Contains(ComponentType.ReadOnly<StorageProperty>()) && archetypeComponents.Contains(ComponentType.ReadOnly<IndustrialProperty>()),
+                        isOffice = archetypeComponents.Contains(typeof(OfficeProperty)),
+                        isIndustry = archetypeComponents.Contains(typeof(IndustrialProperty)) && !archetypeComponents.Contains(typeof(OfficeProperty)),
+                        isExtractor = archetypeComponents.Contains(typeof(ExtractorProperty)),
+                        isResidential = propertyData.m_ResidentialProperties > 0 || archetypeComponents.Contains(typeof(ResidentialProperty)),
+                        isCommercial = archetypeComponents.Contains(typeof(CommercialProperty)),
+                        isStorage = archetypeComponents.Contains(typeof(StorageProperty)) && archetypeComponents.Contains(typeof(IndustrialProperty)),
                         pollutionData = hasPollutionData ? pollutionData : default,
                         assetPacks = new NativeArray<int>(nonNullAssetPacks.Select(p => p.name.GetHashCode()).ToArray(), Allocator.Persistent)
                     };
@@ -424,7 +424,7 @@ namespace Trejak.ZoningByLaw.Prefab
 
     public struct BuildingByLawPropertiesLookup
     {
-
+        public bool isCreated { get { return _properties.IsCreated; } }
         private NativeArray<BuildingByLawProperties> _properties;
 
         public BuildingByLawPropertiesLookup(NativeArray<BuildingByLawProperties> properties)

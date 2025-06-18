@@ -78,7 +78,8 @@ Please report bug reports and have discussions on the mod's thread in the [Citie
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--<ChangeLog Value="Quick-fix for UI breaking bug A new bylaw will be added whenever you delete another one." />-->
 <ChangeLog>
-- Fixed mod crash when playing without any Asset Packs
+- Compatability Quays and Piers patch
+- Various bug fixes
 </ChangeLog>
 	<!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
 	<ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=_PaNeeFAT-w" />

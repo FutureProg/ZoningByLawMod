@@ -209,7 +209,7 @@ namespace Trejak.ZoningByLaw
             ComponentBase[] baseComponents = new ComponentBase[_basePrefab.components.Count];
             _basePrefab.components.CopyTo(baseComponents);
 
-            var prefab = new ByLawZonePrefab();
+            var prefab = ScriptableObject.CreateInstance<ByLawZonePrefab>();
             bylawName = bylawName ?? "Zoning ByLaw " + byLawNumber;
             idName = idName ?? bylawName +'_' + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
@@ -230,7 +230,7 @@ namespace Trejak.ZoningByLaw
                     }
                 };
             }
-            prefab.Update(data);
+            prefab.UpdateByLawData(data);
 
             // Typical Zoning Stuff
             prefab.m_Office = (prefab.zoneType & ByLawZoneType.Office) != (ByLawZoneType)0;

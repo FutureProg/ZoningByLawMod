@@ -88,24 +88,6 @@ export default (
         constraintType == ByLawConstraintType.SingleSelect
     ) {
 
-        if(byLawItem.byLawItemType == ByLawItemType.AssetPack) {
-            let onChange = (newArrayValue: number[]) => {
-                let nItemVal = {
-                    ...byLawItem,
-                    valueArrInt: newArrayValue,
-                };
-                onChangeCallback && onChangeCallback(nItemVal);
-            }
-            return (
-                <ByLawItemAssetPackEditor
-                    itemType={byLawItem.byLawItemType}
-                    itemArr={byLawItem.valueArrInt}
-                    constraintType={byLawItem.constraintType}
-                    onChange={onChange}
-                />                
-            )
-        }
-
         let onChange = (nValue: number) => {
             let nItemVal = {
                 ...byLawItem,

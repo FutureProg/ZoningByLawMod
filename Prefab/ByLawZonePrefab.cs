@@ -38,7 +38,7 @@ namespace Trejak.ZoningByLaw.Prefab
             components.Add(ComponentType.ReadWrite<ByLawZoneData>());
         }
 
-        public void Update(ZoningByLawBinding binding)
+        public void UpdateByLawData(ZoningByLawBinding binding)
         {
             if (this.blocks == null)
             {

@@ -104,13 +104,13 @@ namespace Trejak.ZoningByLaw
                 ComponentType.ReadOnly<BuildingSpawnGroupData>(),
                 ComponentType.ReadOnly<PrefabData>()
             });
-            _definitionArchetype = EntityManager.CreateArchetype(new ComponentType[]
-            {
+
+            _definitionArchetype = EntityManager.CreateArchetype(            
                 ComponentType.ReadWrite<CreationDefinition>(),
                 ComponentType.ReadWrite<ObjectDefinition>(),
                 ComponentType.ReadWrite<Updated>(),
                 ComponentType.ReadWrite<Deleted>()
-            });
+            );
             _processQuery = this.GetEntityQuery(new ComponentType[]
             {
                 ComponentType.ReadOnly<IndustrialProcessData>()
@@ -219,7 +219,7 @@ namespace Trejak.ZoningByLaw
                 m_Commercial = commercialQ,
                 m_DefinitionArchetype = _definitionArchetype,
                 m_Industrial = industrialQ,
-                m_LefthandTraffic = _cityConfigurationSystem.leftHandTraffic,
+                m_LefthandTraffic = _cityConfigurationSystem.leftHandTraffic,                
                 m_PrefabAreaGeometryData = GetComponentLookup<AreaGeometryData>(true),
                 m_PrefabBuildingData = GetComponentLookup<BuildingData>(true),
                 m_PrefabNetGeometryData = GetComponentLookup<NetGeometryData>(true),
@@ -236,7 +236,7 @@ namespace Trejak.ZoningByLaw
                 m_TerrainHeightData = _terrainSystem.GetHeightData(false),
                 m_TransformData = GetComponentLookup<Game.Objects.Transform>(true),
                 m_ValidAreaData = GetComponentLookup<ValidArea>(true),
-                m_ZoneSearchTree = _searchSystem.GetSearchTree(true, out var searchTreeJob),               
+                m_ZoneSearchTree = _searchSystem.GetSearchTree(true, out var searchTreeJob)               
             };
 
             var evaluationHandle = evaluateSpawnAreas.ScheduleParallel(this._vacantLotsQuery, JobUtils.CombineDependencies(buildingsQueryJob, groundPollutionMapJob,
@@ -409,7 +409,7 @@ namespace Trejak.ZoningByLaw
                     spawnLocation.m_LotArea = area;
                     spawnLocation.m_ZoneType = zoneData.m_ZoneType;
                     spawnLocation.m_AreaType = zoneData.m_AreaType;
-                    spawnLocation.m_LotFlags = flags;
+                    spawnLocation.m_LotFlags = flags;                    
                     bool office = zoneData.m_AreaType == Game.Zones.AreaType.Industrial && estimates.Length == 0;
                     DynamicBuffer<ResourceAvailability> availabilities = this.resourceAvailabilityLookup[road];
                     if (!this.blockLookup.HasComponent(spawnLocation.m_Entity))
