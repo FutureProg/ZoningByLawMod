@@ -4,7 +4,6 @@ interface FieldDataBase {
     id: string;
     label: string;
     options?: { image?: string; label: string; value: any }[];
-    value: any;
 }
 interface CheckboxFieldData extends FieldDataBase {
     fieldType: 'checkbox';
