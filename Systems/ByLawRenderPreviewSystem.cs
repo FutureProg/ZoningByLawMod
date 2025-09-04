@@ -171,7 +171,8 @@ namespace Trejak.ZoningByLaw.Systems
                 overlayBuffer.DrawLine(lineColor, Color.clear, 
                     lineWidth, 0, 
                     new Line3.Segment(new float3(terrainPoint.x, terrainPoint.y, terrainPoint.z - depth/2f), new float3(terrainPoint.x, terrainPoint.y, terrainPoint.z + depth / 2f)), 
-                    width
+                    width,
+                    default(float2)
                 ); // draws the lot size
 
                 float3 cubeCentre = terrainPoint+ new float3(0, height / 2f, 0);
