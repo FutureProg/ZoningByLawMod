@@ -1,4 +1,4 @@
-import { LocalizedNumber, UnitSystem, useLocalization } from "cs2/l10n";
+import { Localized, LocalizedNumber, LocalizedNumber$1, UnitSystem, useLocalization } from "cs2/l10n";
 import { BlockType, ByLawConstraintType, ByLawItem, ByLawItemCategory, ByLawItemType, ByLawPropertyOperator, ByLawZoneComponent, ByLawZoneType, LogicOperation, ZoningByLawBinding } from "./types";
 import { Bounds1, Color, Unit } from "cs2/bindings";
 import { useCallback, useMemo } from "react";
@@ -67,7 +67,7 @@ export const useLocalizedMeasurement = (value: number) => {
 
     let measurementText = useMemo(() => {                            
         let props = {value, signed: true, unit: Unit.NetElevation};
-        return LocalizedNumber.renderString(localization, props); // NetElevation will use Metres and Feet, for some reason Length uses Yards.                   
+        return LocalizedNumber$1.renderString(localization, props); // NetElevation will use Metres and Feet, for some reason Length uses Yards.
     }, [value, unitSettings.unitSystem]);
 
     /**
