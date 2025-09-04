@@ -51,3 +51,7 @@ export const toggleByLawRenderPreview = () => {
 export const toggleTool = () => {
     trigger(mod.fullname, "ToggleTool");
 }
+
+export const setFieldValue = (id: string, value: any) => {
+    trigger(mod.fullname, "SetFieldValue", id, value);
+}
