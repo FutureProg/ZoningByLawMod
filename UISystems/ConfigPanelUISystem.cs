@@ -168,115 +168,116 @@ namespace Trejak.ZoningByLaw.UI
 
             Dictionary<string, FieldDataBase> fieldDict = new();
             var blockRefBuffer = EntityManager.GetBuffer<ByLawBlockReference>(_selectedByLaw.value);
-            foreach (var blockRef in blockRefBuffer)
+            foreach (var blockEntity in blockRefBuffer.Select(blockRef => blockRef.block))
             {
-                var blockEntity = blockRef.block;
-                if (EntityManager.HasComponent<ByLawBlock>(blockEntity) &&
-                    EntityManager.TryGetBuffer<ByLawItem>(blockEntity, false, out var bylawItemBuffer))
+                if (!EntityManager.HasComponent<ByLawBlock>(blockEntity) ||
+                    !EntityManager.TryGetBuffer<ByLawItem>(blockEntity, false, out var bylawItemBuffer)) continue;
+                var itemTypesArr = Enum.GetValues(typeof(ByLawItemType));
+                foreach (ByLawItemType itemType in itemTypesArr)
                 {
-                    var itemTypesArr = Enum.GetValues(typeof(ByLawItemType));
-                    foreach (ByLawItemType itemType in itemTypesArr)
+                    var constraintType = BuildingBlockSystem.GetConstraintTypes(itemType);
+                    var operators = BuildingBlockSystem.GetPropertyOperators(itemType).Select(op =>
+                        new FieldDataOption<ByLawPropertyOperator>()
+                        {
+                            label = "ZBL.PropertyOperator[" + op.ToString() + "]",
+                            value = op
+                        }).ToList();
+                    switch (constraintType)
                     {
-                        var constraintType = BuildingBlockSystem.GetConstraintTypes(itemType);
-                        var operators = BuildingBlockSystem.GetPropertyOperators(itemType).Select(op =>
-                            new FieldDataOption<ByLawPropertyOperator>()
+                        case ByLawConstraintType.Count:
+                            fieldDict[itemType.ToString()] = new NumberFieldData()
                             {
-                                label = "ZBL.PropertyOperator[" + op.ToString() + "]",
-                                value = op
+                                id = itemType.ToString(),
+                                label = "ZBL.ByLawItemType[" + itemType.ToString() + "]",
+                                value = 0,
+                                operatorOptions = operators,
+                                min = 0,
+                                step = 1
+                            };
+                            break;
+                        case ByLawConstraintType.Length:
+                            fieldDict[itemType.ToString()] = new RangeFieldData()
+                            {
+                                id = itemType.ToString(),
+                                label = "ZBL.ByLawItemType[" + itemType.ToString() + "]",
+                                value = new double[] { 0, 0 },
+                                operatorOptions = operators,
+                                min = 0,
+                                step = 1
+                            };
+                            break;
+                        case ByLawConstraintType.MultiSelect:
+                        case ByLawConstraintType.SingleSelect:
+                            var enumType = BuildingBlockSystem.GetConstraintEnumType(itemType);
+                            var enumValues = Enum.GetValues(enumType);
+                            var mappedValues = enumValues.Cast<object>().Select((x) => new FieldDataOption<object>()
+                            {
+                                label = "ZBL.FlagValues[" + Enum.GetName(enumType, x) + "]",
+                                value = (int)x
                             }).ToList();
-                        switch (constraintType)
-                        {
-                            case ByLawConstraintType.Count:
-                                fieldDict[itemType.ToString()] = new NumberFieldData()
-                                {
-                                    id = itemType.ToString(),
-                                    label = "ZBL.ByLawItemType[" + itemType.ToString() + "]",
-                                    value = 0,
-                                    operatorOptions = operators,
-                                    min = 0,
-                                    step = 1
-                                };
-                                break;
-                            case ByLawConstraintType.Length:
-                                fieldDict[itemType.ToString()] = new RangeFieldData()
-                                {
-                                    id = itemType.ToString(),
-                                    label = "ZBL.ByLawItemType[" + itemType.ToString() + "]",
-                                    value = new double[] { 0, 0 },
-                                    operatorOptions = operators,
-                                    min = 0,
-                                    step = 1
-                                };
-                                break;
-                            case ByLawConstraintType.MultiSelect:
-                            case ByLawConstraintType.SingleSelect:
-                                var enumType = BuildingBlockSystem.GetConstraintEnumType(itemType);
-                                var enumValues = Enum.GetValues(enumType);
-                                var mappedValues = enumValues.Cast<object>().Select((x) => new FieldDataOption<object>()
-                                {
-                                    label = "ZBL.FlagValues[" + Enum.GetName(enumType, x) + "]",
-                                    value = (int)x
-                                }).ToList();
 
-                                if (constraintType == ByLawConstraintType.MultiSelect)
+                            if (constraintType == ByLawConstraintType.MultiSelect)
+                            {
+                                fieldDict[itemType.ToString()] = new CheckboxFieldData()
                                 {
-                                    fieldDict[itemType.ToString()] = new CheckboxFieldData()
-                                    {
-                                        id = itemType.ToString(),
-                                        label = "ZBL.ByLawItemType[" + itemType.ToString() + "]",
-                                        options = mappedValues,
-                                        operatorOptions = operators,
-                                        value = new object[] { 0 }
-                                    };
-                                }
-                                else
+                                    id = itemType.ToString(),
+                                    label = "ZBL.ByLawItemType[" + itemType.ToString() + "]",
+                                    options = mappedValues,
+                                    operatorOptions = operators,
+                                    value = new object[] { 0 }
+                                };
+                            }
+                            else
+                            {
+                                fieldDict[itemType.ToString()] = new RadioFieldData()
                                 {
-                                    fieldDict[itemType.ToString()] = new RadioFieldData()
-                                    {
-                                        id = itemType.ToString(),
-                                        label = "ZBL.ByLawItemType[" + itemType.ToString() + "]",
-                                        options = mappedValues,
-                                        operatorOptions = operators,
-                                        value = 0
-                                    };
-                                }
-                                break;
-                            case ByLawConstraintType.None:
-                            default:
-                                break;
-                        }
+                                    id = itemType.ToString(),
+                                    label = "ZBL.ByLawItemType[" + itemType.ToString() + "]",
+                                    options = mappedValues,
+                                    operatorOptions = operators,
+                                    value = 0
+                                };
+                            }
+                            break;
+                        case ByLawConstraintType.None:
+                        default:
+                            break;
                     }
+                }
 
-                    foreach (var item in bylawItemBuffer)
+                foreach (var item in bylawItemBuffer)
+                {
+                    var itemTypeKey = item.byLawItemType.ToString();
+                    var constraintType = BuildingBlockSystem.GetConstraintTypes(item.byLawItemType);
+                    switch (constraintType)
                     {
-                        var itemTypeKey = item.byLawItemType.ToString();
-                        var constraintType = BuildingBlockSystem.GetConstraintTypes(item.byLawItemType);
-                        switch (constraintType)
-                        {
-                            case ByLawConstraintType.Count:
-                                ((NumberFieldData)fieldDict[itemTypeKey]).value = item.valueNumber;
-                                break;
-                            case ByLawConstraintType.Length:
-                                ((RangeFieldData)fieldDict[itemTypeKey]).value = new double[]
-                                {
-                                    item.valueBounds1.min,
-                                    item.valueBounds1.max
-                                };
-                                break;
-                            case ByLawConstraintType.SingleSelect:
-                                ((RadioFieldData)fieldDict[itemTypeKey]).value = item.valueByteFlag;
-                                break;
-                            case ByLawConstraintType.MultiSelect:
-                                var enumType = BuildingBlockSystem.GetConstraintEnumType(item.byLawItemType);
-                                ((CheckboxFieldData)fieldDict[itemTypeKey]).value = Enum.GetValues(enumType)
-                                    .Cast<object>()
-                                    .Where(x => (item.valueByteFlag & (int)x) != 0)
-                                    .ToArray();
-                                break;
-                        }
-
-                        fieldDict[itemTypeKey].selectedOperator = item.propertyOperator;
+                        case ByLawConstraintType.Count:
+                            ((NumberFieldData)fieldDict[itemTypeKey]).value = item.valueNumber;
+                            break;
+                        case ByLawConstraintType.Length:
+                            ((RangeFieldData)fieldDict[itemTypeKey]).value = new double[]
+                            {
+                                item.valueBounds1.min,
+                                item.valueBounds1.max
+                            };
+                            break;
+                        case ByLawConstraintType.SingleSelect:
+                            ((RadioFieldData)fieldDict[itemTypeKey]).value = item.valueByteFlag;
+                            break;
+                        case ByLawConstraintType.MultiSelect:
+                            var enumType = BuildingBlockSystem.GetConstraintEnumType(item.byLawItemType);
+                            ((CheckboxFieldData)fieldDict[itemTypeKey]).value = Enum.GetValues(enumType)
+                                .Cast<object>()
+                                .Where(x => (item.valueByteFlag & (int)x) != 0)
+                                .ToArray();
+                            break;
+                        case ByLawConstraintType.None:
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
+
+                    fieldDict[itemTypeKey].selectedOperator = item.propertyOperator;
                 }
             }
 
@@ -290,7 +291,7 @@ namespace Trejak.ZoningByLaw.UI
                 return;
             }
 
-            bool found = false;
+            var found = false;
             ByLawZoneData data = new()
             {
                 deleted = false,
@@ -301,112 +302,104 @@ namespace Trejak.ZoningByLaw.UI
                 $"Set field {field} to {value} on entity {_selectedByLaw.value.Index}, {_selectedByLaw.value.Version}");
 
             var blockRefBuffer = EntityManager.GetBuffer<ByLawBlockReference>(_selectedByLaw.value);
-            foreach (var blockRef in blockRefBuffer)
+            foreach (var blockEntity in blockRefBuffer.Select(blockRef => blockRef.block))
             {
-                var blockEntity = blockRef.block;
                 if (EntityManager.HasComponent<ByLawBlock>(blockEntity) &&
                     EntityManager.TryGetBuffer<ByLawItem>(blockEntity, false, out var bylawItemBuffer))
                 {
-                    for (int i = 0; i < bylawItemBuffer.Length; i++)
+                    for (var i = 0; i < bylawItemBuffer.Length; i++)
                     {
                         var item = bylawItemBuffer[i];
-                        if (item.byLawItemType.ToString() == field)
+                        if (item.byLawItemType.ToString() != field) continue;
+                        Mod.log.Info(
+                            $"Found matching ByLawItem of type {item.byLawItemType} in block entity {blockEntity.Index}, {blockEntity.Version}");
+                        if (propertyOperator && value is int opIntValue)
                         {
-                            Mod.log.Info(
-                                $"Found matching ByLawItem of type {item.byLawItemType} in block entity {blockEntity.Index}, {blockEntity.Version}");
-                            if (propertyOperator && value is int opIntValue)
+                            if (Enum.IsDefined(typeof(ByLawPropertyOperator), opIntValue))
                             {
-                                if (Enum.IsDefined(typeof(ByLawPropertyOperator), opIntValue))
-                                {
-                                    var op = (ByLawPropertyOperator)opIntValue;
-                                    item.propertyOperator = op;
-                                    bylawItemBuffer[i] = item;
-                                    Mod.log.Info($"Set propertyOperator to {op}");
-                                }
-                                else
-                                {
-                                    Mod.log.Warn(
-                                        $"Failed to parse int value '{opIntValue}' to ByLawPropertyOperator for field '{field}'");
-                                }
-                            }
-                            else if (value is int intValue)
-                            {
-                                item.valueNumber = intValue;
+                                var op = (ByLawPropertyOperator)opIntValue;
+                                item.propertyOperator = op;
                                 bylawItemBuffer[i] = item;
-                                Mod.log.Info($"Set valueNumber to {intValue}");
-                            }
-                            else if (value is double doubleValue)
-                            {
-                                item.valueNumber = (int)doubleValue;
-                                bylawItemBuffer[i] = item;
-                                Mod.log.Info($"Set valueNumber to {doubleValue}");
-                            }
-                            else if (value is float floatValue)
-                            {
-                                item.valueNumber = (int)floatValue;
-                                bylawItemBuffer[i] = item;
-                                Mod.log.Info($"Set valueNumber to {floatValue}");
-                            }
-                            else if (value is string strValue)
-                            {
-                                if (int.TryParse(strValue, out int parsedInt))
-                                {
-                                    item.valueNumber = parsedInt;
-                                    bylawItemBuffer[i] = item;
-                                    Mod.log.Info($"Set valueNumber to {parsedInt}");
-                                }
-                                else
-                                {
-                                    Mod.log.Warn(
-                                        $"Failed to parse string value '{strValue}' to int for field '{field}'");
-                                }
-                            }
-                            else if (value is bool boolValue)
-                            {
-                                item.valueByteFlag = boolValue ? 1 : 0;
-                                bylawItemBuffer[i] = item;
-                                Mod.log.Info($"Set valueByteFlag to {(boolValue ? 1 : 0)}");
-                            }
-                            else if (value is Array arr)
-                            {
-                                if (item.constraintType == ByLawConstraintType.Length && arr.Length == 2 &&
-                                    arr.GetValue(0) is double minVal && arr.GetValue(1) is double maxVal)
-                                {
-                                    item.valueBounds1 = new Bounds1() { min = (float)minVal, max = (float)maxVal };
-                                    bylawItemBuffer[i] = item;
-                                    Mod.log.Info($"Set valueBounds1 to [{minVal}, {maxVal}]");
-                                }
-                                else if ((item.constraintType == ByLawConstraintType.MultiSelect ||
-                                          item.constraintType == ByLawConstraintType.SingleSelect) &&
-                                         arr.Length > 0)
-                                {
-                                    int flag = 0;
-                                    for (int j = 0; j < arr.Length; j++)
-                                    {
-                                        if (arr.GetValue(j) is int enumInt)
-                                        {
-                                            flag |= enumInt;
-                                        }
-                                        else if (arr.GetValue(j) is string enumStr &&
-                                                 int.TryParse(enumStr, out int parsedEnumInt))
-                                        {
-                                            flag |= parsedEnumInt;
-                                        }
-                                    }
-
-                                    item.valueByteFlag = flag;
-                                    bylawItemBuffer[i] = item;
-                                    Mod.log.Info($"Set valueByteFlag to {flag}");
-                                }
+                                Mod.log.Info($"Set propertyOperator to {op}");
                             }
                             else
                             {
-                                Mod.log.Warn($"Unhandled value type {value.GetType()} for field '{field}'");
+                                Mod.log.Warn(
+                                    $"Failed to parse int value '{opIntValue}' to ByLawPropertyOperator for field '{field}'");
                             }
-
-                            found = true;
-                            break;
                         }
+                        else switch (value)
+                        {
+                            case int intValue:
+                                item.valueNumber = intValue;
+                                bylawItemBuffer[i] = item;
+                                Mod.log.Info($"Set valueNumber to {intValue}");
+                                break;
+                            case double doubleValue:
+                                item.valueNumber = (int)doubleValue;
+                                bylawItemBuffer[i] = item;
+                                Mod.log.Info($"Set valueNumber to {doubleValue}");
+                                break;
+                            case float floatValue:
+                                item.valueNumber = (int)floatValue;
+                                bylawItemBuffer[i] = item;
+                                Mod.log.Info($"Set valueNumber to {floatValue}");
+                                break;
+                            case string strValue when int.TryParse(strValue, out int parsedInt):
+                                item.valueNumber = parsedInt;
+                                bylawItemBuffer[i] = item;
+                                Mod.log.Info($"Set valueNumber to {parsedInt}");
+                                break;
+                            case string strValue:
+                                Mod.log.Warn(
+                                    $"Failed to parse string value '{strValue}' to int for field '{field}'");
+                                break;
+                            case bool boolValue:
+                                item.valueByteFlag = boolValue ? 1 : 0;
+                                bylawItemBuffer[i] = item;
+                                Mod.log.Info($"Set valueByteFlag to {(boolValue ? 1 : 0)}");
+                                break;
+                            case Array arr:
+                                switch (item.constraintType)
+                                {
+                                    case ByLawConstraintType.Length when arr.Length == 2 &&
+                                                                         arr.GetValue(0) is double minVal && arr.GetValue(1) is double maxVal:
+                                        item.valueBounds1 = new Bounds1() { min = (float)minVal, max = (float)maxVal };
+                                        bylawItemBuffer[i] = item;
+                                        Mod.log.Info($"Set valueBounds1 to [{minVal}, {maxVal}]");
+                                        break;
+                                    case ByLawConstraintType.MultiSelect or ByLawConstraintType.SingleSelect when
+                                        arr.Length > 0:
+                                    {
+                                        int flag = 0;
+                                        for (int j = 0; j < arr.Length; j++)
+                                        {
+                                            if (arr.GetValue(j) is int enumInt)
+                                            {
+                                                flag |= enumInt;
+                                            }
+                                            else if (arr.GetValue(j) is string enumStr &&
+                                                     int.TryParse(enumStr, out int parsedEnumInt))
+                                            {
+                                                flag |= parsedEnumInt;
+                                            }
+                                        }
+
+                                        item.valueByteFlag = flag;
+                                        bylawItemBuffer[i] = item;
+                                        Mod.log.Info($"Set valueByteFlag to {flag}");
+                                        break;
+                                    }
+                                }
+
+                                break;
+                            default:
+                                Mod.log.Warn($"Unhandled value type {value.GetType()} for field '{field}'");
+                                break;
+                        }
+
+                        found = true;
+                        break;
                     }
                 }
 
