@@ -52,6 +52,10 @@ export const toggleTool = () => {
     trigger(mod.fullname, "ToggleTool");
 }
 
-export const setFieldValue = (id: string, value: any) => {
-    trigger(mod.fullname, "SetFieldValue", id, value);
+export const setByLawItemValue = (id: string, value: any) => {
+    trigger(mod.fullname, "SetByLawItemValue", id, value);
+}
+
+export const setByLawItemPropertyOperator = (id: string, operator: number) => {
+    trigger(mod.fullname, "SetByLawItemPropertyOperator", id, operator);
 }

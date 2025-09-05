@@ -127,6 +127,10 @@ namespace Trejak.ZoningByLaw.UI
                 (string key) => key.GetHashCode()));
             //this.AddBinding(_toggleByLawRenderPreview = new TriggerBinding(uiGroupName, "ToggleByLawRenderPreview", ToggleByLawRenderPreview));
 
+            this.CreateBinding("ByLawFields", GetFields);
+            this.CreateTrigger<string, object>("SetByLawItemValue", SetByLawItemValue);
+            this.CreateTrigger<string, int>("SetByLawItemPropertyOperator", SetByLawItemPropertyOperator);
+            
             _writeToFileTimer = new Timer(4500);
             _writeToFileTimer.AutoReset = true;
             _writeToFileTimer.Elapsed += (sender, e) => SaveActiveByLawToDisk();
@@ -149,12 +153,12 @@ namespace Trejak.ZoningByLaw.UI
             return _lastElligibleBuildingCount;
         }
 
-        public void SetByLawItemValue(string itemType, object value)
+        void SetByLawItemValue(string itemType, object value)
         {
             SetFieldValue(itemType, value);
         }
 
-        public void SetByLawItemPropertyOperator(string itemType, int propertyOperator)
+        void SetByLawItemPropertyOperator(string itemType, int propertyOperator)
         {
             SetFieldValue(itemType, propertyOperator, true);
         }
