@@ -149,7 +149,7 @@ namespace Trejak.ZoningByLaw.UI
             SetFieldValue(itemType, propertyOperator, true);
         }
         
-        public void SetFieldValue(string field, object value, bool propertyOperator = false)
+        void SetFieldValue(string field, object value, bool propertyOperator = false)
         {
             if (_selectedByLaw.value == Entity.Null)
             {
