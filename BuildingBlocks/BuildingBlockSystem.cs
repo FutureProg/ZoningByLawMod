@@ -298,7 +298,41 @@ namespace ZoningByLaw.BuildingBlocks
 
         public static List<ByLawPropertyOperator> GetPropertyOperators(ByLawItemType itemType)
         {
-            throw new NotImplementedException();
+            var re = new List<ByLawPropertyOperator>();
+            switch (itemType)
+            {
+                case ByLawItemType.Uses:
+                    re.Add(ByLawPropertyOperator.Is);
+                    re.Add(ByLawPropertyOperator.IsNot);
+                    re.Add(ByLawPropertyOperator.AtLeastOne);
+                    re.Add(ByLawPropertyOperator.OnlyOneOf);
+                    break;
+                case ByLawItemType.Height:
+                case ByLawItemType.LotWidth:
+                case ByLawItemType.LotSize:
+                case ByLawItemType.LotDepth:
+                case ByLawItemType.Parking:
+                case ByLawItemType.FrontSetback:
+                case ByLawItemType.LeftSetback:
+                case ByLawItemType.RightSetback:
+                case ByLawItemType.RearSetback:
+                    re.Add(ByLawPropertyOperator.Is);
+                    break;
+                case ByLawItemType.AirPollutionLevel:
+                case ByLawItemType.GroundPollutionLevel:
+                case ByLawItemType.NoisePollutionLevel:
+                    re.Add(ByLawPropertyOperator.AtMost);
+                    break;
+                case ByLawItemType.AssetPack:
+                    re.Add(ByLawPropertyOperator.OnlyOneOf);
+                    break;
+                case ByLawItemType.None:
+                default:
+                    re.Add(ByLawPropertyOperator.None);
+                    break;
+            }
+
+            return re;
         }
     }
 }
