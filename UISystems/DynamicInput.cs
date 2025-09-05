@@ -1,43 +1,47 @@
 ﻿using System.Collections.Generic;
+using Trejak.ZoningByLaw.BuildingBlocks;
 
 namespace ZoningByLaw.UISystems
 {
-    public class FieldDataOption
+    public class FieldDataOption<T>
     {
         public string? image;
         public string label;
-        public object value;
+        public T value;
     }
 
     public abstract class FieldDataBase
     {
         public string id;
         public string label;
-        public List<FieldDataOption>? options;
+        public List<FieldDataOption<object>>? options;
+        public List<FieldDataOption<ByLawPropertyOperator>> operatorOptions;
+        public ByLawPropertyOperator selectedOperator;
+        public object value;
     }
 
     public class CheckboxFieldData : FieldDataBase
     {
         public string fieldType = "checkbox";
-        public object[] value; // array of selected values
+        public new object[] value; // array of selected values
     }
 
     public class RadioFieldData : FieldDataBase
     {
         public string fieldType = "radio";
-        public object value; // single selected value
+        public new object value; // single selected value
     }
 
     public class SelectFieldData : FieldDataBase
     {
         public string fieldType = "select";
-        public object value; // single selected value
+        public new object value; // single selected value
     }
 
     public class TextFieldData : FieldDataBase
     {
         public string fieldType = "text";
-        public string value;
+        public new string value;
         public string? validationRegex;
     }
 
@@ -45,7 +49,7 @@ namespace ZoningByLaw.UISystems
     {
         public string fieldType = "number";
         public bool? slider;
-        public double value;
+        public new double value;
         public double? min;
         public double? max;
         public double? step;
@@ -54,7 +58,7 @@ namespace ZoningByLaw.UISystems
     public class RangeFieldData : FieldDataBase
     {
         public string fieldType = "range";
-        public double[] value; // [min, max]
+        public new double[] value; // [min, max]
         public double? min;
         public double? max;
         public double? step;

@@ -27,12 +27,13 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using UnityEngine;
+using ZoningByLaw.BuildingBlocks;
+using ZoningByLaw.UISystems;
 
 namespace Trejak.ZoningByLaw.UI
 {
     public partial class ConfigPanelUISystem : ExtendedUISystemBase
     {
-
         private PrefabSystem _prefabSystem;
         private ZoningByLawToolSystem _byLawToolSystem;
         private ToolSystem _toolSystem;
@@ -45,7 +46,7 @@ namespace Trejak.ZoningByLaw.UI
         private EndFrameBarrier _endFrameBarrier;
         private ZoneSystem _zoneSystem;
         private EntityQuery _bylawsQuery;
-        private EntityQuery _zoneCellsQuery;        
+        private EntityQuery _zoneCellsQuery;
         private PrefabBase _basePrefab; // the prefab we use to clone the zones        
 
         private ValueBinding<Entity> _selectedByLaw; // the prefab entity for the selected bylaw
@@ -78,9 +79,9 @@ namespace Trejak.ZoningByLaw.UI
         }
 
         protected override void OnCreate()
-        {          
+        {
             base.OnCreate();
-            var ecb = new EntityCommandBuffer();            
+            var ecb = new EntityCommandBuffer();
             _bylawsQuery = GetEntityQuery(ComponentType.ReadOnly<ByLawZoneData>());
             var eqb = new EntityQueryBuilder(Allocator.Temp);
             _zoneCellsQuery = eqb.WithAll<Cell>()
@@ -93,7 +94,7 @@ namespace Trejak.ZoningByLaw.UI
             //_toolbarUIClearAssetSelection = Traverse.Create(_toolbarUISystem).Method("ClearAssetSelection", false);
             //_toolBarUIAssetsBinding = Traverse.Create(_toolbarUISystem).Field<RawMapBinding<Entity>>("m_AssetsBinding").Value;
             _prefabSystem = this.World.GetOrCreateSystemManaged<PrefabSystem>();
-            _zoneSystem = this.World.GetOrCreateSystemManaged<ZoneSystem>();            
+            _zoneSystem = this.World.GetOrCreateSystemManaged<ZoneSystem>();
             _endFrameBarrier = this.World.GetOrCreateSystemManaged<EndFrameBarrier>();
             _byLawToolSystem = this.World.GetOrCreateSystemManaged<ZoningByLawToolSystem>();
             _toolSystem = this.World.GetOrCreateSystemManaged<ToolSystem>();
@@ -106,19 +107,24 @@ namespace Trejak.ZoningByLaw.UI
             this.AddBinding(_configPanelOpen = new ValueBinding<bool>(uiGroupName, "IsConfigPanelOpen", false));
             this.AddBinding(_selectedByLawName = new ValueBinding<string>(uiGroupName, "SelectedByLawName", ""));
             _byLawZoneList = this.CreateBinding<ByLawZoneListItem[]>("ByLawZoneList", GetByLawList());
-            this.AddBinding(_selectedByLawColour = new ValueBinding<Color[]>(uiGroupName, "SelectedByLawColour", new Color[] { default, default }, new ArrayWriter<Color>()));
+            this.AddBinding(_selectedByLawColour = new ValueBinding<Color[]>(uiGroupName, "SelectedByLawColour",
+                new Color[] { default, default }, new ArrayWriter<Color>()));
 
-            this.AddBinding(_setActiveByLaw = new TriggerBinding<Entity>(uiGroupName, "SetActiveByLaw", SetActiveByLaw));
+            this.AddBinding(_setActiveByLaw =
+                new TriggerBinding<Entity>(uiGroupName, "SetActiveByLaw", SetActiveByLaw));
             _setByLawData = CreateTrigger<ZoningByLawBinding>("SetByLawData", SetByLawData);
-            _createNewByLaw =  CreateTrigger("CreateNewByLaw", CreateNewByLaw);
+            _createNewByLaw = CreateTrigger("CreateNewByLaw", CreateNewByLaw);
             _deleteByLaw = CreateTrigger("DeleteByLaw", OpenDeleteDialogue);
 
-            _elligibleBuildings = CreateBinding<int>("ElligibleBuildings", GetElligibleBuildingCount);                        
-            this.AddBinding(_setConfigPanelOpen = new TriggerBinding<bool>(uiGroupName, "SetConfigPanelOpen", SetConfigPanelOpen));
+            _elligibleBuildings = CreateBinding<int>("ElligibleBuildings", GetElligibleBuildingCount);
+            this.AddBinding(_setConfigPanelOpen =
+                new TriggerBinding<bool>(uiGroupName, "SetConfigPanelOpen", SetConfigPanelOpen));
             this.CreateTrigger("ToggleTool", this.ToggleTool);
             this.AddBinding(_setByLawName = new TriggerBinding<string>(uiGroupName, "SetByLawName", SetByLawName));
-            this.AddBinding(_setByLawZoneColour = new TriggerBinding<Color, Color>(uiGroupName, "SetByLawZoneColour", SetByLawZoneColour));
-            this.AddBinding(new GetterMapBinding<string, int>(uiGroupName, "assetPackNameToHash", (string key) => key.GetHashCode()));
+            this.AddBinding(_setByLawZoneColour =
+                new TriggerBinding<Color, Color>(uiGroupName, "SetByLawZoneColour", SetByLawZoneColour));
+            this.AddBinding(new GetterMapBinding<string, int>(uiGroupName, "assetPackNameToHash",
+                (string key) => key.GetHashCode()));
             //this.AddBinding(_toggleByLawRenderPreview = new TriggerBinding(uiGroupName, "ToggleByLawRenderPreview", ToggleByLawRenderPreview));
 
             _writeToFileTimer = new Timer(4500);
@@ -126,17 +132,20 @@ namespace Trejak.ZoningByLaw.UI
             _writeToFileTimer.Elapsed += (sender, e) => SaveActiveByLawToDisk();
 
             eqb.Dispose();
-        }        
+        }
 
         int GetElligibleBuildingCount()
-        {           
-            if (_selectedByLaw.value == Entity.Null || !EntityManager.TryGetComponent<ByLawZoneData>(_selectedByLaw.value, out var bylawData))
+        {
+            if (_selectedByLaw.value == Entity.Null ||
+                !EntityManager.TryGetComponent<ByLawZoneData>(_selectedByLaw.value, out var bylawData))
             {
                 _lastElligibleBuildingCount = -1;
-            } else
+            }
+            else
             {
                 _lastElligibleBuildingCount = bylawData.elligibleBuildings;
-            }                
+            }
+
             return _lastElligibleBuildingCount;
         }
 
@@ -144,12 +153,137 @@ namespace Trejak.ZoningByLaw.UI
         {
             SetFieldValue(itemType, value);
         }
+
         public void SetByLawItemPropertyOperator(string itemType, int propertyOperator)
         {
             SetFieldValue(itemType, propertyOperator, true);
         }
-        
-        void SetFieldValue(string field, object value, bool propertyOperator = false)
+
+        public Dictionary<string, FieldDataBase> GetFields()
+        {
+            if (_selectedByLaw.value == Entity.Null)
+            {
+                return new Dictionary<string, FieldDataBase>();
+            }
+
+            Dictionary<string, FieldDataBase> fieldDict = new();
+            var blockRefBuffer = EntityManager.GetBuffer<ByLawBlockReference>(_selectedByLaw.value);
+            foreach (var blockRef in blockRefBuffer)
+            {
+                var blockEntity = blockRef.block;
+                if (EntityManager.HasComponent<ByLawBlock>(blockEntity) &&
+                    EntityManager.TryGetBuffer<ByLawItem>(blockEntity, false, out var bylawItemBuffer))
+                {
+                    var itemTypesArr = Enum.GetValues(typeof(ByLawItemType));
+                    foreach (ByLawItemType itemType in itemTypesArr)
+                    {
+                        var constraintType = BuildingBlockSystem.GetConstraintTypes(itemType);
+                        var operators = BuildingBlockSystem.GetPropertyOperators(itemType).Select(op =>
+                            new FieldDataOption<ByLawPropertyOperator>()
+                            {
+                                label = "ZBL.PropertyOperator[" + op.ToString() + "]",
+                                value = op
+                            }).ToList();
+                        switch (constraintType)
+                        {
+                            case ByLawConstraintType.Count:
+                                fieldDict[itemType.ToString()] = new NumberFieldData()
+                                {
+                                    id = itemType.ToString(),
+                                    label = "ZBL.ByLawItemType[" + itemType.ToString() + "]",
+                                    value = 0,
+                                    operatorOptions = operators,
+                                    min = 0,
+                                    step = 1
+                                };
+                                break;
+                            case ByLawConstraintType.Length:
+                                fieldDict[itemType.ToString()] = new RangeFieldData()
+                                {
+                                    id = itemType.ToString(),
+                                    label = "ZBL.ByLawItemType[" + itemType.ToString() + "]",
+                                    value = new double[] { 0, 0 },
+                                    operatorOptions = operators,
+                                    min = 0,
+                                    step = 1
+                                };
+                                break;
+                            case ByLawConstraintType.MultiSelect:
+                            case ByLawConstraintType.SingleSelect:
+                                var enumType = BuildingBlockSystem.GetConstraintEnumType(itemType);
+                                var enumValues = Enum.GetValues(enumType);
+                                var mappedValues = enumValues.Cast<object>().Select((x) => new FieldDataOption<object>()
+                                {
+                                    label = "ZBL.FlagValues[" + Enum.GetName(enumType, x) + "]",
+                                    value = (int)x
+                                }).ToList();
+
+                                if (constraintType == ByLawConstraintType.MultiSelect)
+                                {
+                                    fieldDict[itemType.ToString()] = new CheckboxFieldData()
+                                    {
+                                        id = itemType.ToString(),
+                                        label = "ZBL.ByLawItemType[" + itemType.ToString() + "]",
+                                        options = mappedValues,
+                                        operatorOptions = operators,
+                                        value = new object[] { 0 }
+                                    };
+                                }
+                                else
+                                {
+                                    fieldDict[itemType.ToString()] = new RadioFieldData()
+                                    {
+                                        id = itemType.ToString(),
+                                        label = "ZBL.ByLawItemType[" + itemType.ToString() + "]",
+                                        options = mappedValues,
+                                        operatorOptions = operators,
+                                        value = 0
+                                    };
+                                }
+                                break;
+                            case ByLawConstraintType.None:
+                            default:
+                                break;
+                        }
+                    }
+
+                    foreach (var item in bylawItemBuffer)
+                    {
+                        var itemTypeKey = item.byLawItemType.ToString();
+                        var constraintType = BuildingBlockSystem.GetConstraintTypes(item.byLawItemType);
+                        switch (constraintType)
+                        {
+                            case ByLawConstraintType.Count:
+                                ((NumberFieldData)fieldDict[itemTypeKey]).value = item.valueNumber;
+                                break;
+                            case ByLawConstraintType.Length:
+                                ((RangeFieldData)fieldDict[itemTypeKey]).value = new double[]
+                                {
+                                    item.valueBounds1.min,
+                                    item.valueBounds1.max
+                                };
+                                break;
+                            case ByLawConstraintType.SingleSelect:
+                                ((RadioFieldData)fieldDict[itemTypeKey]).value = item.valueByteFlag;
+                                break;
+                            case ByLawConstraintType.MultiSelect:
+                                var enumType = BuildingBlockSystem.GetConstraintEnumType(item.byLawItemType);
+                                ((CheckboxFieldData)fieldDict[itemTypeKey]).value = Enum.GetValues(enumType)
+                                    .Cast<object>()
+                                    .Where(x => (item.valueByteFlag & (int)x) != 0)
+                                    .ToArray();
+                                break;
+                        }
+
+                        fieldDict[itemTypeKey].selectedOperator = item.propertyOperator;
+                    }
+                }
+            }
+
+            return fieldDict;
+        }
+
+        private void SetFieldValue(string field, object value, bool propertyOperator = false)
         {
             if (_selectedByLaw.value == Entity.Null)
             {
@@ -269,6 +403,7 @@ namespace Trejak.ZoningByLaw.UI
                             {
                                 Mod.log.Warn($"Unhandled value type {value.GetType()} for field '{field}'");
                             }
+
                             found = true;
                             break;
                         }
@@ -309,6 +444,7 @@ namespace Trejak.ZoningByLaw.UI
             {
                 return;
             }
+
             var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(_selectedByLaw.value);
             prefab.m_Color = zoneColour;
             prefab.m_Edge = borderColour;
@@ -322,7 +458,8 @@ namespace Trejak.ZoningByLaw.UI
             if (_toolSystem.activeTool == _byLawToolSystem)
             {
                 _byLawToolSystem.SetToolEnabled(false);
-            } else
+            }
+            else
             {
                 _byLawToolSystem.SetToolEnabled(true);
             }
@@ -332,48 +469,56 @@ namespace Trejak.ZoningByLaw.UI
         {
             if (newValue)
             {
-                UpdateByLawList();            
+                UpdateByLawList();
                 _writeToFileTimer.Start();
-            } else
+            }
+            else
             {
                 _writeToFileTimer.Stop();
-                SaveActiveByLawToDisk();                
+                SaveActiveByLawToDisk();
             }
-            _configPanelOpen.Update(newValue);            
+
+            _configPanelOpen.Update(newValue);
         }
 
         void SetActiveByLaw(Entity entity)
         {
-            if(_selectedByLaw.value != Entity.Null && _selectedByLaw.value != entity)
+            if (_selectedByLaw.value != Entity.Null && _selectedByLaw.value != entity)
             {
                 _writeToFileTimer.Stop();
                 SaveActiveByLawToDisk();
                 _writeToFileTimer.Start();
             }
+
             if (entity != Entity.Null && !EntityManager.HasComponent<ByLawZoneData>(entity))
-            {                 
-                Mod.log.Warn("Entity " + entity.Index + ", " + entity.Version + " doesn't have the ByLawZoneData component! Clearing active bylaw.");
+            {
+                Mod.log.Warn("Entity " + entity.Index + ", " + entity.Version +
+                             " doesn't have the ByLawZoneData component! Clearing active bylaw.");
                 SetActiveByLaw(Entity.Null);
                 return;
             }
-            Mod.log.Info("Set active by law to " + entity.Index + ", " + entity.Version);            
+
+            Mod.log.Info("Set active by law to " + entity.Index + ", " + entity.Version);
             _selectedByLaw.Update(entity);
             ZoningByLawBinding data;
             if (_selectedByLaw.value == Entity.Null)
             {
                 data = default;
-            } else
+            }
+            else
             {
                 data = ZoningByLawBinding.FromEntity(entity, EntityManager);
                 _elligibleBuildingsSystem.EnqueueUpdate(entity);
             }
-            bool result = _prefabSystem.TryGetPrefab<ByLawZonePrefab>(entity, out var prefab);            
+
+            bool result = _prefabSystem.TryGetPrefab<ByLawZonePrefab>(entity, out var prefab);
             this._selectedByLawData.Value = data;
             if (result)
-            {                
+            {
                 this._selectedByLawColour.Update(new Color[] { prefab.m_Color, prefab.m_Edge });
-                this._selectedByLawName.Update(prefab.bylawName != null? prefab.bylawName : "");
-            } else
+                this._selectedByLawName.Update(prefab.bylawName != null ? prefab.bylawName : "");
+            }
+            else
             {
                 this._selectedByLawColour.Update(new Color[] { default, default });
                 this._selectedByLawName.Update("");
@@ -382,7 +527,7 @@ namespace Trejak.ZoningByLaw.UI
 
         void SetByLawData(ZoningByLawBinding data)
         {
-            if(data.blocks.Length == 0 || data.blocks == null)
+            if (data.blocks.Length == 0 || data.blocks == null)
             {
                 Mod.log.Warn("ByLawData has no blocks! Filling with one empty block.");
                 data.blocks = new ByLawBlockBinding[]
@@ -397,13 +542,14 @@ namespace Trejak.ZoningByLaw.UI
                     }
                 };
             }
+
             Mod.log.Info("Set By Law Data: " + data.ToJSONString());
             data.UpdateEntity(_selectedByLaw.value, this.EntityManager, GetElligibleBuildingCount());
-            var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(_selectedByLaw.value);            
+            var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(_selectedByLaw.value);
             prefab.UpdateByLawData(data);
             _elligibleBuildingsSystem.EnqueueUpdate(_selectedByLaw.value);
             GameManager.instance.localizationManager.ReloadActiveLocale();
-            
+
             _writeToFileTimer.Stop();
             _writeToFileTimer.Start();
             this._selectedByLawData.Value = data;
@@ -415,7 +561,8 @@ namespace Trejak.ZoningByLaw.UI
             if (_selectedByLaw.value == Entity.Null)
             {
                 return;
-            }            
+            }
+
             var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(_selectedByLaw.value);
             prefab.bylawName = name;
             Utils.AddLocaleText($"Assets.NAME[{prefab.name}]", prefab.bylawName);
@@ -469,11 +616,12 @@ namespace Trejak.ZoningByLaw.UI
             var prefab = Utils.CreateByLawPrefabFromData(data, count, idName, byLawName);
             if (!_prefabSystem.AddPrefab(prefab))
             {
-                Mod.log.Error($"Failed to add new zone prefab \"{byLawName}\"!");                
+                Mod.log.Error($"Failed to add new zone prefab \"{byLawName}\"!");
             }
+
             GameManager.instance.localizationManager.ReloadActiveLocale();
             UpdateByLawList();
-            Utils.SaveByLaw(_prefabSystem.GetEntity(prefab), this.EntityManager);            
+            Utils.SaveByLaw(_prefabSystem.GetEntity(prefab), this.EntityManager);
         }
 
         void SaveActiveByLawToDisk()
@@ -482,7 +630,8 @@ namespace Trejak.ZoningByLaw.UI
             {
                 return;
             }
-            Utils.SaveByLaw(_selectedByLaw.value, this.EntityManager);            
+
+            Utils.SaveByLaw(_selectedByLaw.value, this.EntityManager);
         }
 
         void OpenDeleteDialogue()
@@ -516,22 +665,22 @@ namespace Trejak.ZoningByLaw.UI
         void DeleteByLaw()
         {
             var ecb = _endFrameBarrier.CreateCommandBuffer();
-            
+
             var entity = _selectedByLaw.value;
-            var data = EntityManager.GetComponentData<ByLawZoneData>(entity);            
+            var data = EntityManager.GetComponentData<ByLawZoneData>(entity);
             data.deleted = true;
             EntityManager.SetComponentData(entity, data);
             DeleteActiveByLawFromDisk();
 
             var zoneData = EntityManager.GetComponentData<ZoneData>(entity);
-            zoneData.m_AreaType = AreaType.None;            
+            zoneData.m_AreaType = AreaType.None;
             ecb.SetComponent(entity, zoneData);
-            var uiObjData = EntityManager.GetComponentData<UIObjectData>(entity);            
+            var uiObjData = EntityManager.GetComponentData<UIObjectData>(entity);
             var uiGroupEntity = uiObjData.m_Group;
             uiObjData.m_Group = Entity.Null;
             EntityManager.SetComponentData(entity, uiObjData);
             var uiGroupElements = EntityManager.GetBuffer<UIGroupElement>(uiGroupEntity);
-            for(int i = 0; i < uiGroupElements.Length; i++)
+            for (int i = 0; i < uiGroupElements.Length; i++)
             {
                 if (uiGroupElements[i].m_Prefab == entity)
                 {
@@ -539,6 +688,7 @@ namespace Trejak.ZoningByLaw.UI
                     break;
                 }
             }
+
             ecb.AddComponent<Updated>(entity);
             //// Update the ToolbarUI            
             //_toolbarUIClearAssetSelection.GetValue();
@@ -558,7 +708,7 @@ namespace Trejak.ZoningByLaw.UI
 
             // "delete" the bylaw (really just hides it)
             //ecb.AddComponent<Deleted>(entity);
-            _endFrameBarrier.AddJobHandleForProducer(this.Dependency);                                           
+            _endFrameBarrier.AddJobHandleForProducer(this.Dependency);
         }
 
         public partial struct DeleteByLawJob : IJobParallelFor
@@ -568,6 +718,7 @@ namespace Trejak.ZoningByLaw.UI
             public ZonePrefabs zonePrefabs;
             public EntityCommandBuffer.ParallelWriter ecb;
             public Entity zoneToDelete;
+
             public void Execute(int index)
             {
                 var cellEntity = cellEntityArr[index];
@@ -583,6 +734,7 @@ namespace Trejak.ZoningByLaw.UI
                         updated = true;
                     }
                 }
+
                 if (updated)
                 {
                     ecb.AddComponent<Updated>(index, cellEntity);
@@ -591,7 +743,7 @@ namespace Trejak.ZoningByLaw.UI
         }
 
         void UpdateByLawList()
-        {            
+        {
             this._byLawZoneList.Value = GetByLawList();
         }
 
@@ -601,25 +753,26 @@ namespace Trejak.ZoningByLaw.UI
             var entityArr = _bylawsQuery.ToEntityArray(Allocator.Temp);
             int counter = 0;
             for (int i = 0; i < entityArr.Length; i++)
-            {                
+            {
                 var entity = entityArr[i];
                 var data = EntityManager.GetComponentData<ByLawZoneData>(entity);
                 if (data.deleted)
                 {
                     continue;
                 }
+
                 var prefabData = EntityManager.GetComponentData<PrefabData>(entity);
-                var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(prefabData);                
+                var prefab = _prefabSystem.GetPrefab<ByLawZonePrefab>(prefabData);
                 list.Add(new ByLawZoneListItem()
                 {
                     entity = entity,
-                    name = (counter+1) + ": " + prefab.bylawName
+                    name = (counter + 1) + ": " + prefab.bylawName
                 });
                 counter++;
             }
+
             entityArr.Dispose();
             return list.ToArray();
         }
-
     }
 }

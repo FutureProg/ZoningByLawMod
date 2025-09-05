@@ -1,6 +1,7 @@
 ﻿using Colossal.Mathematics;
 using Game.Prefabs;
 using System;
+using System.Collections.Generic;
 using Trejak.ZoningByLaw;
 using Trejak.ZoningByLaw.BuildingBlocks;
 using Trejak.ZoningByLaw.Prefab;
@@ -295,5 +296,9 @@ namespace ZoningByLaw.BuildingBlocks
             }
         }
 
+        public static List<ByLawPropertyOperator> GetPropertyOperators(ByLawItemType itemType)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
