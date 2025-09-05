@@ -17,6 +17,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using Colossal.Mathematics;
 using Trejak.ZoningByLaw.BuildingBlocks;
 using Trejak.ZoningByLaw.Prefab;
 using Trejak.ZoningByLaw.Serialization;
@@ -137,6 +138,151 @@ namespace Trejak.ZoningByLaw.UI
                 _lastElligibleBuildingCount = bylawData.elligibleBuildings;
             }                
             return _lastElligibleBuildingCount;
+        }
+
+        public void SetByLawItemValue(string itemType, object value)
+        {
+            SetFieldValue(itemType, value);
+        }
+        public void SetByLawItemPropertyOperator(string itemType, int propertyOperator)
+        {
+            SetFieldValue(itemType, propertyOperator, true);
+        }
+        
+        public void SetFieldValue(string field, object value, bool propertyOperator = false)
+        {
+            if (_selectedByLaw.value == Entity.Null)
+            {
+                return;
+            }
+
+            bool found = false;
+            ByLawZoneData data = new()
+            {
+                deleted = false,
+                elligibleBuildings = GetElligibleBuildingCount()
+            };
+            EntityManager.SetComponentData(_selectedByLaw.value, data);
+            Mod.log.Info(
+                $"Set field {field} to {value} on entity {_selectedByLaw.value.Index}, {_selectedByLaw.value.Version}");
+
+            var blockRefBuffer = EntityManager.GetBuffer<ByLawBlockReference>(_selectedByLaw.value);
+            foreach (var blockRef in blockRefBuffer)
+            {
+                var blockEntity = blockRef.block;
+                if (EntityManager.HasComponent<ByLawBlock>(blockEntity) &&
+                    EntityManager.TryGetBuffer<ByLawItem>(blockEntity, false, out var bylawItemBuffer))
+                {
+                    for (int i = 0; i < bylawItemBuffer.Length; i++)
+                    {
+                        var item = bylawItemBuffer[i];
+                        if (item.byLawItemType.ToString() == field)
+                        {
+                            Mod.log.Info(
+                                $"Found matching ByLawItem of type {item.byLawItemType} in block entity {blockEntity.Index}, {blockEntity.Version}");
+                            if (propertyOperator && value is int opIntValue)
+                            {
+                                if (Enum.IsDefined(typeof(ByLawPropertyOperator), opIntValue))
+                                {
+                                    var op = (ByLawPropertyOperator)opIntValue;
+                                    item.propertyOperator = op;
+                                    bylawItemBuffer[i] = item;
+                                    Mod.log.Info($"Set propertyOperator to {op}");
+                                }
+                                else
+                                {
+                                    Mod.log.Warn(
+                                        $"Failed to parse int value '{opIntValue}' to ByLawPropertyOperator for field '{field}'");
+                                }
+                            }
+                            else if (value is int intValue)
+                            {
+                                item.valueNumber = intValue;
+                                bylawItemBuffer[i] = item;
+                                Mod.log.Info($"Set valueNumber to {intValue}");
+                            }
+                            else if (value is double doubleValue)
+                            {
+                                item.valueNumber = (int)doubleValue;
+                                bylawItemBuffer[i] = item;
+                                Mod.log.Info($"Set valueNumber to {doubleValue}");
+                            }
+                            else if (value is float floatValue)
+                            {
+                                item.valueNumber = (int)floatValue;
+                                bylawItemBuffer[i] = item;
+                                Mod.log.Info($"Set valueNumber to {floatValue}");
+                            }
+                            else if (value is string strValue)
+                            {
+                                if (int.TryParse(strValue, out int parsedInt))
+                                {
+                                    item.valueNumber = parsedInt;
+                                    bylawItemBuffer[i] = item;
+                                    Mod.log.Info($"Set valueNumber to {parsedInt}");
+                                }
+                                else
+                                {
+                                    Mod.log.Warn(
+                                        $"Failed to parse string value '{strValue}' to int for field '{field}'");
+                                }
+                            }
+                            else if (value is bool boolValue)
+                            {
+                                item.valueByteFlag = boolValue ? 1 : 0;
+                                bylawItemBuffer[i] = item;
+                                Mod.log.Info($"Set valueByteFlag to {(boolValue ? 1 : 0)}");
+                            }
+                            else if (value is Array arr)
+                            {
+                                if (item.constraintType == ByLawConstraintType.Length && arr.Length == 2 &&
+                                    arr.GetValue(0) is double minVal && arr.GetValue(1) is double maxVal)
+                                {
+                                    item.valueBounds1 = new Bounds1() { min = (float)minVal, max = (float)maxVal };
+                                    bylawItemBuffer[i] = item;
+                                    Mod.log.Info($"Set valueBounds1 to [{minVal}, {maxVal}]");
+                                }
+                                else if ((item.constraintType == ByLawConstraintType.MultiSelect ||
+                                          item.constraintType == ByLawConstraintType.SingleSelect) &&
+                                         arr.Length > 0)
+                                {
+                                    int flag = 0;
+                                    for (int j = 0; j < arr.Length; j++)
+                                    {
+                                        if (arr.GetValue(j) is int enumInt)
+                                        {
+                                            flag |= enumInt;
+                                        }
+                                        else if (arr.GetValue(j) is string enumStr &&
+                                                 int.TryParse(enumStr, out int parsedEnumInt))
+                                        {
+                                            flag |= parsedEnumInt;
+                                        }
+                                    }
+
+                                    item.valueByteFlag = flag;
+                                    bylawItemBuffer[i] = item;
+                                    Mod.log.Info($"Set valueByteFlag to {flag}");
+                                }
+                            }
+                            else
+                            {
+                                Mod.log.Warn($"Unhandled value type {value.GetType()} for field '{field}'");
+                            }
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!found)
+                {
+                    Mod.log.Warn($"No matching ByLawItem found for field '{field}'");
+                }
+
+                _elligibleBuildingsSystem.EnqueueUpdate(_selectedByLaw.value);
+                SaveActiveByLawToDisk();
+            }
         }
 
         protected override void OnUpdate()
