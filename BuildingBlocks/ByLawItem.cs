@@ -1,4 +1,5 @@
 ﻿using Colossal.Mathematics;
+using Unity.Collections;
 using Unity.Entities;
 
 namespace Trejak.ZoningByLaw.BuildingBlocks
@@ -15,6 +16,7 @@ namespace Trejak.ZoningByLaw.BuildingBlocks
         public Bounds1 valueBounds1;
         public int valueByteFlag;
         public int valueNumber;
+        public NativeArray<int> valueNumberArray;
     }
 
     public enum ByLawItemType : int

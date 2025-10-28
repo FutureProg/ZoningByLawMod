@@ -29,6 +29,7 @@ using Unity.Jobs;
 using UnityEngine;
 using ZoningByLaw.BuildingBlocks;
 using ZoningByLaw.UISystems;
+using Colossal.IO.AssetDatabase.Internal;
 
 namespace Trejak.ZoningByLaw.UI
 {
@@ -333,75 +334,83 @@ namespace Trejak.ZoningByLaw.UI
                                     $"Failed to parse int value '{opIntValue}' to ByLawPropertyOperator for field '{field}'");
                             }
                         }
-                        else switch (value)
+                        else if (item.byLawItemType == ByLawItemType.AssetPack && value is Array assetHashes)
                         {
-                            case int intValue:
-                                item.valueNumber = intValue;
-                                bylawItemBuffer[i] = item;
-                                Mod.log.Info($"Set valueNumber to {intValue}");
-                                break;
-                            case double doubleValue:
-                                item.valueNumber = (int)doubleValue;
-                                bylawItemBuffer[i] = item;
-                                Mod.log.Info($"Set valueNumber to {doubleValue}");
-                                break;
-                            case float floatValue:
-                                item.valueNumber = (int)floatValue;
-                                bylawItemBuffer[i] = item;
-                                Mod.log.Info($"Set valueNumber to {floatValue}");
-                                break;
-                            case string strValue when int.TryParse(strValue, out int parsedInt):
-                                item.valueNumber = parsedInt;
-                                bylawItemBuffer[i] = item;
-                                Mod.log.Info($"Set valueNumber to {parsedInt}");
-                                break;
-                            case string strValue:
-                                Mod.log.Warn(
-                                    $"Failed to parse string value '{strValue}' to int for field '{field}'");
-                                break;
-                            case bool boolValue:
-                                item.valueByteFlag = boolValue ? 1 : 0;
-                                bylawItemBuffer[i] = item;
-                                Mod.log.Info($"Set valueByteFlag to {(boolValue ? 1 : 0)}");
-                                break;
-                            case Array arr:
-                                switch (item.constraintType)
-                                {
-                                    case ByLawConstraintType.Length when arr.Length == 2 &&
-                                                                         arr.GetValue(0) is double minVal && arr.GetValue(1) is double maxVal:
-                                        item.valueBounds1 = new Bounds1() { min = (float)minVal, max = (float)maxVal };
-                                        bylawItemBuffer[i] = item;
-                                        Mod.log.Info($"Set valueBounds1 to [{minVal}, {maxVal}]");
-                                        break;
-                                    case ByLawConstraintType.MultiSelect or ByLawConstraintType.SingleSelect when
-                                        arr.Length > 0:
-                                    {
-                                        int flag = 0;
-                                        for (int j = 0; j < arr.Length; j++)
-                                        {
-                                            if (arr.GetValue(j) is int enumInt)
-                                            {
-                                                flag |= enumInt;
-                                            }
-                                            else if (arr.GetValue(j) is string enumStr &&
-                                                     int.TryParse(enumStr, out int parsedEnumInt))
-                                            {
-                                                flag |= parsedEnumInt;
-                                            }
-                                        }
-
-                                        item.valueByteFlag = flag;
-                                        bylawItemBuffer[i] = item;
-                                        Mod.log.Info($"Set valueByteFlag to {flag}");
-                                        break;
-                                    }
-                                }
-
-                                break;
-                            default:
-                                Mod.log.Warn($"Unhandled value type {value.GetType()} for field '{field}'");
-                                break;
+                            if (item.valueNumberArray.IsCreated)
+                            {
+                                item.valueNumberArray.Dispose();
+                            }                            
+                            item.valueNumberArray = new NativeArray<int>(assetHashes.Cast<int>().ToArray<int>(), Allocator.Persistent);
                         }
+                        else switch (value)
+                            {
+                                case int intValue:
+                                    item.valueNumber = intValue;
+                                    bylawItemBuffer[i] = item;
+                                    Mod.log.Info($"Set valueNumber to {intValue}");
+                                    break;
+                                case double doubleValue:
+                                    item.valueNumber = (int)doubleValue;
+                                    bylawItemBuffer[i] = item;
+                                    Mod.log.Info($"Set valueNumber to {doubleValue}");
+                                    break;
+                                case float floatValue:
+                                    item.valueNumber = (int)floatValue;
+                                    bylawItemBuffer[i] = item;
+                                    Mod.log.Info($"Set valueNumber to {floatValue}");
+                                    break;
+                                case string strValue when int.TryParse(strValue, out int parsedInt):
+                                    item.valueNumber = parsedInt;
+                                    bylawItemBuffer[i] = item;
+                                    Mod.log.Info($"Set valueNumber to {parsedInt}");
+                                    break;
+                                case string strValue:
+                                    Mod.log.Warn(
+                                        $"Failed to parse string value '{strValue}' to int for field '{field}'");
+                                    break;
+                                case bool boolValue:
+                                    item.valueByteFlag = boolValue ? 1 : 0;
+                                    bylawItemBuffer[i] = item;
+                                    Mod.log.Info($"Set valueByteFlag to {(boolValue ? 1 : 0)}");
+                                    break;
+                                case Array arr:
+                                    switch (item.constraintType)
+                                    {
+                                        case ByLawConstraintType.Length when arr.Length == 2 &&
+                                                                             arr.GetValue(0) is double minVal && arr.GetValue(1) is double maxVal:
+                                            item.valueBounds1 = new Bounds1() { min = (float)minVal, max = (float)maxVal };
+                                            bylawItemBuffer[i] = item;
+                                            Mod.log.Info($"Set valueBounds1 to [{minVal}, {maxVal}]");
+                                            break;
+                                        case ByLawConstraintType.MultiSelect or ByLawConstraintType.SingleSelect when
+                                            arr.Length > 0:
+                                            {
+                                                int flag = 0;
+                                                for (int j = 0; j < arr.Length; j++)
+                                                {
+                                                    if (arr.GetValue(j) is int enumInt)
+                                                    {
+                                                        flag |= enumInt;
+                                                    }
+                                                    else if (arr.GetValue(j) is string enumStr &&
+                                                             int.TryParse(enumStr, out int parsedEnumInt))
+                                                    {
+                                                        flag |= parsedEnumInt;
+                                                    }
+                                                }
+
+                                                item.valueByteFlag = flag;
+                                                bylawItemBuffer[i] = item;
+                                                Mod.log.Info($"Set valueByteFlag to {flag}");
+                                                break;
+                                            }
+                                    }
+
+                                    break;
+                                default:
+                                    Mod.log.Warn($"Unhandled value type {value.GetType()} for field '{field}'");
+                                    break;
+                            }
 
                         found = true;
                         break;

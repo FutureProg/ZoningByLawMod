@@ -5,7 +5,7 @@ import ByLawItemEnumEditor from "./ByLawItemEnumEditor";
 import { getMeasurementString } from "mods/utils";
 import { useLocalization } from "cs2/l10n";
 import ByLawItemAssetPackEditor from "./ByLawItemAssetPackEditor";
-import { FieldDataBase, RangeFieldData } from "mods/bindings";
+import { FieldDataBase, RangeFieldData, setByLawItemValue } from "mods/bindings";
 
 type Props = {
     fieldData: FieldDataBase;
@@ -55,7 +55,8 @@ export default (
                 ...byLawItem,
                 valueBounds1: newValue,
             };
-            onChangeCallback && onChangeCallback(nItemVal);
+            // onChangeCallback && onChangeCallback(nItemVal);
+            setByLawItemValue(itemType.toString(), [newValue.min, newValue.max]);
         };
         const rangeFieldData = fieldData as RangeFieldData;
         let boundsValue = {min: rangeFieldData.value[0], max: rangeFieldData.value[1]};
@@ -93,7 +94,8 @@ export default (
                 ...byLawItem,
                 valueByteFlag: nValue,
             };
-            onChangeCallback && onChangeCallback(nItemVal);
+            setByLawItemValue(itemType.toString(), nValue);
+            // onChangeCallback && onChangeCallback(nItemVal);
         };
 
         return (
