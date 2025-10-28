@@ -312,6 +312,11 @@ namespace Trejak.ZoningByLaw.Prefab
             return _assetPackPrefabs.Find(p => p.name.GetHashCode() == hash);
         }
 
+        public int GetAssetPackHash(AssetPackPrefab assetPack)
+        {
+            return assetPack.name.GetHashCode();
+        }
+
         public int AssessSubObject(SubObject subObj, BufferLookup<SubLane> subLaneBufferLookup, ComponentLookup<ParkingLaneData> parkingLaneDataLookup, out bool hasParkingGarage)
         {
             int re = 0;

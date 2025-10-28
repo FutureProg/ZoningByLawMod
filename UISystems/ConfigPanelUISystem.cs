@@ -212,13 +212,26 @@ namespace Trejak.ZoningByLaw.UI
                             break;
                         case ByLawConstraintType.MultiSelect:
                         case ByLawConstraintType.SingleSelect:
-                            var enumType = BuildingBlockSystem.GetConstraintEnumType(itemType);
-                            var enumValues = Enum.GetValues(enumType);
-                            var mappedValues = enumValues.Cast<object>().Select((x) => new FieldDataOption<object>()
+                            List<FieldDataOption<object>> mappedValues;
+                            if (itemType == ByLawItemType.AssetPack)
                             {
-                                label = "ZBL.FlagValues[" + Enum.GetName(enumType, x) + "]",
-                                value = (int)x
-                            }).ToList();
+                                mappedValues = _indexBuildingsSystem.GetAssetPacks()
+                                    .Select(ap => new FieldDataOption<object>()
+                                    {
+                                        label = ap.name,
+                                        image = ap.thumbnailUrl,
+                                        value = _indexBuildingsSystem.GetAssetPackHash(ap)
+                                    }).ToList();
+                            } else
+                            {
+                                var enumType = BuildingBlockSystem.GetConstraintEnumType(itemType);
+                                var enumValues = Enum.GetValues(enumType);
+                                mappedValues = enumValues.Cast<object>().Select((x) => new FieldDataOption<object>()
+                                {
+                                    label = "ZBL.FlagValues[" + Enum.GetName(enumType, x) + "]",
+                                    value = (int)x
+                                }).ToList();
+                            }                            
 
                             if (constraintType == ByLawConstraintType.MultiSelect)
                             {
