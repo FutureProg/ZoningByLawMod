@@ -5,7 +5,7 @@ import ByLawItemEnumEditor from "./ByLawItemEnumEditor";
 import { getMeasurementString } from "mods/utils";
 import { useLocalization } from "cs2/l10n";
 import ByLawItemAssetPackEditor from "./ByLawItemAssetPackEditor";
-import { FieldDataBase } from "mods/bindings";
+import { FieldDataBase, RangeFieldData } from "mods/bindings";
 
 type Props = {
     fieldData: FieldDataBase;
@@ -57,7 +57,8 @@ export default (
             };
             onChangeCallback && onChangeCallback(nItemVal);
         };
-        let boundsValue = byLawItem.valueBounds1;
+        const rangeFieldData = fieldData as RangeFieldData;
+        let boundsValue = {min: rangeFieldData.value[0], max: rangeFieldData.value[1]};
         let step = 1;
         if (isCellMeasurement) {
             boundsValue = {
@@ -97,9 +98,9 @@ export default (
 
         return (
             <ByLawItemEnumEditor
-                constraintType={ byLawItem.constraintType}
+                constraintType={fieldData.fieldType === "checkbox"? ByLawConstraintType.MultiSelect : ByLawConstraintType.SingleSelect}
                 itemType={byLawItem.byLawItemType}
-                itemValue={byLawItem.valueByteFlag}
+                itemValue={fieldData.value}
                 onChange={onChange}
             />
         );
