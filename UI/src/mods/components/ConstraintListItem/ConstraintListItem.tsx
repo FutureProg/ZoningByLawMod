@@ -12,6 +12,8 @@ import { Dropdown, DropdownItem, DropdownToggle, FOCUS_DISABLED } from 'cs2/ui';
 import { deepCopy, getOperationTypes } from 'mods/utils';
 import { Theme } from 'cs2/bindings';
 import { getModule } from 'cs2/modding';
+import { useValue } from 'cs2/api';
+import { byLawFields$, FieldDataBase } from 'mods/bindings';
 
 const DropdownStyle: Theme | any = getModule("game-ui/menu/themes/dropdown.module.scss", "classes");
 
@@ -19,6 +21,7 @@ type ConstraintListItemProps = {
     itemType: ByLawItemType,
     value?: ByLawItem,
     readableName: string,
+    fieldData: FieldDataBase,
     onChangeConstraintEnabled?: (newValue: boolean, itemType: ByLawItemType) => void
     onValueChange?: (newItemValue: ByLawItem) => void;
 }
@@ -26,7 +29,8 @@ type ConstraintListItemProps = {
 export const ConstraintListItem = (props: ConstraintListItemProps) => {
     let [isOpen, setIsOpen] = useState(false);    
     let enabled = props.value != undefined;   
-    let {translate} = useLocalization();
+    let {translate} = useLocalization();    
+
     let toggleOpen = () => {
         if (!enabled && props.onChangeConstraintEnabled) {
             props.onChangeConstraintEnabled(!enabled, props.itemType);
@@ -67,8 +71,7 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
             </DropdownItem>
         )
     });
-    const currentOperatorText = props.value? translate(`ZBL.PropertyOperator[${ByLawPropertyOperator[props.value.propertyOperator]}]`) : '';
-
+    const currentOperatorText = props.value? translate(`ZBL.PropertyOperator[${ByLawPropertyOperator[props.value.propertyOperator]}]`) : '';    
     return (
         <div className={styles.view} onClick={toggleOpen}>
             <div className={styles.infoRow}>
@@ -91,7 +94,7 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
                         </DropdownToggle>                        
                     </Dropdown>: null
                     }
-                    <ByLawPropertyEditSection byLawItem={props.value!} isOpen={isOpen} onChange={onItemChange} />
+                    <ByLawPropertyEditSection byLawItem={props.value!} fieldData={props.fieldData} isOpen={isOpen} onChange={onItemChange} />
                     </>                    
                     : <></>
                 }

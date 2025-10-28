@@ -1,7 +1,7 @@
 import { Scrollable } from 'cs2/ui';
 import styles from './ByLawEditorView.module.scss';
 import { useValue } from 'cs2/api';
-import { selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor } from 'mods/bindings';
+import { byLawFields$, selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor } from 'mods/bindings';
 import { ByLawItem, ByLawItemType } from 'mods/types';
 import { ConstraintListItem } from 'mods/components/ConstraintListItem/ConstraintListItem';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
@@ -24,6 +24,7 @@ export const ByLawEditorView = ({ searchQuery, selectedByLaw } : _Props) => {
     let [_byLawName, set_ByLawName] = useState(byLawName);
     let [colorText, setColorText] = useState(utils.rgbaToHex(byLawColor[0]));
     let {translate} = useLocalization();
+    let fieldData = useValue(byLawFields$);
 
     useEffect(() => {
         set_ByLawName(byLawName);
@@ -89,11 +90,12 @@ export const ByLawEditorView = ({ searchQuery, selectedByLaw } : _Props) => {
         .map((key) => [key, key.split(/(?<![A-Z])(?=[A-Z])/).join(' ')] as [keyof typeof ByLawItemType, string])
         .filter(([key, readableName]) => searchQuery && readableName ? readableName.toUpperCase().indexOf(searchQuery.toUpperCase()) >= 0 : true);
     let listItems = types
-        .filter(([key, readableName]) => key != 'AssetPack') // TODO: Remove when AssetPacks are ready
+        // .filter(([key, readableName]) => key != 'AssetPack') // TODO: Remove when AssetPacks are ready
         .map(([key, readableName]: [keyof typeof ByLawItemType, string], idx) =>
             <ConstraintListItem
                 key={idx}
                 readableName={readableName}
+                fieldData={fieldData[key]}
                 itemType={ByLawItemType[key]}
                 value={itemMap[key] || undefined}
                 onValueChange={onConstraintUpdate}

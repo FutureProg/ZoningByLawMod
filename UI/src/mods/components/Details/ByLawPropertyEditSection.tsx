@@ -5,8 +5,10 @@ import ByLawItemEnumEditor from "./ByLawItemEnumEditor";
 import { getMeasurementString } from "mods/utils";
 import { useLocalization } from "cs2/l10n";
 import ByLawItemAssetPackEditor from "./ByLawItemAssetPackEditor";
+import { FieldDataBase } from "mods/bindings";
 
 type Props = {
+    fieldData: FieldDataBase;
     byLawItem: ByLawItem;
     isOpen: boolean;
     onChange?: (newItemValue: ByLawItem) => void;
@@ -16,7 +18,7 @@ type Props = {
  * Responsible for choosing which editor to display based on the property type
  */
 export default (
-    { byLawItem, isOpen, onChange: onChangeCallback }: Props,
+    { byLawItem, isOpen, onChange: onChangeCallback, fieldData }: Props,
 ): JSX.Element => {
     let localization = useLocalization();
     const measurementSuffix = getMeasurementString(
@@ -31,8 +33,7 @@ export default (
     let { constraintType: constraintType, byLawItemType: itemType } = byLawItem;
 
     if (
-        constraintType == ByLawConstraintType.Length ||
-        constraintType == ByLawConstraintType.Count
+        fieldData.fieldType === "range"
     ) {
         let onChange = (name: string, newValue: Bounds1) => {
             // Handle conversions to metric
@@ -84,10 +85,8 @@ export default (
     }
 
     if (
-        constraintType == ByLawConstraintType.MultiSelect ||
-        constraintType == ByLawConstraintType.SingleSelect
+        fieldData.fieldType in ["radio", "checkbox"]
     ) {
-
         let onChange = (nValue: number) => {
             let nItemVal = {
                 ...byLawItem,
@@ -98,7 +97,7 @@ export default (
 
         return (
             <ByLawItemEnumEditor
-                constraintType={byLawItem.constraintType}
+                constraintType={ byLawItem.constraintType}
                 itemType={byLawItem.byLawItemType}
                 itemValue={byLawItem.valueByteFlag}
                 onChange={onChange}

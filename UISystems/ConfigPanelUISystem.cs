@@ -189,17 +189,7 @@ namespace Trejak.ZoningByLaw.UI
                     switch (constraintType)
                     {
                         case ByLawConstraintType.Count:
-                            fieldDict[itemType.ToString()] = new NumberFieldData()
-                            {
-                                id = itemType.ToString(),
-                                label = "ZBL.ByLawItemType[" + itemType.ToString() + "]",
-                                value = 0,
-                                operatorOptions = operators,
-                                min = 0,
-                                step = 1
-                            };
-                            break;
-                        case ByLawConstraintType.Length:
+                        case ByLawConstraintType.Length:                            
                             fieldDict[itemType.ToString()] = new RangeFieldData()
                             {
                                 id = itemType.ToString(),
@@ -267,11 +257,9 @@ namespace Trejak.ZoningByLaw.UI
                     var itemTypeKey = item.byLawItemType.ToString();
                     var constraintType = BuildingBlockSystem.GetConstraintTypes(item.byLawItemType);
                     switch (constraintType)
-                    {
-                        case ByLawConstraintType.Count:
-                            ((NumberFieldData)fieldDict[itemTypeKey]).value = item.valueNumber;
-                            break;
+                    {                                                    
                         case ByLawConstraintType.Length:
+                        case ByLawConstraintType.Count:
                             ((RangeFieldData)fieldDict[itemTypeKey]).value = new double[]
                             {
                                 item.valueBounds1.min,
