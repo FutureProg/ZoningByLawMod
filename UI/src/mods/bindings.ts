@@ -1,7 +1,9 @@
 import { bindMap, bindValue, trigger } from "cs2/api";
 import mod from '../../mod.json';
-import { ByLawPropertyOperator, ByLawZoneListItem, ZoningByLawBinding } from "./types";
+import { ByLawItemType, ByLawPropertyOperator, ByLawZoneListItem, ZoningByLawBinding } from "./types";
 import { Color, Entity } from "cs2/bindings";
+
+export type ByLawFieldsDict = Record<keyof typeof ByLawItemType, FieldDataBase>;
 
 export type FieldDataBase = {
     id: string;
@@ -69,7 +71,7 @@ export const selectedByLawColor$ = bindValue<Color[]>(mod.fullname, "SelectedByL
 export const selectedByLaw$ = bindValue<Entity>(mod.fullname, "SelectedByLaw");
 export const elligibleBuildingCount$ = bindValue<number>(mod.fullname, "ElligibleBuildings", -1);
 export const assetPackNameToHash$ = bindMap<string, number>(mod.fullname, "assetPackNameToHash");
-export const byLawFields$ = bindValue<any[]>(mod.fullname, "ByLawFields", []);
+export const byLawFields$ = bindValue<ByLawFieldsDict>(mod.fullname, "ByLawFields");
 
 export const setConfigPanelOpen = (open : boolean) => {
     trigger(mod.fullname, "SetConfigPanelOpen", open);
