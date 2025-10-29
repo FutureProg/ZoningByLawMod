@@ -307,6 +307,11 @@ namespace Trejak.ZoningByLaw.Prefab
             return _assetPackPrefabs;
         }
 
+        public List<int> GetAssetPackHashes()
+        {
+            return _assetPackPrefabs.Select(p => p.name.GetHashCode()).ToList();
+        }
+
         public AssetPackPrefab GetAssetPackByHash(int hash)
         {
             return _assetPackPrefabs.Find(p => p.name.GetHashCode() == hash);

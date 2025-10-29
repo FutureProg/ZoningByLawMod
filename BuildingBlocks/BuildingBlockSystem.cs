@@ -69,18 +69,17 @@ namespace ZoningByLaw.BuildingBlocks
 
         public static bool EvalAssetPack(ByLawItem item, BuildingByLawProperties properties)
         {
-            return true;
-            //for(int i = 0; i < item.valueArrInt.Length; i++)
-            //{
-            //    for(int j = 0; j < properties.assetPacks.Length; j++)
-            //    {
-            //        if (properties.assetPacks[j] == item.valueArrInt[i])
-            //        {
-            //            return true;
-            //        }
-            //    }
-            //}
-            //return false;
+            for(int i = 0; i < item.valueNumberArray.Length; i++)
+            {
+                for (int j = 0; j < properties.assetPacks.Length; j++)
+                {
+                    if (properties.assetPacks[j] == item.valueNumberArray[i])
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         private static float PollutionLevelValue(ByLawItemType itemType, BuildingByLawProperties properties) => itemType switch
