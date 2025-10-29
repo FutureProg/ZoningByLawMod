@@ -2,50 +2,35 @@ import { ByLawConstraintType, ByLawItemType, ByLawZoneType, PollutionValues } fr
 import EnumFieldCheckboxes from '../EnumFieldCheckboxes';
 import styles from './ByLawItemEnumEditor.module.scss';
 import { useMemo, useState } from 'react';
+import { CheckboxFieldData, RadioFieldData } from 'mods/bindings';
 
 export interface ByLawItemEnumEditorProps {
     itemType: ByLawItemType;
-    itemValue: number;
+    fieldData: CheckboxFieldData | RadioFieldData
     constraintType: ByLawConstraintType;
     onChange?: (enumValue: any) => void;
 };
 
 export default (props: ByLawItemEnumEditorProps) => {        
-    let selectType : 'multi' | 'single' = props.constraintType == ByLawConstraintType.MultiSelect? 'multi' : 'single';
+    let selectType : 'multi' | 'single' = props.fieldData.fieldType === "checkbox"? 'multi' : 'single';
+    //props.constraintType == ByLawConstraintType.MultiSelect? 'multi' : 'single';
 
-
-    let [editorValue, setEditorValue] = useState(props.itemValue);
-    let onChange = (nEnumValue: any) => {
-        setEditorValue(nEnumValue);
-        props.onChange?.call(null, nEnumValue);
+    let [editorValue, setEditorValue] = useState(props.fieldData.value as number[] | number);
+    let onChange = (nArray: any) => {
+        setEditorValue(nArray);
+        props.onChange?.call(null, nArray);
     }
-    let childProps= {        
+    let childProps = {  
+        options: props.fieldData.options!,
+        value: Array.isArray(editorValue) ? editorValue : [editorValue],      
         type: selectType,
         onChange: onChange
     };
-    let field = useMemo(()=>{
-        switch(props.itemType) {
-            case ByLawItemType.LandUse: {
-                return EnumFieldCheckboxes<ByLawZoneType>({
-                    enum: editorValue as ByLawZoneType,
-                    enumEntries: Object.entries(ByLawZoneType),
-                    ...childProps
-                });
-            }
-            case ByLawItemType.GroundPollutionLevel:
-            case ByLawItemType.AirPollutionLevel:
-            case ByLawItemType.NoisePollutionLevel: {
-                return EnumFieldCheckboxes<PollutionValues>({
-                    enum: editorValue as PollutionValues,
-                    enumEntries: Object.entries(PollutionValues),           
-                    showZero: true,                    
-                    ...childProps
-                });
-            }
-            default:
-                return (<></>);
-        }
-    }, [props.itemType, props.constraintType, onChange, editorValue]);
+    let field = useMemo(() => {
+        return EnumFieldCheckboxes({
+            ...childProps
+        });
+    }, [props.itemType, props.constraintType, onChange, editorValue, props.fieldData.id]);
 
     return (
         <div className={styles.view}>

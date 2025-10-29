@@ -5,7 +5,7 @@ import ByLawItemEnumEditor from "./ByLawItemEnumEditor";
 import { getMeasurementString } from "mods/utils";
 import { useLocalization } from "cs2/l10n";
 import ByLawItemAssetPackEditor from "./ByLawItemAssetPackEditor";
-import { FieldDataBase, RangeFieldData, setByLawItemValue } from "mods/bindings";
+import { CheckboxFieldData, FieldDataBase, RadioFieldData, RangeFieldData, setByLawItemValue } from "mods/bindings";
 
 type Props = {
     fieldData: FieldDataBase;
@@ -90,10 +90,6 @@ export default (
         fieldData.fieldType in ["radio", "checkbox"]
     ) {
         let onChange = (nValue: number) => {
-            let nItemVal = {
-                ...byLawItem,
-                valueByteFlag: nValue,
-            };
             setByLawItemValue(itemType.toString(), nValue);
             // onChangeCallback && onChangeCallback(nItemVal);
         };
@@ -102,7 +98,7 @@ export default (
             <ByLawItemEnumEditor
                 constraintType={fieldData.fieldType === "checkbox"? ByLawConstraintType.MultiSelect : ByLawConstraintType.SingleSelect}
                 itemType={byLawItem.byLawItemType}
-                itemValue={fieldData.value}
+                fieldData={fieldData as RadioFieldData | CheckboxFieldData}
                 onChange={onChange}
             />
         );
