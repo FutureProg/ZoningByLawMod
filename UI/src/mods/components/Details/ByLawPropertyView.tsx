@@ -135,7 +135,7 @@ export default ({byLawItem, onChange: onChangeCallback, onDelete: onDeleteCallba
                 </div>
             </div>
             <div className={styles.editSection + ' ' + (editing? '' : styles.hidden)}>
-                <ByLawPropertyEditSection byLawItem={_byLawItem} isOpen={editing} onChange={onPropertyValueChange} />
+                {/* <ByLawPropertyEditSection  byLawItem={_byLawItem} isOpen={editing} onChange={onPropertyValueChange} /> */}
             </div>
         </div>
     )
