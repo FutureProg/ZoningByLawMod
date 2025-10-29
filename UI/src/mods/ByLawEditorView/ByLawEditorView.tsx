@@ -89,14 +89,13 @@ export const ByLawEditorView = ({ searchQuery, selectedByLaw } : _Props) => {
         .filter((key) => isNaN(Number(key)) && key != 'None')
         .map((key) => [key, key.split(/(?<![A-Z])(?=[A-Z])/).join(' ')] as [keyof typeof ByLawItemType, string])
         .filter(([key, readableName]) => searchQuery && readableName ? readableName.toUpperCase().indexOf(searchQuery.toUpperCase()) >= 0 : true);
-    let listItems = types
+    let listItems = Object.entries(fieldData)
         // .filter(([key, readableName]) => key != 'AssetPack') // TODO: Remove when AssetPacks are ready
-        .map(([key, readableName]: [keyof typeof ByLawItemType, string], idx) =>
+        .map(([key, field], idx) =>
             <ConstraintListItem
                 key={idx}
-                readableName={readableName}
-                fieldData={fieldData[key]}
-                itemType={ByLawItemType[key]}
+                fieldData={field}
+                itemType={ByLawItemType[key as keyof typeof ByLawItemType]}
                 value={itemMap[key] || undefined}
                 onValueChange={onConstraintUpdate}
                 onChangeConstraintEnabled={onChangeConstraintEnabled}

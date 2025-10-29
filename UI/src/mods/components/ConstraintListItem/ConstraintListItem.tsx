@@ -13,14 +13,13 @@ import { deepCopy, getOperationTypes } from 'mods/utils';
 import { Theme } from 'cs2/bindings';
 import { getModule } from 'cs2/modding';
 import { useValue } from 'cs2/api';
-import { byLawFields$, FieldDataBase } from 'mods/bindings';
+import { byLawFields$, FieldDataBase, setByLawItemPropertyOperator } from 'mods/bindings';
 
 const DropdownStyle: Theme | any = getModule("game-ui/menu/themes/dropdown.module.scss", "classes");
 
 type ConstraintListItemProps = {
     itemType: ByLawItemType,
     value?: ByLawItem,
-    readableName: string,
     fieldData: FieldDataBase,
     onChangeConstraintEnabled?: (newValue: boolean, itemType: ByLawItemType) => void
     onValueChange?: (newItemValue: ByLawItem) => void;
@@ -53,10 +52,11 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
     }
 
     let onPropertyOperatorChange = (operator: ByLawPropertyOperator) => {
-        onItemChange({
-            ...deepCopy(props.value!),
-            propertyOperator: operator
-        });
+        // onItemChange({
+        //     ...deepCopy(props.value!),
+        //     propertyOperator: operator
+        // });
+        setByLawItemPropertyOperator(props.fieldData.id, operator);
     }
 
     const operatorOptions = getOperationTypes(props.itemType).map((operator, index) => {
