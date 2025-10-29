@@ -80,7 +80,7 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
                     onChange={onChangeEnabled}
                     checked={enabled}
                 />
-                <div className={styles.constraintName}>{translate(`ZBL.ByLawItemType[${ByLawItemType[props.itemType]}]`,props.readableName)}</div>
+                <div className={styles.constraintName}>{translate(props.fieldData.label, props.fieldData.label)}</div>
                 <ConstraintOperatorText className={styles.operator} item={props.value}/>
                 <ConstraintValueText className={styles.valueDescription} item={props.value} />
             </div>
