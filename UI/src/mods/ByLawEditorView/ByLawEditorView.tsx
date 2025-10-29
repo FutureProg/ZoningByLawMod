@@ -1,7 +1,7 @@
 import { Scrollable } from 'cs2/ui';
 import styles from './ByLawEditorView.module.scss';
 import { useValue } from 'cs2/api';
-import { byLawFields$, selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor } from 'mods/bindings';
+import { byLawFields$, selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor, toggleByLawItemEnabled } from 'mods/bindings';
 import { ByLawItem, ByLawItemType } from 'mods/types';
 import { ConstraintListItem } from 'mods/components/ConstraintListItem/ConstraintListItem';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
@@ -61,22 +61,23 @@ export const ByLawEditorView = ({ searchQuery, selectedByLaw } : _Props) => {
         setByLawData(nByLawData);
     }
     let onChangeConstraintEnabled = (newEnabledValue: boolean, itemType: ByLawItemType) => {
-        if (selectedByLaw.index <= 0) {
-            return;
-        }
-        let nByLawData = utils.deepCopy(byLawData);
-        if (newEnabledValue) {
-            nByLawData.blocks[0].itemData.push({
-                ...utils.GetDefaultByLawItem(),
-                byLawItemType: itemType,
-                itemCategory: utils.getItemCategories(itemType),
-                constraintType: utils.getConstraintTypes(itemType)[0],
-                propertyOperator: utils.getDefaultPropertyOperator(itemType)
-            });
-        } else {
-            nByLawData.blocks[0].itemData = nByLawData.blocks[0].itemData.filter((item) => item.byLawItemType != itemType);
-        }
-        setByLawData(nByLawData);
+        // if (selectedByLaw.index <= 0) {
+        //     return;
+        // }
+        // let nByLawData = utils.deepCopy(byLawData);
+        // if (newEnabledValue) {
+        //     nByLawData.blocks[0].itemData.push({
+        //         ...utils.GetDefaultByLawItem(),
+        //         byLawItemType: itemType,
+        //         itemCategory: utils.getItemCategories(itemType),
+        //         constraintType: utils.getConstraintTypes(itemType)[0],
+        //         propertyOperator: utils.getDefaultPropertyOperator(itemType)
+        //     });
+        // } else {
+        //     nByLawData.blocks[0].itemData = nByLawData.blocks[0].itemData.filter((item) => item.byLawItemType != itemType);
+        // }
+        // setByLawData(nByLawData);
+        toggleByLawItemEnabled(itemType);
     }    
 
     let items = byLawData.blocks != null ? byLawData.blocks[0].itemData : [];

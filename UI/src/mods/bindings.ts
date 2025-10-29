@@ -116,3 +116,7 @@ export const setByLawItemValue = (id: string, value: any) => {
 export const setByLawItemPropertyOperator = (id: string, operator: number) => {
     trigger(mod.fullname, "SetByLawItemPropertyOperator", id, operator);
 }
+
+export const toggleByLawItemEnabled = (itemType: ByLawItemType) => {
+    trigger(mod.fullname, "ToggleItemEnabled", itemType);
+}

@@ -131,7 +131,8 @@ namespace Trejak.ZoningByLaw.UI
             this.CreateBinding("ByLawFields", GetFields);
             this.CreateTrigger<string, object>("SetByLawItemValue", SetByLawItemValue);
             this.CreateTrigger<string, int>("SetByLawItemPropertyOperator", SetByLawItemPropertyOperator);
-            
+            this.CreateTrigger<ByLawItemType>("ToggleItemEnabled", ToggleItemEnabled);
+
             _writeToFileTimer = new Timer(4500);
             _writeToFileTimer.AutoReset = true;
             _writeToFileTimer.Elapsed += (sender, e) => SaveActiveByLawToDisk();
@@ -271,12 +272,18 @@ namespace Trejak.ZoningByLaw.UI
                             ((RadioFieldData)fieldDict[itemTypeKey]).value = item.valueByteFlag;
                             break;
                         case ByLawConstraintType.MultiSelect:
-                            var enumType = BuildingBlockSystem.GetConstraintEnumType(item.byLawItemType);
-                            ((CheckboxFieldData)fieldDict[itemTypeKey]).value = Enum.GetValues(enumType)
-                                .Cast<object>()
-                                .Where(x => (item.valueByteFlag & (int)x) != 0)
-                                .ToArray();
-                            break;
+                            if (item.byLawItemType == ByLawItemType.AssetPack)
+                            {
+                                ((CheckboxFieldData)fieldDict[itemTypeKey]).value = item.valueNumberArray.ToArray().Cast<object>().ToArray();
+                            } else
+                            {
+                                var enumType = BuildingBlockSystem.GetConstraintEnumType(item.byLawItemType);
+                                ((CheckboxFieldData)fieldDict[itemTypeKey]).value = Enum.GetValues(enumType)
+                                    .Cast<object>()
+                                    .Where(x => (item.valueByteFlag & (int)x) != 0)
+                                    .ToArray();
+                            }
+                                break;
                         case ByLawConstraintType.None:
                             break;
                         default:
@@ -469,6 +476,52 @@ namespace Trejak.ZoningByLaw.UI
             else
             {
                 _byLawToolSystem.SetToolEnabled(true);
+            }
+        }
+
+        public void ToggleItemEnabled(ByLawItemType itemType)
+        {
+            if (_selectedByLaw.value == Entity.Null)
+            {
+                return;
+            }
+            var blockRefBuffer = EntityManager.GetBuffer<ByLawBlockReference>(_selectedByLaw.value);
+            foreach (var blockEntity in blockRefBuffer.Select(blockRef => blockRef.block))
+            {
+                if (EntityManager.HasComponent<ByLawBlock>(blockEntity) &&
+                    EntityManager.TryGetBuffer<ByLawItem>(blockEntity, false, out var bylawItemBuffer))
+                {
+                    bool foundByLawItem = false;
+                    for (var i = 0; i < bylawItemBuffer.Length; i++)
+                    {
+                        var item = bylawItemBuffer[i];
+                        if (item.byLawItemType != itemType) continue;
+                        // remove the bylaw constraint, meaning we toggle it to disabled
+                        foundByLawItem = true;
+                        bylawItemBuffer.RemoveAt(i);
+                        Mod.log.Info(
+                            $"ByLawItem of type {item.byLawItemType} disabled in block entity {blockEntity.Index}, {blockEntity.Version}");
+                        break;
+                    }
+                    if (!foundByLawItem)
+                    {
+                        // add a new bylaw constraint with default values, meaning we toggle it to enabled
+                        ByLawItem newItem = new ByLawItem()
+                        {
+                            byLawItemType = itemType,
+                            constraintType = BuildingBlockSystem.GetConstraintTypes(itemType),
+                            propertyOperator = BuildingBlockSystem.GetPropertyOperators(itemType).First(),                            
+                        };
+                        if (newItem.constraintType == ByLawConstraintType.MultiSelect || newItem.constraintType == ByLawConstraintType.SingleSelect)
+                        {                            
+                            newItem.valueNumberArray = new NativeArray<int>(0, Allocator.Persistent);
+                            newItem.valueByteFlag = 0;
+                        }
+                        bylawItemBuffer.Add(newItem);
+                        Mod.log.Info(
+                            $"ByLawItem of type {newItem.byLawItemType} enabled in block entity {blockEntity.Index}, {blockEntity.Version}");
+                    }
+                }
             }
         }
 
