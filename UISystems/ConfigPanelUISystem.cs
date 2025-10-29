@@ -66,6 +66,7 @@ namespace Trejak.ZoningByLaw.UI
         private TriggerBinding<string> _setByLawName;
         private TriggerBinding<Color, Color> _setByLawZoneColour;
         private int _lastElligibleBuildingCount;
+        private GetterValueBinding<Dictionary<string, FieldDataBase>> _byLawFieldsBinding;
 
         private Timer _writeToFileTimer;
 
@@ -128,7 +129,7 @@ namespace Trejak.ZoningByLaw.UI
                 (string key) => key.GetHashCode()));
             //this.AddBinding(_toggleByLawRenderPreview = new TriggerBinding(uiGroupName, "ToggleByLawRenderPreview", ToggleByLawRenderPreview));
 
-            this.CreateBinding("ByLawFields", GetFields);
+            _byLawFieldsBinding = this.CreateBinding("ByLawFields", GetFields);            
             this.CreateTrigger<string, object>("SetByLawItemValue", SetByLawItemValue);
             this.CreateTrigger<string, int>("SetByLawItemPropertyOperator", SetByLawItemPropertyOperator);
             this.CreateTrigger<ByLawItemType>("ToggleItemEnabled", ToggleItemEnabled);
@@ -174,13 +175,17 @@ namespace Trejak.ZoningByLaw.UI
 
             Dictionary<string, FieldDataBase> fieldDict = new();
             var blockRefBuffer = EntityManager.GetBuffer<ByLawBlockReference>(_selectedByLaw.value);
-            foreach (var blockEntity in blockRefBuffer.Select(blockRef => blockRef.block))
+            for (int i = 0; i < blockRefBuffer.Length; i++)
             {
+                var blockEntity = blockRefBuffer[i].block;
                 if (!EntityManager.HasComponent<ByLawBlock>(blockEntity) ||
                     !EntityManager.TryGetBuffer<ByLawItem>(blockEntity, false, out var bylawItemBuffer)) continue;
+
+                // Set the default values for the ByLawItemType
                 var itemTypesArr = Enum.GetValues(typeof(ByLawItemType));
-                foreach (ByLawItemType itemType in itemTypesArr)
+                for (int j = 0; j < itemTypesArr.Length; j++)
                 {
+                    ByLawItemType itemType = (ByLawItemType)itemTypesArr.GetValue(j);
                     var constraintType = BuildingBlockSystem.GetConstraintTypes(itemType);
                     var operators = BuildingBlockSystem.GetPropertyOperators(itemType).Select(op =>
                         new FieldDataOption<ByLawPropertyOperator>()
@@ -204,11 +209,11 @@ namespace Trejak.ZoningByLaw.UI
                             break;
                         case ByLawConstraintType.MultiSelect:
                         case ByLawConstraintType.SingleSelect:
-                            List<FieldDataOption<object>> mappedValues;
+                            List<FieldDataOption<int>> mappedValues;
                             if (itemType == ByLawItemType.AssetPack)
                             {
                                 mappedValues = _indexBuildingsSystem.GetAssetPacks()
-                                    .Select(ap => new FieldDataOption<object>()
+                                    .Select(ap => new FieldDataOption<int>()
                                     {
                                         label = ap.name,
                                         image = ap.thumbnailUrl,
@@ -218,7 +223,7 @@ namespace Trejak.ZoningByLaw.UI
                             {
                                 var enumType = BuildingBlockSystem.GetConstraintEnumType(itemType);
                                 var enumValues = Enum.GetValues(enumType);
-                                mappedValues = enumValues.Cast<object>().Select((x) => new FieldDataOption<object>()
+                                mappedValues = enumValues.Cast<int>().Select((x) => new FieldDataOption<int>()
                                 {
                                     label = "ZBL.FlagValues[" + Enum.GetName(enumType, x) + "]",
                                     value = (int)x
@@ -233,7 +238,7 @@ namespace Trejak.ZoningByLaw.UI
                                     label = "ZBL.ByLawItemType[" + itemType.ToString() + "]",
                                     options = mappedValues,
                                     operatorOptions = operators,
-                                    value = new object[] { 0 }
+                                    value = new int[] { 0 }
                                 };
                             }
                             else
@@ -254,8 +259,10 @@ namespace Trejak.ZoningByLaw.UI
                     }
                 }
 
-                foreach (var item in bylawItemBuffer)
+                // If the ByLawItem exists in the buffer, override the default values with the saved ones
+                for (int j = 0; j < bylawItemBuffer.Length; j++)
                 {
+                    var item = bylawItemBuffer[j];
                     var itemTypeKey = item.byLawItemType.ToString();
                     var constraintType = BuildingBlockSystem.GetConstraintTypes(item.byLawItemType);
                     switch (constraintType)
@@ -274,12 +281,12 @@ namespace Trejak.ZoningByLaw.UI
                         case ByLawConstraintType.MultiSelect:
                             if (item.byLawItemType == ByLawItemType.AssetPack)
                             {
-                                ((CheckboxFieldData)fieldDict[itemTypeKey]).value = item.valueNumberArray.ToArray().Cast<object>().ToArray();
+                                ((CheckboxFieldData)fieldDict[itemTypeKey]).value = item.valueNumberArray.ToArray().Cast<int>().ToArray();
                             } else
                             {
                                 var enumType = BuildingBlockSystem.GetConstraintEnumType(item.byLawItemType);
                                 ((CheckboxFieldData)fieldDict[itemTypeKey]).value = Enum.GetValues(enumType)
-                                    .Cast<object>()
+                                    .Cast<int>()
                                     .Where(x => (item.valueByteFlag & (int)x) != 0)
                                     .ToArray();
                             }
@@ -438,6 +445,7 @@ namespace Trejak.ZoningByLaw.UI
         {
             base.OnUpdate();
             this._elligibleBuildings.Update();
+            this._byLawFieldsBinding.Update();
         }
 
         // TODO: this

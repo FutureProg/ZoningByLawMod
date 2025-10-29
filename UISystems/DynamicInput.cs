@@ -14,7 +14,7 @@ namespace ZoningByLaw.UISystems
     {
         public string id;
         public string label;
-        public List<FieldDataOption<object>>? options;
+        public List<FieldDataOption<int>>? options;
         public List<FieldDataOption<ByLawPropertyOperator>> operatorOptions;
         public ByLawPropertyOperator selectedOperator;
         public object value;
@@ -23,13 +23,13 @@ namespace ZoningByLaw.UISystems
     public class CheckboxFieldData : FieldDataBase
     {
         public string fieldType = "checkbox";
-        public new object[] value; // array of selected values
+        public new int[] value; // array of selected values
     }
 
     public class RadioFieldData : FieldDataBase
     {
         public string fieldType = "radio";
-        public new object value; // single selected value
+        public new int value; // single selected value
     }
 
     public class SelectFieldData : FieldDataBase

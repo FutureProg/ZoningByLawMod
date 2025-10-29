@@ -18,17 +18,17 @@ export type FieldDataBase = {
 export type FieldDataOption = {
     image?: string;
     label: string;
-    value: any;
+    value: number;
 }
 
 export type CheckboxFieldData = FieldDataBase & {
     fieldType: "checkbox";
-    value: any[]; // array of selected values
+    value: number[]; // array of selected values
 }
 
 export type RadioFieldData = FieldDataBase & {
     fieldType: "radio";
-    value: any; // single selected value
+    value: number; // single selected value
 }
 
 export type SelectFieldData = FieldDataBase & {
