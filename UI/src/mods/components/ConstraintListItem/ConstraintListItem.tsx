@@ -29,7 +29,6 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
     let [isOpen, setIsOpen] = useState(false);    
     let enabled = props.value != undefined;
     let {translate} = useLocalization();
-
     let toggleOpen = () => {        
         if (!enabled && props.onChangeConstraintEnabled) {            
             props.onChangeConstraintEnabled(!enabled, props.itemType);
@@ -42,8 +41,7 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
         }     
     }
     
-    let onChangeEnabled = () => {
-        console.log(props);
+    let onChangeEnabled = () => {        
         setIsOpen(false);
         props.onChangeConstraintEnabled && props.onChangeConstraintEnabled(!enabled, props.itemType)
     }

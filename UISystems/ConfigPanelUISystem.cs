@@ -447,8 +447,11 @@ namespace Trejak.ZoningByLaw.UI
                 }
 
                 _elligibleBuildingsSystem.EnqueueUpdate(_selectedByLaw.value);
+                _writeToFileTimer.Stop();
+                this._selectedByLawData.Value = ZoningByLawBinding.FromEntity(_selectedByLaw.value, EntityManager);
                 SaveActiveByLawToDisk();
-            }
+                _writeToFileTimer.Start();
+            }            
             this._byLawFieldsBinding.Update();
         }
 
@@ -541,6 +544,11 @@ namespace Trejak.ZoningByLaw.UI
                     }
                 }
             }
+            _writeToFileTimer.Stop();
+            _elligibleBuildingsSystem.EnqueueUpdate(_selectedByLaw.value);
+            this._selectedByLawData.Value = ZoningByLawBinding.FromEntity(_selectedByLaw.value, EntityManager);
+            this.SaveActiveByLawToDisk();
+            _writeToFileTimer.Start();
             this._byLawFieldsBinding.Update();
         }
 
