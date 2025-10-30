@@ -24,7 +24,7 @@ export const ByLawEditorView = ({ searchQuery, selectedByLaw } : _Props) => {
     let [_byLawName, set_ByLawName] = useState(byLawName);
     let [colorText, setColorText] = useState(utils.rgbaToHex(byLawColor[0]));
     let {translate} = useLocalization();
-    let fieldData = useValue(byLawFields$);
+    let fieldData = Object.fromEntries(useValue(byLawFields$).map(fd => [fd.Key, fd.Value]));
 
     useEffect(() => {
         set_ByLawName(byLawName);

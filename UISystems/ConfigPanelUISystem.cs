@@ -30,6 +30,7 @@ using UnityEngine;
 using ZoningByLaw.BuildingBlocks;
 using ZoningByLaw.UISystems;
 using Colossal.IO.AssetDatabase.Internal;
+using System.Collections;
 
 namespace Trejak.ZoningByLaw.UI
 {
@@ -209,11 +210,11 @@ namespace Trejak.ZoningByLaw.UI
                             break;
                         case ByLawConstraintType.MultiSelect:
                         case ByLawConstraintType.SingleSelect:
-                            List<FieldDataOption<int>> mappedValues;
+                            List<FieldDataOption<object>> mappedValues = new List<FieldDataOption<object>>();
                             if (itemType == ByLawItemType.AssetPack)
                             {
                                 mappedValues = _indexBuildingsSystem.GetAssetPacks()
-                                    .Select(ap => new FieldDataOption<int>()
+                                    .Select(ap => new FieldDataOption<object>()
                                     {
                                         label = ap.name,
                                         image = ap.thumbnailUrl,
@@ -223,11 +224,15 @@ namespace Trejak.ZoningByLaw.UI
                             {
                                 var enumType = BuildingBlockSystem.GetConstraintEnumType(itemType);
                                 var enumValues = Enum.GetValues(enumType);
-                                mappedValues = enumValues.Cast<int>().Select((x) => new FieldDataOption<int>()
+                                // This cast is throwing an error 
+                                foreach(var val in enumValues)
                                 {
-                                    label = "ZBL.FlagValues[" + Enum.GetName(enumType, x) + "]",
-                                    value = (int)x
-                                }).ToList();
+                                    mappedValues.Add(new FieldDataOption<object>()
+                                    {
+                                        label = "ZBL.FlagValues[" + Enum.GetName(enumType, val) + "]",
+                                        value = val
+                                    });
+                                }                                
                             }                            
 
                             if (constraintType == ByLawConstraintType.MultiSelect)
@@ -238,7 +243,7 @@ namespace Trejak.ZoningByLaw.UI
                                     label = "ZBL.ByLawItemType[" + itemType.ToString() + "]",
                                     options = mappedValues,
                                     operatorOptions = operators,
-                                    value = new int[] { 0 }
+                                    value = new object[] { 0 }
                                 };
                             }
                             else
@@ -281,16 +286,20 @@ namespace Trejak.ZoningByLaw.UI
                         case ByLawConstraintType.MultiSelect:
                             if (item.byLawItemType == ByLawItemType.AssetPack)
                             {
-                                ((CheckboxFieldData)fieldDict[itemTypeKey]).value = item.valueNumberArray.ToArray().Cast<int>().ToArray();
+                                ((CheckboxFieldData)fieldDict[itemTypeKey]).value = item.valueNumberArray.ToArray().Select(v => (object)v).ToArray();
                             } else
                             {
                                 var enumType = BuildingBlockSystem.GetConstraintEnumType(item.byLawItemType);
-                                ((CheckboxFieldData)fieldDict[itemTypeKey]).value = Enum.GetValues(enumType)
-                                    .Cast<int>()
-                                    .Where(x => (item.valueByteFlag & (int)x) != 0)
-                                    .ToArray();
+                                foreach(var val in Enum.GetValues(enumType))
+                                {
+                                    int enumIntValue = Convert.ToInt32(val);
+                                    if ((item.valueByteFlag & enumIntValue) != 0)
+                                    {
+                                        ((CheckboxFieldData)fieldDict[itemTypeKey]).value.AddItem(val);
+                                    }                                    
+                                }
                             }
-                                break;
+                            break;
                         case ByLawConstraintType.None:
                             break;
                         default:
@@ -300,7 +309,6 @@ namespace Trejak.ZoningByLaw.UI
                     fieldDict[itemTypeKey].selectedOperator = item.propertyOperator;
                 }
             }
-
             return fieldDict;
         }
 
@@ -322,8 +330,9 @@ namespace Trejak.ZoningByLaw.UI
                 $"Set field {field} to {value} on entity {_selectedByLaw.value.Index}, {_selectedByLaw.value.Version}");
 
             var blockRefBuffer = EntityManager.GetBuffer<ByLawBlockReference>(_selectedByLaw.value);
-            foreach (var blockEntity in blockRefBuffer.Select(blockRef => blockRef.block))
+            for (int blockIdx = 0; blockIdx < blockRefBuffer.Length; blockIdx++)
             {
+                var blockEntity = blockRefBuffer[blockIdx].block;
                 if (EntityManager.HasComponent<ByLawBlock>(blockEntity) &&
                     EntityManager.TryGetBuffer<ByLawItem>(blockEntity, false, out var bylawItemBuffer))
                 {
@@ -494,8 +503,9 @@ namespace Trejak.ZoningByLaw.UI
                 return;
             }
             var blockRefBuffer = EntityManager.GetBuffer<ByLawBlockReference>(_selectedByLaw.value);
-            foreach (var blockEntity in blockRefBuffer.Select(blockRef => blockRef.block))
+            for(int blockIdx = 0; blockIdx < blockRefBuffer.Length; blockIdx++)
             {
+                var blockEntity = blockRefBuffer[blockIdx].block;
                 if (EntityManager.HasComponent<ByLawBlock>(blockEntity) &&
                     EntityManager.TryGetBuffer<ByLawItem>(blockEntity, false, out var bylawItemBuffer))
                 {

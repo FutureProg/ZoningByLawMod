@@ -3,7 +3,10 @@ import mod from '../../mod.json';
 import { ByLawItemType, ByLawPropertyOperator, ByLawZoneListItem, ZoningByLawBinding } from "./types";
 import { Color, Entity } from "cs2/bindings";
 
-export type ByLawFieldsDict = Record<keyof typeof ByLawItemType, FieldDataBase>;
+export type ByLawFieldsDict = {
+    "Key": keyof typeof ByLawItemType
+    "Value": FieldDataBase
+}[];  
 
 export type FieldDataBase = {
     id: string;
