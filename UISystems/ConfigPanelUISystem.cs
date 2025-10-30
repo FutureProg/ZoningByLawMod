@@ -268,7 +268,8 @@ namespace Trejak.ZoningByLaw.UI
                 for (int j = 0; j < bylawItemBuffer.Length; j++)
                 {
                     var item = bylawItemBuffer[j];
-                    var itemTypeKey = item.byLawItemType.ToString();
+                    if (item.byLawItemType == ByLawItemType.None) continue;
+                    var itemTypeKey = item.byLawItemType.ToString();                    
                     var constraintType = BuildingBlockSystem.GetConstraintTypes(item.byLawItemType);
                     switch (constraintType)
                     {                                                    
@@ -448,13 +449,13 @@ namespace Trejak.ZoningByLaw.UI
                 _elligibleBuildingsSystem.EnqueueUpdate(_selectedByLaw.value);
                 SaveActiveByLawToDisk();
             }
+            this._byLawFieldsBinding.Update();
         }
 
         protected override void OnUpdate()
         {
             base.OnUpdate();
-            this._elligibleBuildings.Update();
-            this._byLawFieldsBinding.Update();
+            this._elligibleBuildings.Update();            
         }
 
         // TODO: this
@@ -528,19 +529,19 @@ namespace Trejak.ZoningByLaw.UI
                         {
                             byLawItemType = itemType,
                             constraintType = BuildingBlockSystem.GetConstraintTypes(itemType),
-                            propertyOperator = BuildingBlockSystem.GetPropertyOperators(itemType).First(),                            
+                            propertyOperator = BuildingBlockSystem.GetPropertyOperators(itemType).First(),
+                            valueBounds1 = new Bounds1() { min = 0, max = 0 },
+                            valueByteFlag = 0,
+                            valueNumber = 0,
+                            valueNumberArray = new NativeArray<int>(0, Allocator.Persistent)
                         };
-                        if (newItem.constraintType == ByLawConstraintType.MultiSelect || newItem.constraintType == ByLawConstraintType.SingleSelect)
-                        {                            
-                            newItem.valueNumberArray = new NativeArray<int>(0, Allocator.Persistent);
-                            newItem.valueByteFlag = 0;
-                        }
                         bylawItemBuffer.Add(newItem);
                         Mod.log.Info(
                             $"ByLawItem of type {newItem.byLawItemType} enabled in block entity {blockEntity.Index}, {blockEntity.Version}");
                     }
                 }
             }
+            this._byLawFieldsBinding.Update();
         }
 
         public void SetConfigPanelOpen(bool newValue)
@@ -682,7 +683,7 @@ namespace Trejak.ZoningByLaw.UI
                                 constraintType = BuildingBlocks.ByLawConstraintType.MultiSelect,
                                 propertyOperator = BuildingBlocks.ByLawPropertyOperator.AtLeastOne,
                                 itemCategory = BuildingBlocks.ByLawItemCategory.Lot,
-                                valueByteFlag = 0
+                                valueByteFlag = 0,
                             }
                         }
                     }

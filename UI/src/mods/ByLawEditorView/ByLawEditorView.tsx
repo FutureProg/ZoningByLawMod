@@ -83,25 +83,29 @@ export const ByLawEditorView = ({ searchQuery, selectedByLaw } : _Props) => {
     let items = byLawData.blocks != null ? byLawData.blocks[0].itemData : [];
     let itemMap = useMemo(() =>
         Object.fromEntries(
-            items.map((item) => [ByLawItemType[item.byLawItemType], item])
+            items.map((item) => [ByLawItemType[item.byLawItemType].toString(), item])
         )
-        , [items]);
+        , [items, fieldData]);
+    console.log(itemMap);
     let types = Object.keys(ByLawItemType)
         .filter((key) => isNaN(Number(key)) && key != 'None')
         .map((key) => [key, key.split(/(?<![A-Z])(?=[A-Z])/).join(' ')] as [keyof typeof ByLawItemType, string])
         .filter(([key, readableName]) => searchQuery && readableName ? readableName.toUpperCase().indexOf(searchQuery.toUpperCase()) >= 0 : true);
     let listItems = Object.entries(fieldData)
         // .filter(([key, readableName]) => key != 'AssetPack') // TODO: Remove when AssetPacks are ready
-        .map(([key, field], idx) =>
-            <ConstraintListItem
-                key={idx}
-                fieldData={field}
-                itemType={ByLawItemType[key as keyof typeof ByLawItemType]}
-                value={itemMap[key] || undefined}
-                onValueChange={onConstraintUpdate}
-                onChangeConstraintEnabled={onChangeConstraintEnabled}
-            />
-        );    
+        .map(([key, field], idx) => {
+            const itemType = key == 'Uses' ? ByLawItemType.LandUse : ByLawItemType[key as keyof typeof ByLawItemType];
+            return (
+                <ConstraintListItem
+                    key={idx}
+                    fieldData={field}
+                    itemType={itemType}
+                    value={itemMap[key == 'Uses'? 'LandUse' : key] || undefined}
+                    onValueChange={onConstraintUpdate}
+                    onChangeConstraintEnabled={onChangeConstraintEnabled}
+                />
+            );
+        });    
     if (selectedByLaw.index <= 0 || byLawData.blocks == null) {
         return (<></>);
     }

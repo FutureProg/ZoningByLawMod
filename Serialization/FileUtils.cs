@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Trejak.ZoningByLaw.UISystems;
+using Unity.Collections;
 using UnityEngine.Profiling;
 
 namespace Trejak.ZoningByLaw.Serialization
@@ -29,6 +30,19 @@ namespace Trejak.ZoningByLaw.Serialization
             if (record == null)
             {
                 throw new NullReferenceException("ByLawRecord \"record\" cannot be null!");
+            }
+
+            foreach(var block in record.zoningByLawBinding.blocks)
+            {
+                for(int i = 0; i < block.itemData.Length; i++)
+                {
+                    var item = block.itemData[i];
+                    if (!item.valueNumberArray.IsCreated)
+                    {                       
+                        item.valueNumberArray = new NativeArray<int>(0, Unity.Collections.Allocator.Persistent);
+                        block.itemData[i] = item;
+                    }                    
+                }
             }
 
             if (!Directory.Exists(ByLawsFolder))
@@ -78,6 +92,19 @@ namespace Trejak.ZoningByLaw.Serialization
                 throw new FileNotFoundException($"Could not find Zoning ByLaw file with name: {filename}");
             }
             ByLawRecord re = JSON.MakeInto<ByLawRecord>(JSON.Load(File.ReadAllText(path)));
+            if (re.zoningByLawBinding.blocks.Length > 0)
+            {
+                var itemArr = re.zoningByLawBinding.blocks[0].itemData;
+                for (int i = 0; i < itemArr.Length; i++)
+                {
+                    var item = itemArr[i];
+                    if (!item.valueNumberArray.IsCreated)
+                    {
+                        item.valueNumberArray = new NativeArray<int>(0, Unity.Collections.Allocator.Persistent);
+                        re.zoningByLawBinding.blocks[0].itemData[i] = item;
+                    }
+                }
+            }            
             return re;
         }
 
