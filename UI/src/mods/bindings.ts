@@ -112,8 +112,15 @@ export const toggleTool = () => {
     trigger(mod.fullname, "ToggleTool");
 }
 
-export const setByLawItemValue = (id: string, value: any) => {
-    trigger(mod.fullname, "SetByLawItemValue", id, value);
+export const setByLawItemValue = (id: string, value: any) => { 
+    if (Array.isArray(value) && typeof value[0] === 'number') {
+        trigger(mod.fullname, "SetByLawItemValueIntArr", id, value);    
+    } 
+    else if (typeof value === 'number') {
+        trigger(mod.fullname, "SetByLawItemValueInt", id, value);    
+    } else {
+        trigger(mod.fullname, "SetByLawItemValue", id, value);
+    }    
 }
 
 export const setByLawItemPropertyOperator = (id: string, operator: number) => {

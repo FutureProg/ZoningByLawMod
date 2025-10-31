@@ -15,11 +15,10 @@ export interface EnumFieldCheckboxesProps {
 export default (props: EnumFieldCheckboxesProps) => {      
     let {translate} = useLocalization();          
     // let preEntries = props.enumEntries;  
-    let options = props.options;
     // let entries : {[key: string]: number} = Object.fromEntries(
     //     preEntries.filter(([v, k], idx) => isNaN(Number(k)) && (props.showZero? true: Number(v) != 0)).map(([k,v]) => [v,k])
     // )        
-    
+    console.log('Rendering EnumFieldCheckboxes', props);
     // let checked = useMemo(() => {
     //     let nState : Record<string, boolean> = {};    
     //     Object.entries(entries).forEach(([k,v]) => nState[k] = (nState[k] = v == 0 && props.enum == 0 && props.type == 'single') || (v & (props.enum as number)) !== 0);

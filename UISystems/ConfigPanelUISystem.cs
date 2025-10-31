@@ -132,6 +132,8 @@ namespace Trejak.ZoningByLaw.UI
 
             _byLawFieldsBinding = this.CreateBinding("ByLawFields", GetFields);            
             this.CreateTrigger<string, object>("SetByLawItemValue", SetByLawItemValue);
+            this.CreateTrigger<string, int>("SetByLawItemValueInt", SetByLawItemValue);
+            this.CreateTrigger<string, int[]>("SetByLawItemValueIntArr", SetByLawItemValue);
             this.CreateTrigger<string, int>("SetByLawItemPropertyOperator", SetByLawItemPropertyOperator);
             this.CreateTrigger<ByLawItemType>("ToggleItemEnabled", ToggleItemEnabled);
 
@@ -155,6 +157,16 @@ namespace Trejak.ZoningByLaw.UI
             }
 
             return _lastElligibleBuildingCount;
+        }
+
+        void SetByLawItemValue(string itemType, int value)
+        {
+            SetFieldValue(itemType, value);
+        }
+
+        void SetByLawItemValue(string itemType, int[] value)
+        {
+            SetFieldValue(itemType, value);
         }
 
         void SetByLawItemValue(string itemType, object value)
@@ -400,7 +412,7 @@ namespace Trejak.ZoningByLaw.UI
                                 case Array arr:
                                     switch (item.constraintType)
                                     {
-                                        case ByLawConstraintType.Length when arr.Length == 2 &&
+                                        case ByLawConstraintType.Length or ByLawConstraintType.Count when arr.Length == 2 &&
                                                                              arr.GetValue(0) is double minVal && arr.GetValue(1) is double maxVal:
                                             item.valueBounds1 = new Bounds1() { min = (float)minVal, max = (float)maxVal };
                                             bylawItemBuffer[i] = item;
