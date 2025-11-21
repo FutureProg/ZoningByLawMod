@@ -193,7 +193,16 @@ namespace Trejak.ZoningByLaw.Prefab
                     {
                         continue;
                     }
-                    var archetypeComponents = objData.m_Archetype.Valid? objData.m_Archetype.GetComponentTypes(Allocator.Temp) : new NativeArray<ComponentType>(0, Allocator.Temp);
+                    NativeArray<ComponentType> archetypeComponents;
+                    try
+                    {
+                        archetypeComponents = objData.m_Archetype.GetComponentTypes(Allocator.Temp);
+                    } catch
+                    {
+                        var prefabName = _prefabSystem.GetPrefabName(buildingEntity);
+                        Mod.log.Warn($"Failed to get Archetype components for prefab with index {prefabData.m_Index} and name \"{prefabName}\"");
+                        continue;
+                    }
                     //if (archetypeComponents.Length == 0)
                     //{
                     //    Mod.log.Warn($"Object Archetype is empty for prefab with index {prefabData.m_Index}");
@@ -224,10 +233,10 @@ namespace Trejak.ZoningByLaw.Prefab
                         {
                             AssessSubMesh(subMesh, buildingDataLookup[buildingEntity], ref props);
                         }
-                    }
-
+                    }                    
                     processedEnts++;
                     _properties[prefabData.m_Index] = props;
+                    archetypeComponents.Dispose();
                 }
             }
             var assetPacksNames = _assetPackPrefabs.Select(p => p.name).Aggregate(string.Empty, (a, b) => a + ", " + b);
