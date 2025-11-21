@@ -57,7 +57,7 @@ export default (
             };
             // onChangeCallback && onChangeCallback(nItemVal);
             // Error Here: invalid cast on the C# side from here (guessing it's the whole "object" thing?)
-            setByLawItemValue(itemType.toString(), [newValue.min, newValue.max]);
+            setByLawItemValue(ByLawItemType[itemType], [newValue.min, newValue.max]);
         };
         const rangeFieldData = fieldData as RangeFieldData;
         let boundsValue = byLawItem.valueBounds1;//{min: rangeFieldData.value[0], max: rangeFieldData.value[1]};
@@ -90,7 +90,7 @@ export default (
         ["radio", "checkbox"].includes(fieldData.fieldType)
     ) {
         let onChange = (nValue: number[]) => {
-            setByLawItemValue(itemType.toString(), nValue);
+            setByLawItemValue(ByLawItemType[itemType], nValue);
             // onChangeCallback && onChangeCallback(nItemVal);
         };
         console.log('Field Data Type:', fieldData.fieldType);

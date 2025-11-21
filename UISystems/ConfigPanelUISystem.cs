@@ -131,9 +131,9 @@ namespace Trejak.ZoningByLaw.UI
             //this.AddBinding(_toggleByLawRenderPreview = new TriggerBinding(uiGroupName, "ToggleByLawRenderPreview", ToggleByLawRenderPreview));
 
             _byLawFieldsBinding = this.CreateBinding("ByLawFields", GetFields);            
-            this.CreateTrigger<string, object>("SetByLawItemValue", SetByLawItemValue);
-            this.CreateTrigger<string, int>("SetByLawItemValueInt", SetByLawItemValue);
-            this.CreateTrigger<string, int[]>("SetByLawItemValueIntArr", SetByLawItemValue);
+            this.CreateTrigger<string, SetByLawItemPayload<object>>("SetByLawItemValueObject", SetByLawItemValueObject);
+            this.CreateTrigger<string, SetByLawItemPayload<int>>("SetByLawItemValueInt", SetByLawItemValueInt);
+            this.CreateTrigger<string, SetByLawItemPayload<int[]>>("SetByLawItemValueIntArr", SetByLawItemValueIntArr);
             this.CreateTrigger<string, int>("SetByLawItemPropertyOperator", SetByLawItemPropertyOperator);
             this.CreateTrigger<ByLawItemType>("ToggleItemEnabled", ToggleItemEnabled);
 
@@ -159,19 +159,25 @@ namespace Trejak.ZoningByLaw.UI
             return _lastElligibleBuildingCount;
         }
 
-        void SetByLawItemValue(string itemType, int value)
+        struct SetByLawItemPayload<T>
         {
-            SetFieldValue(itemType, value);
+            public string itemType;
+            public T value;
         }
 
-        void SetByLawItemValue(string itemType, int[] value)
+        void SetByLawItemValueInt(string itemType, SetByLawItemPayload<int> payload)
         {
-            SetFieldValue(itemType, value);
+            SetFieldValue(itemType, payload.value);
         }
 
-        void SetByLawItemValue(string itemType, object value)
+        void SetByLawItemValueIntArr(string itemType, SetByLawItemPayload<int[]> payload)
         {
-            SetFieldValue(itemType, value);
+            SetFieldValue(itemType, payload.value);
+        }
+
+        void SetByLawItemValueObject(string itemType, SetByLawItemPayload<object> payload)
+        {
+            SetFieldValue(itemType, payload.value);
         }
 
         void SetByLawItemPropertyOperator(string itemType, int propertyOperator)
@@ -199,21 +205,22 @@ namespace Trejak.ZoningByLaw.UI
                 for (int j = 0; j < itemTypesArr.Length; j++)
                 {
                     ByLawItemType itemType = (ByLawItemType)itemTypesArr.GetValue(j);
+                    string itemTypeId = Enum.GetName(typeof(ByLawItemType), itemType);
                     var constraintType = BuildingBlockSystem.GetConstraintTypes(itemType);
                     var operators = BuildingBlockSystem.GetPropertyOperators(itemType).Select(op =>
                         new FieldDataOption<ByLawPropertyOperator>()
                         {
-                            label = "ZBL.PropertyOperator[" + op.ToString() + "]",
+                            label = "ZBL.PropertyOperator[" + Enum.GetName(typeof(ByLawPropertyOperator), op) + "]",
                             value = op
                         }).ToList();
                     switch (constraintType)
                     {
                         case ByLawConstraintType.Count:
                         case ByLawConstraintType.Length:                            
-                            fieldDict[itemType.ToString()] = new RangeFieldData()
+                            fieldDict[itemTypeId] = new RangeFieldData()
                             {
-                                id = itemType.ToString(),
-                                label = "ZBL.ByLawItemType[" + itemType.ToString() + "]",
+                                id = itemTypeId,
+                                label = "ZBL.ByLawItemType[" + itemTypeId + "]",
                                 value = new double[] { 0, 0 },
                                 operatorOptions = operators,
                                 min = 0,
@@ -249,10 +256,10 @@ namespace Trejak.ZoningByLaw.UI
 
                             if (constraintType == ByLawConstraintType.MultiSelect)
                             {
-                                fieldDict[itemType.ToString()] = new CheckboxFieldData()
+                                fieldDict[itemTypeId] = new CheckboxFieldData()
                                 {
-                                    id = itemType.ToString(),
-                                    label = "ZBL.ByLawItemType[" + itemType.ToString() + "]",
+                                    id = itemTypeId,
+                                    label = "ZBL.ByLawItemType[" + itemTypeId + "]",
                                     options = mappedValues,
                                     operatorOptions = operators,
                                     value = new object[] { 0 }
@@ -260,10 +267,10 @@ namespace Trejak.ZoningByLaw.UI
                             }
                             else
                             {
-                                fieldDict[itemType.ToString()] = new RadioFieldData()
+                                fieldDict[itemTypeId] = new RadioFieldData()
                                 {
-                                    id = itemType.ToString(),
-                                    label = "ZBL.ByLawItemType[" + itemType.ToString() + "]",
+                                    id = itemTypeId,
+                                    label = "ZBL.ByLawItemType[" + itemTypeId + "]",
                                     options = mappedValues,
                                     operatorOptions = operators,
                                     value = 0
@@ -281,7 +288,7 @@ namespace Trejak.ZoningByLaw.UI
                 {
                     var item = bylawItemBuffer[j];
                     if (item.byLawItemType == ByLawItemType.None) continue;
-                    var itemTypeKey = item.byLawItemType.ToString();                    
+                    var itemTypeKey = Enum.GetName(typeof(ByLawItemType), item.byLawItemType);                    
                     var constraintType = BuildingBlockSystem.GetConstraintTypes(item.byLawItemType);
                     switch (constraintType)
                     {                                                    
@@ -352,9 +359,11 @@ namespace Trejak.ZoningByLaw.UI
                     for (var i = 0; i < bylawItemBuffer.Length; i++)
                     {
                         var item = bylawItemBuffer[i];
-                        if (item.byLawItemType.ToString() != field) continue;
+                        string bylawItemTypeStr = Enum.GetName(typeof(ByLawItemType), item.byLawItemType);
+                        if (bylawItemTypeStr != field) continue;
                         Mod.log.Info(
-                            $"Found matching ByLawItem of type {item.byLawItemType} in block entity {blockEntity.Index}, {blockEntity.Version}");
+                            $"Found matching ByLawItem of type {bylawItemTypeStr} in block entity {blockEntity.Index}, {blockEntity.Version}");
+                        Mod.log.Info("Is value an array? " + (value.GetType().IsArray ? "Yes" : "No"));
                         if (propertyOperator && value is int opIntValue)
                         {
                             if (Enum.IsDefined(typeof(ByLawPropertyOperator), opIntValue))
@@ -370,13 +379,17 @@ namespace Trejak.ZoningByLaw.UI
                                     $"Failed to parse int value '{opIntValue}' to ByLawPropertyOperator for field '{field}'");
                             }
                         }
-                        else if (item.byLawItemType == ByLawItemType.AssetPack && value is Array assetHashes)
+                        else if (item.byLawItemType == ByLawItemType.AssetPack && value.GetType().IsArray)
                         {
+                            var assetHashes = (int[])value;
                             if (item.valueNumberArray.IsCreated)
                             {
                                 item.valueNumberArray.Dispose();
-                            }                            
-                            item.valueNumberArray = new NativeArray<int>(assetHashes.Cast<int>().ToArray<int>(), Allocator.Persistent);
+                            }   
+                            item.valueNumberArray = new NativeArray<int>(assetHashes, Allocator.Persistent);
+                            bylawItemBuffer[i] = item;
+                            Mod.log.Info(
+                                $"Set valueNumberArray to [{string.Join(", ", assetHashes)}]");
                         }
                         else switch (value)
                             {

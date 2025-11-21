@@ -26,11 +26,11 @@ export default (props: EnumFieldCheckboxesProps) => {
     // }, [props.enum]);
     
     const onCheckboxChange = (option: FieldDataOption) => (e: any) => {
-        let nState = [...props.value];
+        let nState = [...props.value].filter(v => v != null);
         if (props.type == 'single') {
             nState = [];
         }
-        if (option.value in nState) {
+        if (nState.indexOf(option.value) >= 0) {
             nState.splice(nState.indexOf(option.value), 1);
         } else {
             nState.push(option.value);
@@ -42,7 +42,7 @@ export default (props: EnumFieldCheckboxesProps) => {
         <div key={option.value}>
             <label>{translate(option.label, option.label)}</label>
             <VanillaComponentResolver.instance.Checkbox 
-                checked={option.value in props.value}
+                checked={props.value.indexOf(option.value) >= 0}
                 onChange={onCheckboxChange(option)} 
                 theme={VanillaComponentResolver.instance.checkboxTheme}/>
             { option.image? <img src={option.image} className={styles.optionImage}/>: null }

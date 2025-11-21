@@ -112,14 +112,31 @@ export const toggleTool = () => {
     trigger(mod.fullname, "ToggleTool");
 }
 
+type SetItemValuePayload = {
+    id: string;
+    value: any;
+}
+
 export const setByLawItemValue = (id: string, value: any) => { 
+    console.log("Setting ByLaw Item Value:", id, value);
+    console.log("Value Type:", typeof value, Array.isArray(value) ? "Array" : "Not Array");    
+    if (Array.isArray(value)) {
+        console.log("Array Element Type:", typeof value[0], value[0]);
+    }
+    const payload = {
+        id: id,
+        value: value
+    } as SetItemValuePayload;
     if (Array.isArray(value) && typeof value[0] === 'number') {
-        trigger(mod.fullname, "SetByLawItemValueIntArr", id, value);    
+        console.log("Calling SetByLawItemValueIntArr");
+        trigger(mod.fullname, "SetByLawItemValueIntArr", id, payload);    
     } 
     else if (typeof value === 'number') {
-        trigger(mod.fullname, "SetByLawItemValueInt", id, value);    
+        console.log("Calling SetByLawItemValueInt");
+        trigger(mod.fullname, "SetByLawItemValueInt", id, payload);    
     } else {
-        trigger(mod.fullname, "SetByLawItemValue", id, value);
+        console.log("Calling SetByLawItemValue");
+        trigger(mod.fullname, "SetByLawItemValueObject", id, payload);
     }    
 }
 
