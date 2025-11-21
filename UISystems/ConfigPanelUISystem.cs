@@ -340,6 +340,11 @@ namespace Trejak.ZoningByLaw.UI
             }
 
             var found = false;
+            // TODO: this is temporary, will need to refactor and rename the type to LandUse on the C# side later
+            if (field == "LandUse")
+            {
+                field = "Uses";
+            }
             ByLawZoneData data = new()
             {
                 deleted = false,
@@ -358,7 +363,7 @@ namespace Trejak.ZoningByLaw.UI
                 {
                     for (var i = 0; i < bylawItemBuffer.Length; i++)
                     {
-                        var item = bylawItemBuffer[i];
+                        var item = bylawItemBuffer[i];                        
                         string bylawItemTypeStr = Enum.GetName(typeof(ByLawItemType), item.byLawItemType);
                         if (bylawItemTypeStr != field) continue;
                         Mod.log.Info(
