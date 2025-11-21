@@ -70,16 +70,15 @@ Please report bug reports and have discussions on the mod's thread in the [Citie
 	<!--Link to the forum post where the mod can be discussed-->
 	<!--<ForumLink Value="" />-->
 	<!--Version of the mod-->
-	<ModVersion Value="0.1.5" />
+	<ModVersion Value="0.1.6" />
 	<!--Recommended version of the base game to use the mod-->
-	<GameVersion Value="1.2.*" />
+	<GameVersion Value="1.4.*" />
 	<!--Dependency for the mod, can be set multiple times-->
 	<Dependency Id="74417" />
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--<ChangeLog Value="Quick-fix for UI breaking bug A new bylaw will be added whenever you delete another one." />-->
 <ChangeLog>
-- Compatability Quays and Piers patch
-- Various bug fixes
+- Compatability with Bikes Patch
 </ChangeLog>
 	<!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
 	<ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=_PaNeeFAT-w" />

@@ -146,7 +146,7 @@ declare module "cs2/bindings" {
   export interface CinematicCameraCurveModifier {
   	id: string;
   	index: number;
-  	curve: AnimationCurve;
+  	curve: AnimationCurve | null;
   	min: number;
   	max: number;
   	groupIndex?: number;
@@ -760,6 +760,24 @@ declare module "cs2/bindings" {
   	dispose: () => void;
   	update: (newValue: Entity) => void;
   };
+  const selectedResourceCategory$: {
+  	readonly listeners: {
+  		listener: BindingListener<Entity> | undefined;
+  		set: (listener: BindingListener<Entity>) => void;
+  		call: (newValue: Entity) => void;
+  	}[];
+  	disposed: boolean;
+  	_value: Entity;
+  	readonly registered: boolean;
+  	readonly value: Entity;
+  	subscribe: (listener?: BindingListener<Entity> | undefined) => {
+  		readonly value: Entity;
+  		setChangeListener: (listener: BindingListener<Entity>) => void;
+  		dispose(): void;
+  	};
+  	dispose: () => void;
+  	update: (newValue: Entity) => void;
+  };
   const maxProgress$: ValueBinding<number>;
   const resourceCategories$: ValueBinding<ResourceCategory[]>;
   const resourceDetails$: MapBinding<Entity, ResourceDetails>;
@@ -769,17 +787,18 @@ declare module "cs2/bindings" {
   const consumptionProduction$: MapBinding<Entity, Number2>;
   const importExport$: MapBinding<Entity, number>;
   const storedResource$: MapBinding<Entity, number>;
+  const maxProduction$: MapBinding<Entity, number>;
   const productionChainData$: ValueBinding<ProductionChainData[]>;
   const finalConsumption$: MapBinding<FinalConsumptionQuery, FinalConsumption>;
   export enum FinalConsumer {
-  	Building = 0,
   	Citizens = 1,
-  	Retail = 3,// ImportExport uses 2 in C# but we have a separate binding for that
+  	Retail = 3,
   	Commercial = 4,
   	Industrial = 5,
   	Office = 6,
   	Heating = 7,
-  	Count = 8
+  	LevelUp = 8,
+  	Count = 9
   }
   export interface FinalConsumption {
   	consumer: FinalConsumer;
@@ -1544,6 +1563,12 @@ declare module "cs2/bindings" {
   const sewageAvailability$: ValueBinding<IndicatorValue>;
   const waterAvailability$: ValueBinding<IndicatorValue>;
   const waterTrade$: ValueBinding<IndicatorValue>;
+  const averageWealth$: ValueBinding<string>;
+  const averageIncome$: ValueBinding<number>;
+  const averageRent$: ValueBinding<number>;
+  const averageUpkeep$: ValueBinding<number>;
+  const averageResourceCost$: ValueBinding<number>;
+  const averageFees$: ValueBinding<number>;
   const elementaryEligible$: ValueBinding<number>;
   const highSchoolEligible$: ValueBinding<number>;
   const collegeEligible$: ValueBinding<number>;
@@ -1583,6 +1608,8 @@ declare module "cs2/bindings" {
   const parkingIncome$: ValueBinding<number>;
   const parkedCars$: ValueBinding<number>;
   const parkingAvailability$: ValueBinding<IndicatorValue>;
+  const bikeParkingAvailability$: ValueBinding<IndicatorValue>;
+  const bikeParking$: ValueBinding<Number2>;
   const trafficFlow$: ValueBinding<number[]>;
   const averageGroundPollution$: ValueBinding<IndicatorValue>;
   const averageAirPollution$: ValueBinding<IndicatorValue>;
@@ -2260,16 +2287,25 @@ declare module "cs2/bindings" {
   }
   export interface ResidentsSection extends SelectedInfoSectionBase {
   	isHousehold: boolean;
+  	isDistrict: boolean;
   	householdCount: number;
   	maxHouseholds: number;
   	residentCount: number;
   	petCount: number;
   	wealthKey: string;
+  	wealthData: HouseholdWealthData;
   	residence: Name;
   	residenceEntity: Entity;
   	residenceKey: string;
   	educationData: ChartData;
   	ageData: ChartData;
+  }
+  export interface HouseholdWealthData {
+  	income: number;
+  	rent: number;
+  	upkeep: number;
+  	resourceCost: number;
+  	fees: number;
   }
   export interface HouseholdSidebarSection extends SelectedInfoSectionBase {
   	variant: HouseholdSidebarVariant;
@@ -2481,12 +2517,12 @@ declare module "cs2/bindings" {
   	MailBox = 1
   }
   export interface RoadSection extends SelectedInfoSectionBase {
-  	volumeData: number[];
-  	flowData: number[];
+  	volumeData?: number[];
+  	flowData?: number[];
   	length: number;
-  	bestCondition: number;
-  	worstCondition: number;
-  	condition: number;
+  	bestCondition?: number;
+  	worstCondition?: number;
+  	condition?: number;
   	upkeep: number;
   }
   export interface CompanySection extends SelectedInfoSectionBase {
@@ -2495,6 +2531,7 @@ declare module "cs2/bindings" {
   	input1: string | null;
   	input2: string | null;
   	output: string | null;
+  	outputUnit: Unit | null;
   	sells: string | null;
   	stores: string | null;
   	hotelGuests: Number2 | null;
@@ -2513,6 +2550,7 @@ declare module "cs2/bindings" {
   	TaxesPaid: number;
   	WagesPaid: number;
   	WaterFeePaid: number;
+  	ProductionRate: number;
   	industrialType: string | null;
   }
   export interface StorageSection extends SelectedInfoSectionBase {
@@ -2578,6 +2616,7 @@ declare module "cs2/bindings" {
   }
   export interface PublicTransportVehicleSection extends VehicleWithLineSection {
   	vehicleKey: string;
+  	showDestination: boolean;
   }
   export interface CargoTransportVehicleSection extends VehicleWithLineSection {
   }
@@ -2748,6 +2787,11 @@ declare module "cs2/bindings" {
   	entity: Entity;
   	active: boolean;
   }
+  export enum LineType {
+  	Passenger = 0,
+  	Cargo = 1,
+  	Work = 2
+  }
   export type LineItem = LineStop | LineVehicle;
   const LINE_STOP = "Game.UI.InGame.LineVisualizerSection+LineStop";
   export interface LineStop extends Typed<typeof LINE_STOP> {
@@ -2756,7 +2800,7 @@ declare module "cs2/bindings" {
   	position: number;
   	cargo: number;
   	capacity: number;
-  	isCargo: boolean;
+  	type: LineType;
   	isOutsideConnection: boolean;
   }
   const LINE_VEHICLE = "Game.UI.InGame.LineVisualizerSection+LineVehicle";
@@ -2766,7 +2810,7 @@ declare module "cs2/bindings" {
   	position: number;
   	cargo: number;
   	capacity: number;
-  	isCargo: boolean;
+  	type: LineType;
   }
   export interface LineSegment {
   	start: number;
@@ -3326,7 +3370,7 @@ declare module "cs2/bindings" {
   	export { Loan, acceptLoanOffer, currentLoan$, loanLimit$, loanOffer$, requestLoanOffer, resetLoanOffer };
   }
   export namespace production {
-  	export { FinalConsumer, FinalConsumption, FinalConsumptionQuery, ProductionChainData, ProductionLink, Resource, ResourceCategory, ResourceData, ResourceDetails, ResourceValue, Service, consumptionProduction$, finalConsumption$, importExport$, maxProgress$, productionChainData$, resourceCategories$, resourceDetails$, resources$, selectedResource$, serviceUpkeepConsumption$, services$, storedResource$ };
+  	export { FinalConsumer, FinalConsumption, FinalConsumptionQuery, ProductionChainData, ProductionLink, Resource, ResourceCategory, ResourceData, ResourceDetails, ResourceValue, Service, consumptionProduction$, finalConsumption$, importExport$, maxProduction$, maxProgress$, productionChainData$, resourceCategories$, resourceDetails$, resources$, selectedResource$, selectedResourceCategory$, serviceUpkeepConsumption$, services$, storedResource$ };
   }
   export namespace service {
   	export { Service$1 as Service, ServiceDetails, ServiceFee$1 as ServiceFee, resetService, serviceDetails$, services$$1 as services$, setServiceBudget, setServiceFee };
@@ -3338,7 +3382,7 @@ declare module "cs2/bindings" {
   	export { ChirperPanel, CinematicCameraPanel, CityInfoPanel, CityInfoPanelTab, EconomyPanel, EconomyPanelTab, GamePanel, GamePanelType, GamePanels, GameScreen, InfoviewMenu, JournalPanel, LayoutPosition, LifePathPanel, NotificationsPanel, PhotoModePanel, ProgressionPanel, ProgressionPanelTab, RadioPanel, StatisticsPanel, TabbedGamePanel, TransportationOverviewPanel, TransportationOverviewPanelTab, activeGamePanel$, activeGameScreen$, activePanelPosition$, blockingPanelActive$, canUseSaveSystem$, closeActiveGamePanel, closeGamePanel, setActiveGameScreen, showCityInfoPanel, showEconomyPanel, showFreeCameraScreen, showGamePanel, showLifePathDetail, showLifePathList, showMainScreen, showPauseScreen, showProgressionPanel, showTransportationOverviewPanel, toggleGamePanel, toggleInfoviewMenu, toggleLifePathPanel, toggleRadioPanel, toggleTransportationOverviewPanel };
   }
   export namespace infoview {
-  	export { CargoSummary, ChartData, IndicatorValue, PassengerSummary, TransportSummaries, activeInfoview$, ageData$, arrestedCriminals$, attractiveness$, availableFertility$, availableFish$, availableForest$, availableOil$, availableOre$, averageAirPollution$, averageCrimeProbability$, averageFireHazard$, averageGroundPollution$, averageHealth$, averageHotelPrice$, averageLandValue$, averageNoisePollution$, averageWaterPollution$, batteryCharge$, birthRate$, cemeteryAvailability$, cemeteryCapacity$, cemeteryUse$, clearActiveInfoview, closeInfoviewMenu, collectedMail$, collegeAvailability$, collegeCapacity$, collegeEligible$, collegeStudents$, commercialLevels$, commercialProfitability$, crimePerMonth$, crimeProbability$, crimeProducers$, criminals$, deathRate$, deathcareAvailability$, deliveredMail$, educationData$, electricityAvailability$, electricityConsumption$, electricityExport$, electricityImport$, electricityProduction$, electricityTrade$, electricityTransmission$, electricityTransmitted$, elementaryAvailability$, elementaryCapacity$, elementaryEligible$, elementaryStudents$, employed$, employeesData$, escapedRate$, fertilityExtractionRate$, fertilityRenewalRate$, fishExtractionRate$, fishRenewalRate$, forestExtractionRate$, forestRenewalRate$, garbageProcessingRate$, garbageProductionRate$, healthcareAvailability$, highSchoolAvailability$, highSchoolCapacity$, highSchoolEligible$, highSchoolStudents$, homeless$, homelessness$, inJail$, inPrison$, industrialLevels$, industrialProfitability$, infoviews$, jailAvailability$, jailCapacity$, jobs$, landfillAvailability$, landfillCapacity$, mailProductionRate$, movedAway$, movedIn$, officeLevels$, officeProfitability$, oilExtractionRate$, oreExtractionRate$, parkedCars$, parkingAvailability$, parkingCapacity$, parkingIncome$, patientCapacity$, patientCount$, population$, postServiceAvailability$, prisonAvailability$, prisonCapacity$, prisoners$, processingAvailability$, processingRate$, residentialLevels$, setActiveInfoview, setInfomodeActive, sewageAvailability$, sewageCapacity$, sewageConsumption$, sewageExport$, shelterAvailability$, shelterCapacity$, shelteredCount$, sickCount$, storedGarbage$, topExportColors$, topExportData$, topExportNames$, topImportColors$, topImportData$, topImportNames$, tourismRate$, trafficFlow$, transportSummaries$, unemployment$, universityAvailability$, universityCapacity$, universityEligible$, universityStudents$, useInfoviewToggle, waterAvailability$, waterCapacity$, waterConsumption$, waterExport$, waterImport$, waterTrade$, weatherEffect$, workers$, workplacesData$, worksplaces$ };
+  	export { CargoSummary, ChartData, IndicatorValue, PassengerSummary, TransportSummaries, activeInfoview$, ageData$, arrestedCriminals$, attractiveness$, availableFertility$, availableFish$, availableForest$, availableOil$, availableOre$, averageAirPollution$, averageCrimeProbability$, averageFees$, averageFireHazard$, averageGroundPollution$, averageHealth$, averageHotelPrice$, averageIncome$, averageLandValue$, averageNoisePollution$, averageRent$, averageResourceCost$, averageUpkeep$, averageWaterPollution$, averageWealth$, batteryCharge$, bikeParking$, bikeParkingAvailability$, birthRate$, cemeteryAvailability$, cemeteryCapacity$, cemeteryUse$, clearActiveInfoview, closeInfoviewMenu, collectedMail$, collegeAvailability$, collegeCapacity$, collegeEligible$, collegeStudents$, commercialLevels$, commercialProfitability$, crimePerMonth$, crimeProbability$, crimeProducers$, criminals$, deathRate$, deathcareAvailability$, deliveredMail$, educationData$, electricityAvailability$, electricityConsumption$, electricityExport$, electricityImport$, electricityProduction$, electricityTrade$, electricityTransmission$, electricityTransmitted$, elementaryAvailability$, elementaryCapacity$, elementaryEligible$, elementaryStudents$, employed$, employeesData$, escapedRate$, fertilityExtractionRate$, fertilityRenewalRate$, fishExtractionRate$, fishRenewalRate$, forestExtractionRate$, forestRenewalRate$, garbageProcessingRate$, garbageProductionRate$, healthcareAvailability$, highSchoolAvailability$, highSchoolCapacity$, highSchoolEligible$, highSchoolStudents$, homeless$, homelessness$, inJail$, inPrison$, industrialLevels$, industrialProfitability$, infoviews$, jailAvailability$, jailCapacity$, jobs$, landfillAvailability$, landfillCapacity$, mailProductionRate$, movedAway$, movedIn$, officeLevels$, officeProfitability$, oilExtractionRate$, oreExtractionRate$, parkedCars$, parkingAvailability$, parkingCapacity$, parkingIncome$, patientCapacity$, patientCount$, population$, postServiceAvailability$, prisonAvailability$, prisonCapacity$, prisoners$, processingAvailability$, processingRate$, residentialLevels$, setActiveInfoview, setInfomodeActive, sewageAvailability$, sewageCapacity$, sewageConsumption$, sewageExport$, shelterAvailability$, shelterCapacity$, shelteredCount$, sickCount$, storedGarbage$, topExportColors$, topExportData$, topExportNames$, topImportColors$, topImportData$, topImportNames$, tourismRate$, trafficFlow$, transportSummaries$, unemployment$, universityAvailability$, universityCapacity$, universityEligible$, universityStudents$, useInfoviewToggle, waterAvailability$, waterCapacity$, waterConsumption$, waterExport$, waterImport$, waterTrade$, weatherEffect$, workers$, workplacesData$, worksplaces$ };
   }
   export namespace infoviewTypes {
   	export { ActiveInfoview, Infomode, InfomodeColorLegend, InfomodeGradientLegend, Infoview };
@@ -3383,7 +3427,7 @@ declare module "cs2/bindings" {
   	export { RadioClip, RadioNetwork, RadioProgram, RadioStation, currentSegment$, emergencyFocusable$, emergencyMessage$, emergencyMode$, focusEmergency, muted$, networks$, paused$, playNext, playPrevious, radioEnabled$, segmentChanged$, selectNetwork, selectStation, selectedNetwork$, selectedStation$, setMuted, setPaused, setSkipAds, setVolume, skipAds$, stations$, toggleMuted, togglePaused, toggleSkipAds, volume$ };
   }
   export namespace selectedInfo {
-  	export { ActionsSection, AnimalSection, AttractivenessFactor, AttractivenessSection, AverageHappinessSection, BatterySection, CapacityInfo, CargoSection, CargoTransportVehicleSection, CitizenSection, ColorSection, ComfortSection, CompanySection, ContentPrerequisiteSection, DeathcareSection, DeathcareVehicleSection, DeliveryVehicleSection, DescriptionSection, DestroyedBuildingSection, DestroyedTreeSection, DeveloperSection, DeveloperSubsection, DeveloperSubsectionType, DeveloperSubsections, DispatchedVehiclesSection, District, DistrictsSection, DummyHumanSection, EducationSection, EfficiencyFactor, EfficiencySection, ElectricitySection, EmployeesSection, ExtractorVehicleSection, FireSection, FireVehicleSection, GarbageSection, GarbageVehicleSection, GenericInfo, HealthcareSection, HealthcareVehicleSection, HouseholdSidebarItem, HouseholdSidebarSection, HouseholdSidebarVariant, InfoList, Item, LINE_STOP, LINE_VEHICLE, LevelSection, Line, LineItem, LineSection, LineSegment, LineStop, LineVehicle, LineVisualizerSection, LinesSection, LoadSection, LocalServiceBuilding, LocalServicesSection, Location$1 as Location, MailSection, MailSectionType, MaintenanceVehicleSection, NotificationsSection, ParkSection, ParkingSection, PassengersSection, PoliceSection, PoliceVehicleSection, PoliciesSection, Pollution$1 as Pollution, PollutionSection, PostVehicleSection, PrisonSection, PrivateVehicleSection, ProfitabilitySection, PublicTransportVehicleSection, ResidentsSection, Resource$1 as Resource, ResourceSection, RoadSection, ScheduleSection, SectionType, SelectVehiclesSection, SelectedInfoSection, SelectedInfoSectionBase, SelectedInfoSectionProps, SelectedInfoSections, SewageSection, ShelterSection, StatusSection, StorageSection, TicketPriceSection, TitleSection, TradedResourcesSection, TransformerSection, Upgrade, UpgradeInfo, UpgradePropertiesSection, UpgradeType, UpgradesSection, UpkeepItem, UpkeepSection, Vehicle, VehicleCountSection, VehiclePrefab, VehicleSectionProps, VehicleWithLineSectionProps, VehiclesSection, WaterSection, activeSelection$, bottomSections$, clearSelection, developerSection$, householdSidebarSection$, lineVisualizerSection$, middleSections$, selectEntity, selectedEntity$, selectedInfoPosition$, selectedRoute$, selectedTrailerController$, selectedUITag$, setSelectedRoute, titleSection$, tooltipTags$, topSections$, useGeneratedTooltipParagraphs, useTooltipParagraph, useTooltipParagraphs };
+  	export { ActionsSection, AnimalSection, AttractivenessFactor, AttractivenessSection, AverageHappinessSection, BatterySection, CapacityInfo, CargoSection, CargoTransportVehicleSection, CitizenSection, ColorSection, ComfortSection, CompanySection, ContentPrerequisiteSection, DeathcareSection, DeathcareVehicleSection, DeliveryVehicleSection, DescriptionSection, DestroyedBuildingSection, DestroyedTreeSection, DeveloperSection, DeveloperSubsection, DeveloperSubsectionType, DeveloperSubsections, DispatchedVehiclesSection, District, DistrictsSection, DummyHumanSection, EducationSection, EfficiencyFactor, EfficiencySection, ElectricitySection, EmployeesSection, ExtractorVehicleSection, FireSection, FireVehicleSection, GarbageSection, GarbageVehicleSection, GenericInfo, HealthcareSection, HealthcareVehicleSection, HouseholdSidebarItem, HouseholdSidebarSection, HouseholdSidebarVariant, HouseholdWealthData, InfoList, Item, LINE_STOP, LINE_VEHICLE, LevelSection, Line, LineItem, LineSection, LineSegment, LineStop, LineType, LineVehicle, LineVisualizerSection, LinesSection, LoadSection, LocalServiceBuilding, LocalServicesSection, Location$1 as Location, MailSection, MailSectionType, MaintenanceVehicleSection, NotificationsSection, ParkSection, ParkingSection, PassengersSection, PoliceSection, PoliceVehicleSection, PoliciesSection, Pollution$1 as Pollution, PollutionSection, PostVehicleSection, PrisonSection, PrivateVehicleSection, ProfitabilitySection, PublicTransportVehicleSection, ResidentsSection, Resource$1 as Resource, ResourceSection, RoadSection, ScheduleSection, SectionType, SelectVehiclesSection, SelectedInfoSection, SelectedInfoSectionBase, SelectedInfoSectionProps, SelectedInfoSections, SewageSection, ShelterSection, StatusSection, StorageSection, TicketPriceSection, TitleSection, TradedResourcesSection, TransformerSection, Upgrade, UpgradeInfo, UpgradePropertiesSection, UpgradeType, UpgradesSection, UpkeepItem, UpkeepSection, Vehicle, VehicleCountSection, VehiclePrefab, VehicleSectionProps, VehicleWithLineSectionProps, VehiclesSection, WaterSection, activeSelection$, bottomSections$, clearSelection, developerSection$, householdSidebarSection$, lineVisualizerSection$, middleSections$, selectEntity, selectedEntity$, selectedInfoPosition$, selectedRoute$, selectedTrailerController$, selectedUITag$, setSelectedRoute, titleSection$, tooltipTags$, topSections$, useGeneratedTooltipParagraphs, useTooltipParagraph, useTooltipParagraphs };
   }
   export namespace statistics {
   	export { StatCategory, StatItem, activeCategory$, activeGroup$, addStat, addStatChildren, clearStats, removeStat, sampleCount$, sampleRange$, selectedStatistics$, setSampleRange, stacked$, statGroupsMap$, statLabels$, statUnlockingRequirements$, statisticsCategories$, statsData$, updatesPerDay$ };
