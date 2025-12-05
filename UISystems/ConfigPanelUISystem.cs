@@ -131,7 +131,7 @@ namespace Trejak.ZoningByLaw.UI
             //this.AddBinding(_toggleByLawRenderPreview = new TriggerBinding(uiGroupName, "ToggleByLawRenderPreview", ToggleByLawRenderPreview));
 
             _byLawFieldsBinding = this.CreateBinding("ByLawFields", GetFields);            
-            this.CreateTrigger<string, SetByLawItemPayload<object>>("SetByLawItemValueObject", SetByLawItemValueObject);
+            this.CreateTrigger<string, SetByLawItemPayload<string>>("SetByLawItemValueString", SetByLawItemValueString);
             this.CreateTrigger<string, SetByLawItemPayload<int>>("SetByLawItemValueInt", SetByLawItemValueInt);
             this.CreateTrigger<string, SetByLawItemPayload<int[]>>("SetByLawItemValueIntArr", SetByLawItemValueIntArr);
             this.CreateTrigger<string, int>("SetByLawItemPropertyOperator", SetByLawItemPropertyOperator);
@@ -175,7 +175,7 @@ namespace Trejak.ZoningByLaw.UI
             SetFieldValue(itemType, payload.value);
         }
 
-        void SetByLawItemValueObject(string itemType, SetByLawItemPayload<object> payload)
+        void SetByLawItemValueString(string itemType, SetByLawItemPayload<string> payload)
         {
             SetFieldValue(itemType, payload.value);
         }

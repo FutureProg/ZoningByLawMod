@@ -134,9 +134,13 @@ export const setByLawItemValue = (id: string, value: any) => {
     else if (typeof value === 'number') {
         console.log("Calling SetByLawItemValueInt");
         trigger(mod.fullname, "SetByLawItemValueInt", id, payload);    
-    } else {
-        console.log("Calling SetByLawItemValue");
-        trigger(mod.fullname, "SetByLawItemValueObject", id, payload);
+    } 
+    else if (typeof value === 'string') {
+        console.log("Calling SetByLawItemValueString");
+        trigger(mod.fullname, "SetByLawItemValueString", id, payload);
+    }
+    else {
+        console.warn("Unsupported value type for SetByLawItemValue:", typeof value);
     }    
 }
 
