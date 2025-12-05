@@ -428,10 +428,12 @@ namespace Trejak.ZoningByLaw.UI
                                     Mod.log.Info($"Set valueByteFlag to {(boolValue ? 1 : 0)}");
                                     break;
                                 case Array arr:
+                                    Mod.log.Info($"Array Value Type: {arr.GetValue(0).GetType().Name}");                                    
                                     switch (item.constraintType)
                                     {
                                         case ByLawConstraintType.Length or ByLawConstraintType.Count when arr.Length == 2 &&
-                                                                             arr.GetValue(0) is double minVal && arr.GetValue(1) is double maxVal:
+                                                                              double.TryParse(arr.GetValue(0).ToString(), out var minVal) &&
+                                                                              double.TryParse(arr.GetValue(1).ToString(), out var maxVal):
                                             item.valueBounds1 = new Bounds1() { min = (float)minVal, max = (float)maxVal };
                                             bylawItemBuffer[i] = item;
                                             Mod.log.Info($"Set valueBounds1 to [{minVal}, {maxVal}]");
