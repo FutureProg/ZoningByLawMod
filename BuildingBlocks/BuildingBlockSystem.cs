@@ -152,6 +152,12 @@ namespace ZoningByLaw.BuildingBlocks
             matchCount += (ByLawZoneType.Industrial & flag) != 0 && properties.isIndustry ? 1 : 0;
             matchCount += (ByLawZoneType.Commercial & flag) != 0 && properties.isCommercial ? 1 : 0;
 
+            int numberOfFlags = 0;
+            numberOfFlags += (ByLawZoneType.Residential & flag) != 0 ? 1 : 0;
+            numberOfFlags += (ByLawZoneType.Office & flag) != 0 ? 1 : 0;
+            numberOfFlags += (ByLawZoneType.Industrial & flag) != 0 ? 1 : 0;
+            numberOfFlags += (ByLawZoneType.Commercial & flag) != 0 ? 1 : 0;
+
             switch (item.propertyOperator)
             {
                 case ByLawPropertyOperator.AtLeastOne:
@@ -161,7 +167,7 @@ namespace ZoningByLaw.BuildingBlocks
                 case ByLawPropertyOperator.IsNot:
                     return matchCount == 0;
                 case ByLawPropertyOperator.Is:
-                    return matchCount > 0 && missCount == 0;
+                    return matchCount == numberOfFlags && missCount == 0;
             }
             return true;
         }
