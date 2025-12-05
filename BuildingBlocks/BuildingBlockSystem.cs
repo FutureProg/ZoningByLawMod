@@ -243,6 +243,21 @@ namespace ZoningByLaw.BuildingBlocks
             }            
         }
 
+        public static int[] GetConstarintEnumValues(ByLawItemType itemType)
+        {
+            switch (itemType)
+            {
+                case ByLawItemType.Uses:
+                    return Array.ConvertAll((ByLawZoneType[])Enum.GetValues(typeof(ByLawZoneType)), e => (int) e);
+                case ByLawItemType.AirPollutionLevel:
+                case ByLawItemType.GroundPollutionLevel:
+                case ByLawItemType.NoisePollutionLevel:
+                    return Array.ConvertAll((ByLawPollutionThreshold[])Enum.GetValues(typeof(ByLawPollutionThreshold)), e => (int) e);
+                default:
+                    return null;
+            }
+        }
+
         public static ByLawConstraintType GetConstraintTypes(ByLawItemType itemType)
         {
             switch(itemType)

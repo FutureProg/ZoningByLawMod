@@ -17,31 +17,30 @@ namespace ZoningByLaw.UISystems
         public List<FieldDataOption<object>>? options;
         public List<FieldDataOption<ByLawPropertyOperator>> operatorOptions;
         public ByLawPropertyOperator selectedOperator;
-        public object value;
     }
 
     public class CheckboxFieldData : FieldDataBase
     {
         public string fieldType = "checkbox";
-        public new object[] value; // array of selected values
+        public int[] value; // array of selected values
     }
 
     public class RadioFieldData : FieldDataBase
     {
         public string fieldType = "radio";
-        public new object value; // single selected value
+        public int value; // single selected value
     }
 
     public class SelectFieldData : FieldDataBase
     {
         public string fieldType = "select";
-        public new object value; // single selected value
+        public object value; // single selected value
     }
 
     public class TextFieldData : FieldDataBase
     {
         public string fieldType = "text";
-        public new string value;
+        public string value;
         public string? validationRegex;
     }
 
@@ -49,7 +48,7 @@ namespace ZoningByLaw.UISystems
     {
         public string fieldType = "number";
         public bool? slider;
-        public new double value;
+        public double value;
         public double? min;
         public double? max;
         public double? step;
@@ -58,7 +57,7 @@ namespace ZoningByLaw.UISystems
     public class RangeFieldData : FieldDataBase
     {
         public string fieldType = "range";
-        public new double[] value; // [min, max]
+        public double[] value; // [min, max]
         public double? min;
         public double? max;
         public double? step;

@@ -30,7 +30,7 @@ export default (props: ByLawItemEnumEditorProps) => {
         return EnumFieldCheckboxes({
             ...childProps
         });
-    }, [props.itemType, props.constraintType, onChange, editorValue, props.fieldData.id]);
+    }, [props.itemType, props.constraintType, onChange, editorValue, props.fieldData.id, props.fieldData.value]);
 
     return (
         <div className={styles.view}>

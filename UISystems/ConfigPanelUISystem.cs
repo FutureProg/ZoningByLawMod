@@ -267,7 +267,7 @@ namespace Trejak.ZoningByLaw.UI
                                     label = "ZBL.ByLawItemType[" + itemTypeId + "]",
                                     options = mappedValues,
                                     operatorOptions = operators,
-                                    value = new object[] { 0 }
+                                    value = new int[] { 0 }
                                 };
                             }
                             else
@@ -316,18 +316,23 @@ namespace Trejak.ZoningByLaw.UI
                         case ByLawConstraintType.MultiSelect:
                             if (item.byLawItemType == ByLawItemType.AssetPack)
                             {
-                                ((CheckboxFieldData)fieldDict[itemTypeKey]).value = item.valueNumberArray.ToArray().Select(v => (object)v).ToArray();
+                                ((CheckboxFieldData)fieldDict[itemTypeKey]).value = item.valueNumberArray.ToArray();
                             } else
                             {
-                                var enumType = BuildingBlockSystem.GetConstraintEnumType(item.byLawItemType);
-                                foreach(var val in Enum.GetValues(enumType))
+                                var enumValues= BuildingBlockSystem.GetConstarintEnumValues(item.byLawItemType);
+                                if (enumValues == null)
                                 {
-                                    int enumIntValue = Convert.ToInt32(val);
-                                    if ((item.valueByteFlag & enumIntValue) != 0)
-                                    {
-                                        ((CheckboxFieldData)fieldDict[itemTypeKey]).value.AddItem(val);
+                                    throw new Exception($"Enum values not found for ByLawItemType {item.byLawItemType}!");
+                                }
+                                List<int> selectedValues = new List<int>();
+                                foreach (int val in enumValues)
+                                {                                    
+                                    if ((item.valueByteFlag & val) != 0)
+                                    {                                 
+                                        selectedValues.Add(val);                                        
                                     }                                    
                                 }
+                                ((CheckboxFieldData)fieldDict[itemTypeKey]).value = selectedValues.ToArray();
                             }
                             break;
                         case ByLawConstraintType.None:
@@ -472,7 +477,7 @@ namespace Trejak.ZoningByLaw.UI
 
                                                 item.valueByteFlag = flag;
                                                 bylawItemBuffer[i] = item;
-                                                Mod.log.Info($"Set valueByteFlag to {flag}");
+                                                Mod.log.Info($"Set valueByteFlag to {flag} from array of integers");
                                                 break;
                                             }
                                     }
@@ -657,6 +662,7 @@ namespace Trejak.ZoningByLaw.UI
                 this._selectedByLawColour.Update(new Color[] { default, default });
                 this._selectedByLawName.Update("");
             }
+            _byLawFieldsBinding.Update();
         }
 
         void SetByLawData(ZoningByLawBinding data)
@@ -688,6 +694,7 @@ namespace Trejak.ZoningByLaw.UI
             _writeToFileTimer.Start();
             this._selectedByLawData.Value = data;
             SaveActiveByLawToDisk();
+            this._byLawFieldsBinding.Update();
         }
 
         void SetByLawName(string name)
@@ -705,6 +712,7 @@ namespace Trejak.ZoningByLaw.UI
             GameManager.instance.localizationManager.ReloadActiveLocale();
             UpdateByLawList();
             SaveActiveByLawToDisk();
+            this._byLawFieldsBinding.Update();
         }
 
         void GetBasePrefab()

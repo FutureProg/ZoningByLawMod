@@ -15,7 +15,6 @@ export type FieldDataBase = {
     options?: FieldDataOption[];
     operatorOptions: ByLawPropertyOperator[];
     selectedOperator: ByLawPropertyOperator;
-    value: any;
 }
 
 export type FieldDataOption = {
@@ -26,7 +25,7 @@ export type FieldDataOption = {
 
 export type CheckboxFieldData = FieldDataBase & {
     fieldType: "checkbox";
-    value: number[]; // array of selected values
+    value?: number; // array of selected values
 }
 
 export type RadioFieldData = FieldDataBase & {
