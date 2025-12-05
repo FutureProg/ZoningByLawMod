@@ -1,7 +1,7 @@
 ﻿using Colossal.IO.AssetDatabase.Internal;
-using Colossal.Json;
 using Colossal.PSI.Environment;
 using Game.Prefabs;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -51,7 +51,13 @@ namespace Trejak.ZoningByLaw.Serialization
             }
 
             var path = Path.Combine(ByLawsFolder, GetByLawFileName(record));
-            File.WriteAllText(path, JSON.Dump(record));
+            var settings = new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+                NullValueHandling = NullValueHandling.Ignore
+            };
+            string json = JsonConvert.SerializeObject(record, settings);
+            File.WriteAllText(path, json);
         }
 
         public static IEnumerable<string> GetByLawRecordFileNames()
@@ -91,20 +97,35 @@ namespace Trejak.ZoningByLaw.Serialization
             {
                 throw new FileNotFoundException($"Could not find Zoning ByLaw file with name: {filename}");
             }
-            ByLawRecord re = JSON.MakeInto<ByLawRecord>(JSON.Load(File.ReadAllText(path)));
-            if (re.zoningByLawBinding.blocks.Length > 0)
+            
+            string json = File.ReadAllText(path);
+            var settings = new JsonSerializerSettings
             {
-                var itemArr = re.zoningByLawBinding.blocks[0].itemData;
-                for (int i = 0; i < itemArr.Length; i++)
+                NullValueHandling = NullValueHandling.Ignore
+            };
+            ByLawRecord re = JsonConvert.DeserializeObject<ByLawRecord>(json, settings);
+            
+            // Ensure NativeArray fields are properly initialized
+            if (re.zoningByLawBinding.blocks != null && re.zoningByLawBinding.blocks.Length > 0)
+            {
+                for (int blockIdx = 0; blockIdx < re.zoningByLawBinding.blocks.Length; blockIdx++)
                 {
-                    var item = itemArr[i];
-                    if (!item.valueNumberArray.IsCreated)
+                    var itemArr = re.zoningByLawBinding.blocks[blockIdx].itemData;
+                    if (itemArr != null)
                     {
-                        item.valueNumberArray = new NativeArray<int>(0, Unity.Collections.Allocator.Persistent);
-                        re.zoningByLawBinding.blocks[0].itemData[i] = item;
+                        for (int i = 0; i < itemArr.Length; i++)
+                        {
+                            var item = itemArr[i];
+                            if (!item.valueNumberArray.IsCreated)
+                            {
+                                item.valueNumberArray = new NativeArray<int>(0, Unity.Collections.Allocator.Persistent);
+                                re.zoningByLawBinding.blocks[blockIdx].itemData[i] = item;
+                            }
+                        }
                     }
                 }
-            }            
+            }
+            
             return re;
         }
 
