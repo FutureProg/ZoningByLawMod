@@ -455,7 +455,7 @@ declare module "cs2/ui" {
   	selectSound?: UISound | string | null;
   	tooltipLabel?: ReactNode;
   }
-  export interface DropdownItem<T> {
+  interface DropdownItem<T> {
   	value: T;
   	displayName: LocElement;
   	tooltip?: LocElement;
