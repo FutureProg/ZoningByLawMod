@@ -205,6 +205,11 @@ namespace Trejak.ZoningByLaw.UI
                 for (int j = 0; j < itemTypesArr.Length; j++)
                 {
                     ByLawItemType itemType = (ByLawItemType)itemTypesArr.GetValue(j);
+                    // Omit Asset Pack Item Type
+                    if(itemType == ByLawItemType.AssetPack)
+                    {
+                        continue;
+                    }
                     string itemTypeId = Enum.GetName(typeof(ByLawItemType), itemType);
                     var constraintType = BuildingBlockSystem.GetConstraintTypes(itemType);
                     var operators = BuildingBlockSystem.GetPropertyOperators(itemType).Select(op =>
@@ -288,6 +293,11 @@ namespace Trejak.ZoningByLaw.UI
                 {
                     var item = bylawItemBuffer[j];
                     if (item.byLawItemType == ByLawItemType.None) continue;
+                    // Temporarily Skip Asset Pack here
+                    if (item.byLawItemType == ByLawItemType.AssetPack)
+                    {
+                        continue;
+                    }
                     var itemTypeKey = Enum.GetName(typeof(ByLawItemType), item.byLawItemType);                    
                     var constraintType = BuildingBlockSystem.GetConstraintTypes(item.byLawItemType);
                     switch (constraintType)
@@ -386,11 +396,17 @@ namespace Trejak.ZoningByLaw.UI
                         }
                         else if (item.byLawItemType == ByLawItemType.AssetPack && value.GetType().IsArray)
                         {
-                            var assetHashes = (int[])value;
+                            var valArr = value as Array;
+                            var assetHashList = new List<int>();
+                            for (int idx = 0; idx < valArr.Length; idx++)
+                            {
+                                assetHashList.Add(int.Parse(valArr.GetValue(idx).ToString()));
+                            }
+                            var assetHashes = assetHashList.ToArray();
                             if (item.valueNumberArray.IsCreated)
                             {
                                 item.valueNumberArray.Dispose();
-                            }   
+                            }
                             item.valueNumberArray = new NativeArray<int>(assetHashes, Allocator.Persistent);
                             bylawItemBuffer[i] = item;
                             Mod.log.Info(
@@ -427,8 +443,7 @@ namespace Trejak.ZoningByLaw.UI
                                     bylawItemBuffer[i] = item;
                                     Mod.log.Info($"Set valueByteFlag to {(boolValue ? 1 : 0)}");
                                     break;
-                                case Array arr:
-                                    Mod.log.Info($"Array Value Type: {arr.GetValue(0).GetType().Name}");                                    
+                                case Array arr:                               
                                     switch (item.constraintType)
                                     {
                                         case ByLawConstraintType.Length or ByLawConstraintType.Count when arr.Length == 2 &&
