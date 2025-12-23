@@ -84,7 +84,6 @@ namespace Trejak.ZoningByLaw.UI
         protected override void OnCreate()
         {
             base.OnCreate();
-            var ecb = new EntityCommandBuffer();
             _bylawsQuery = GetEntityQuery(ComponentType.ReadOnly<ByLawZoneData>());
             var eqb = new EntityQueryBuilder(Allocator.Temp);
             _zoneCellsQuery = eqb.WithAll<Cell>()
