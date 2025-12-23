@@ -12,8 +12,7 @@ import { Dropdown, DropdownItem, DropdownToggle, FOCUS_DISABLED } from 'cs2/ui';
 import { deepCopy, getOperationTypes } from 'mods/utils';
 import { Theme } from 'cs2/bindings';
 import { getModule } from 'cs2/modding';
-import { useValue } from 'cs2/api';
-import { byLawFields$, FieldDataBase, setByLawItemPropertyOperator } from 'mods/bindings';
+import { FieldDataBase, setByLawItemPropertyOperator } from 'mods/bindings';
 
 const DropdownStyle: Theme | any = getModule("game-ui/menu/themes/dropdown.module.scss", "classes");
 
