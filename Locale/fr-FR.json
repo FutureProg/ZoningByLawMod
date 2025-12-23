@@ -30,6 +30,7 @@
     "ZBL.ByLawItemType[NoisePollutionLevel]": "Niveau de pollution sonore",
     "ZBL.ByLawItemType[Name]": "Nom",
     "ZBL.ByLawItemType[Color]": "Couleur",
+    "ZBL.ByLawItemType[AssetPack]": "Asset Pack",
     "ZBL.ByLawValueText[Items]": "élément(s)",
     "ZBL.ByLawValueText[BoundsTo]": "à",
     "ZBL.FlagValues[None]": "Aucun",
@@ -42,6 +43,5 @@
     "ZBL.FlagValues[Office]": "Bureau",
     "ZBL.MeasurementFormat[Units]": "{VALUE} cellules",
     "SubServices.NAME[ByLawZones]": "Zoning ByLaws",
-    "Assets.SUB_SERVICE_DESCRIPTION[ByLawZones]": "Zones personnalisées basées sur des contraintes, créées par vous, le joueur.",
-    "ZBL.ByLawItemType[AssetPack]": "Asset Pack"
+    "Assets.SUB_SERVICE_DESCRIPTION[ByLawZones]": "Zones personnalisées basées sur des contraintes, créées par vous, le joueur."
 }

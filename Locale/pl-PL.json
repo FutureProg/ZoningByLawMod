@@ -30,6 +30,7 @@
     "ZBL.ByLawItemType[NoisePollutionLevel]": "Poziom Zanieczyszczenia Hałasem",
     "ZBL.ByLawItemType[Name]": "Nazwa",
     "ZBL.ByLawItemType[Color]": "Kolor",
+    "ZBL.ByLawItemType[AssetPack]": "Asset Pack",
     "ZBL.ByLawValueText[Items]": "element(y)",
     "ZBL.ByLawValueText[BoundsTo]": "do",
     "ZBL.FlagValues[None]": "Brak",
@@ -42,6 +43,5 @@
     "ZBL.FlagValues[Office]": "Biurowe",
     "ZBL.MeasurementFormat[Units]": "{VALUE} komórek",
     "SubServices.NAME[ByLawZones]": "Strefy ByLaws",
-    "Assets.SUB_SERVICE_DESCRIPTION[ByLawZones]": "Niestandardowe strefy stworzone przez użytkownika.",
-    "ZBL.ByLawItemType[AssetPack]": "Asset Pack"
+    "Assets.SUB_SERVICE_DESCRIPTION[ByLawZones]": "Niestandardowe strefy stworzone przez użytkownika."
 }

@@ -58,7 +58,6 @@ module.exports = {
             options: {
               url: true,
               importLoaders: 1,
-              sourceMap: true,
               modules: {
                 auto: true,
                 exportLocalsConvention: "camelCase",
@@ -66,16 +65,7 @@ module.exports = {
               },
             },
           },
-          {
-            loader: "sass-loader",
-            options: {
-              api: "modern",
-              sourceMap: true,
-              sassOptions: {
-                style: "expanded"
-              }
-            }
-          }          
+          "sass-loader",
         ],
       },
       {
@@ -102,7 +92,7 @@ module.exports = {
     publicPath: `coui://ui-mods/`,
   },
   optimization: {
-    minimize: false,
+    minimize: true,
     minimizer: [
       new TerserPlugin({
         extractComments: {

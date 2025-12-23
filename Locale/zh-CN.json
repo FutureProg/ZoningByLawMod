@@ -30,6 +30,7 @@
     "ZBL.ByLawItemType[NoisePollutionLevel]": "噪音污染等级",
     "ZBL.ByLawItemType[Name]": "名称",
     "ZBL.ByLawItemType[Color]": "颜色",
+    "ZBL.ByLawItemType[AssetPack]": "Asset Pack",
     "ZBL.ByLawValueText[Items]": "项",
     "ZBL.ByLawValueText[BoundsTo]": "至",
     "ZBL.FlagValues[None]": "无",
@@ -42,6 +43,5 @@
     "ZBL.FlagValues[Office]": "办公",
     "ZBL.MeasurementFormat[Units]": "{VALUE} 格",
     "SubServices.NAME[ByLawZones]": "功能区参数管理器",
-    "Assets.SUB_SERVICE_DESCRIPTION[ByLawZones]": "完全由您创建的自定义参数的功能区。",
-    "ZBL.ByLawItemType[AssetPack]": "Asset Pack"
+    "Assets.SUB_SERVICE_DESCRIPTION[ByLawZones]": "完全由您创建的自定义参数的功能区。"
 }
