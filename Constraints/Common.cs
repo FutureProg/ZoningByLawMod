@@ -14,7 +14,7 @@ public struct BaseConstraintData
     public ByLawPropertyOperator[] propertyOperators;
 }
 
-public enum BuildingDensity : int
+public enum BuildingDensity : byte
 {
     None = 0,
     Low,
@@ -24,7 +24,7 @@ public enum BuildingDensity : int
 
 public static class ConstraintMapper
 {
-    public static ZoneDensity ToZoneDensity(this BuildingDensity density)
+    public static ZoneDensity ToZoneDensity(BuildingDensity density)
     {
         return density switch
         {
@@ -34,7 +34,7 @@ public static class ConstraintMapper
             _ => throw new ArgumentOutOfRangeException(nameof(density), $"Unsupported BuildingDensity value: {density}"),
         };
     }
-    public static BuildingDensity ToBuildingDensityConstraint(this ZoneDensity density)
+    public static BuildingDensity ToBuildingDensityConstraint(ZoneDensity density)
     {
         return density switch
         {

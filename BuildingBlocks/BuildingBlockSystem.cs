@@ -107,9 +107,9 @@ namespace ZoningByLaw.BuildingBlocks
                 case ByLawPropertyOperator.AtMost:
                     return density <= densityFlag;
                 case ByLawPropertyOperator.AtLeastOne:
-                    // Evaluate that each flag has at least one match using Linq
-                    return Enum.GetValues(typeof(BuildingDensity)) is BuildingDensity[] densities &&
-                        Array.Exists(densities, d => d != BuildingDensity.None && density.HasFlag(d) && densityFlag.HasFlag(d));
+                    return ((density & BuildingDensity.Low) != 0 && (densityFlag & BuildingDensity.Low) != 0) ||
+                           ((density & BuildingDensity.Medium) != 0 && (densityFlag & BuildingDensity.Medium) != 0) ||
+                           ((density & BuildingDensity.High) != 0 && (densityFlag & BuildingDensity.High) != 0);
                 default:
                     return false;
             }

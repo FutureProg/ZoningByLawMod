@@ -237,7 +237,7 @@ namespace Trejak.ZoningByLaw.Prefab
                             var zoneData = SystemAPI.GetComponent<ZoneData>(zonePrefabEntity);
                             var zonePropertiesData = SystemAPI.GetComponent<ZonePropertiesData>(zonePrefabEntity);
                             var zoneDensity = PropertyUtils.GetZoneDensity(zoneData, zonePropertiesData);
-                            var buildingDensity = zoneDensity.ToBuildingDensityConstraint();
+                            var buildingDensity = ConstraintMapper.ToBuildingDensityConstraint(zoneDensity);
                             props.buildingDensity = buildingDensity;
                         }
                     }
