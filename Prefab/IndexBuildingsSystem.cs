@@ -208,8 +208,7 @@ namespace Trejak.ZoningByLaw.Prefab
                     //    Mod.log.Warn($"Object Archetype is empty for prefab with index {prefabData.m_Index}");
                     //}
                     var propertyData = SystemAPI.GetComponent<BuildingPropertyData>(buildingEntity);
-                    bool hasPollutionData = pollutionDataLookup.TryGetComponent(buildingEntity, out PollutionData pollutionData);
-
+                    bool hasPollutionData = pollutionDataLookup.TryGetComponent(buildingEntity, out PollutionData pollutionData);                    
 
                     var props = new BuildingByLawProperties()
                     {
@@ -224,8 +223,24 @@ namespace Trejak.ZoningByLaw.Prefab
                         isCommercial = archetypeComponents.Contains(typeof(CommercialProperty)),
                         isStorage = archetypeComponents.Contains(typeof(StorageProperty)) && archetypeComponents.Contains(typeof(IndustrialProperty)),
                         pollutionData = hasPollutionData ? pollutionData : default,
-                        assetPacks = new NativeArray<int>(nonNullAssetPacks.Select(p => p.name.GetHashCode()).ToArray(), Allocator.Persistent)
+                        assetPacks = new NativeArray<int>(nonNullAssetPacks.Select(p => p.name.GetHashCode()).ToArray(), Allocator.Persistent)                       
                     };
+
+                    // Determine the zone density
+                    props.buildingDensity = BuildingDensity.None;
+                    if (SystemAPI.HasComponent<SpawnableBuildingData>(buildingEntity))
+                    {                        
+                        var spawnableBuildingData = SystemAPI.GetComponent<SpawnableBuildingData>(buildingEntity);
+                        var zonePrefabEntity = spawnableBuildingData.m_ZonePrefab;
+                        if (zonePrefabEntity != Entity.Null)
+                        {
+                            var zoneData = SystemAPI.GetComponent<ZoneData>(zonePrefabEntity);
+                            var zonePropertiesData = SystemAPI.GetComponent<ZonePropertiesData>(zonePrefabEntity);
+                            var zoneDensity = PropertyUtils.GetZoneDensity(zoneData, zonePropertiesData);
+                            var buildingDensity = zoneDensity.ToBuildingDensityConstraint();
+                            props.buildingDensity = buildingDensity;
+                        }
+                    }
 
                     if (subMeshBufferLookup.TryGetBuffer(buildingEntity, out var buildingSubMeshes))
                     {
@@ -489,6 +504,7 @@ namespace Trejak.ZoningByLaw.Prefab
         public float buildingHeight;
 
         public float largestSubmeshSize;
+        public BuildingDensity buildingDensity;
 
         public PollutionData pollutionData;
         public NativeArray<int> assetPacks; // 32-bit hashes for the names of each of the asset packs this building is part of

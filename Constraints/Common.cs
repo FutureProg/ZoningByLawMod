@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Game.Prefabs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,3 +13,35 @@ public struct BaseConstraintData
     public ByLawItemCategory itemCategory;
     public ByLawPropertyOperator[] propertyOperators;
 }
+
+public enum BuildingDensity : int
+{
+    None = 0,
+    Low,
+    Medium,
+    High
+}
+
+public static class ConstraintMapper
+{
+    public static ZoneDensity ToZoneDensity(this BuildingDensity density)
+    {
+        return density switch
+        {
+            BuildingDensity.Low => ZoneDensity.Low,
+            BuildingDensity.Medium => ZoneDensity.Medium,
+            BuildingDensity.High => ZoneDensity.High,
+            _ => throw new ArgumentOutOfRangeException(nameof(density), $"Unsupported BuildingDensity value: {density}"),
+        };
+    }
+    public static BuildingDensity ToBuildingDensityConstraint(this ZoneDensity density)
+    {
+        return density switch
+        {
+            ZoneDensity.Low => BuildingDensity.Low,
+            ZoneDensity.Medium => BuildingDensity.Medium,
+            ZoneDensity.High => BuildingDensity.High,
+            _ => throw new ArgumentOutOfRangeException(nameof(density), $"Unsupported ZoneDensity value: {density}"),
+        };
+    }
+} 
