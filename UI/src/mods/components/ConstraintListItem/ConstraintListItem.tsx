@@ -12,23 +12,24 @@ import { Dropdown, DropdownItem, DropdownToggle, FOCUS_DISABLED } from 'cs2/ui';
 import { deepCopy, getOperationTypes } from 'mods/utils';
 import { Theme } from 'cs2/bindings';
 import { getModule } from 'cs2/modding';
+import { FieldDataBase, setByLawItemPropertyOperator } from 'mods/bindings';
 
 const DropdownStyle: Theme | any = getModule("game-ui/menu/themes/dropdown.module.scss", "classes");
 
 type ConstraintListItemProps = {
     itemType: ByLawItemType,
     value?: ByLawItem,
-    readableName: string,
+    fieldData: FieldDataBase,
     onChangeConstraintEnabled?: (newValue: boolean, itemType: ByLawItemType) => void
     onValueChange?: (newItemValue: ByLawItem) => void;
 }
 
 export const ConstraintListItem = (props: ConstraintListItemProps) => {
     let [isOpen, setIsOpen] = useState(false);    
-    let enabled = props.value != undefined;   
+    let enabled = props.value != undefined;
     let {translate} = useLocalization();
-    let toggleOpen = () => {
-        if (!enabled && props.onChangeConstraintEnabled) {
+    let toggleOpen = () => {        
+        if (!enabled && props.onChangeConstraintEnabled) {            
             props.onChangeConstraintEnabled(!enabled, props.itemType);
             setIsOpen(true);
         } 
@@ -39,7 +40,7 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
         }     
     }
     
-    let onChangeEnabled = () => {
+    let onChangeEnabled = () => {        
         setIsOpen(false);
         props.onChangeConstraintEnabled && props.onChangeConstraintEnabled(!enabled, props.itemType)
     }
@@ -49,10 +50,11 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
     }
 
     let onPropertyOperatorChange = (operator: ByLawPropertyOperator) => {
-        onItemChange({
-            ...deepCopy(props.value!),
-            propertyOperator: operator
-        });
+        // onItemChange({
+        //     ...deepCopy(props.value!),
+        //     propertyOperator: operator
+        // });
+        setByLawItemPropertyOperator(props.fieldData.id, operator);
     }
 
     const operatorOptions = getOperationTypes(props.itemType).map((operator, index) => {
@@ -67,8 +69,7 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
             </DropdownItem>
         )
     });
-    const currentOperatorText = props.value? translate(`ZBL.PropertyOperator[${ByLawPropertyOperator[props.value.propertyOperator]}]`) : '';
-
+    const currentOperatorText = props.value? translate(`ZBL.PropertyOperator[${ByLawPropertyOperator[props.value.propertyOperator]}]`) : '';    
     return (
         <div className={styles.view} onClick={toggleOpen}>
             <div className={styles.infoRow}>
@@ -77,7 +78,7 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
                     onChange={onChangeEnabled}
                     checked={enabled}
                 />
-                <div className={styles.constraintName}>{translate(`ZBL.ByLawItemType[${ByLawItemType[props.itemType]}]`,props.readableName)}</div>
+                <div className={styles.constraintName}>{translate(props.fieldData.label, props.fieldData.label)}</div>
                 <ConstraintOperatorText className={styles.operator} item={props.value}/>
                 <ConstraintValueText className={styles.valueDescription} item={props.value} />
             </div>
@@ -91,7 +92,7 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
                         </DropdownToggle>                        
                     </Dropdown>: null
                     }
-                    <ByLawPropertyEditSection byLawItem={props.value!} isOpen={isOpen} onChange={onItemChange} />
+                    <ByLawPropertyEditSection byLawItem={props.value!} fieldData={props.fieldData} isOpen={isOpen} onChange={onItemChange} />
                     </>                    
                     : <></>
                 }

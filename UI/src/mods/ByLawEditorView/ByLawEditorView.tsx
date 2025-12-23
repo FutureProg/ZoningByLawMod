@@ -1,7 +1,7 @@
 import { Scrollable } from 'cs2/ui';
 import styles from './ByLawEditorView.module.scss';
 import { useValue } from 'cs2/api';
-import { selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor } from 'mods/bindings';
+import { byLawFields$, selectedByLawColor$, selectedByLawData$, selectedByLawName$, setByLawData, setByLawName, setByLawZoneColor, toggleByLawItemEnabled } from 'mods/bindings';
 import { ByLawItem, ByLawItemType } from 'mods/types';
 import { ConstraintListItem } from 'mods/components/ConstraintListItem/ConstraintListItem';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
@@ -24,6 +24,7 @@ export const ByLawEditorView = ({ searchQuery, selectedByLaw } : _Props) => {
     let [_byLawName, set_ByLawName] = useState(byLawName);
     let [colorText, setColorText] = useState(utils.rgbaToHex(byLawColor[0]));
     let {translate} = useLocalization();
+    let fieldData = Object.fromEntries(useValue(byLawFields$).map(fd => [fd.Key, fd.Value]));
 
     useEffect(() => {
         set_ByLawName(byLawName);
@@ -60,46 +61,51 @@ export const ByLawEditorView = ({ searchQuery, selectedByLaw } : _Props) => {
         setByLawData(nByLawData);
     }
     let onChangeConstraintEnabled = (newEnabledValue: boolean, itemType: ByLawItemType) => {
-        if (selectedByLaw.index <= 0) {
-            return;
-        }
-        let nByLawData = utils.deepCopy(byLawData);
-        if (newEnabledValue) {
-            nByLawData.blocks[0].itemData.push({
-                ...utils.GetDefaultByLawItem(),
-                byLawItemType: itemType,
-                itemCategory: utils.getItemCategories(itemType),
-                constraintType: utils.getConstraintTypes(itemType)[0],
-                propertyOperator: utils.getDefaultPropertyOperator(itemType)
-            });
-        } else {
-            nByLawData.blocks[0].itemData = nByLawData.blocks[0].itemData.filter((item) => item.byLawItemType != itemType);
-        }
-        setByLawData(nByLawData);
+        // if (selectedByLaw.index <= 0) {
+        //     return;
+        // }
+        // let nByLawData = utils.deepCopy(byLawData);
+        // if (newEnabledValue) {
+        //     nByLawData.blocks[0].itemData.push({
+        //         ...utils.GetDefaultByLawItem(),
+        //         byLawItemType: itemType,
+        //         itemCategory: utils.getItemCategories(itemType),
+        //         constraintType: utils.getConstraintTypes(itemType)[0],
+        //         propertyOperator: utils.getDefaultPropertyOperator(itemType)
+        //     });
+        // } else {
+        //     nByLawData.blocks[0].itemData = nByLawData.blocks[0].itemData.filter((item) => item.byLawItemType != itemType);
+        // }
+        // setByLawData(nByLawData);
+        toggleByLawItemEnabled(itemType);
     }    
 
     let items = byLawData.blocks != null ? byLawData.blocks[0].itemData : [];
     let itemMap = useMemo(() =>
         Object.fromEntries(
-            items.map((item) => [ByLawItemType[item.byLawItemType], item])
+            items.map((item) => [ByLawItemType[item.byLawItemType].toString(), item])
         )
-        , [items]);
+        , [items, fieldData]);
+    
     let types = Object.keys(ByLawItemType)
         .filter((key) => isNaN(Number(key)) && key != 'None')
         .map((key) => [key, key.split(/(?<![A-Z])(?=[A-Z])/).join(' ')] as [keyof typeof ByLawItemType, string])
         .filter(([key, readableName]) => searchQuery && readableName ? readableName.toUpperCase().indexOf(searchQuery.toUpperCase()) >= 0 : true);
-    let listItems = types
-        .filter(([key, readableName]) => key != 'AssetPack') // TODO: Remove when AssetPacks are ready
-        .map(([key, readableName]: [keyof typeof ByLawItemType, string], idx) =>
-            <ConstraintListItem
-                key={idx}
-                readableName={readableName}
-                itemType={ByLawItemType[key]}
-                value={itemMap[key] || undefined}
-                onValueChange={onConstraintUpdate}
-                onChangeConstraintEnabled={onChangeConstraintEnabled}
-            />
-        );    
+    let listItems = Object.entries(fieldData)
+        // .filter(([key, readableName]) => key != 'AssetPack') // TODO: Remove when AssetPacks are ready
+        .map(([key, field], idx) => {
+            const itemType = key == 'Uses' ? ByLawItemType.LandUse : ByLawItemType[key as keyof typeof ByLawItemType];
+            return (
+                <ConstraintListItem
+                    key={idx}
+                    fieldData={field}
+                    itemType={itemType}
+                    value={itemMap[key == 'Uses'? 'LandUse' : key] || undefined}
+                    onValueChange={onConstraintUpdate}
+                    onChangeConstraintEnabled={onChangeConstraintEnabled}
+                />
+            );
+        });    
     if (selectedByLaw.index <= 0 || byLawData.blocks == null) {
         return (<></>);
     }

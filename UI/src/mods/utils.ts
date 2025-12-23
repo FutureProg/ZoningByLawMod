@@ -149,6 +149,7 @@ export const getOperationTypes = (byLawItemType: ByLawItemType) : ByLawPropertyO
             re.push(ByLawPropertyOperator.AtLeastOne);
             re.push(ByLawPropertyOperator.OnlyOneOf);
             re.push(ByLawPropertyOperator.IsNot);
+            re.push(ByLawPropertyOperator.Is);
             return re;
         case ByLawItemType.AssetPack:
             re.push(ByLawPropertyOperator.OnlyOneOf);

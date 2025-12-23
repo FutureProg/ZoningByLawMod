@@ -1,6 +1,7 @@
 ﻿using Colossal.Mathematics;
 using Game.Prefabs;
 using System;
+using System.Collections.Generic;
 using Trejak.ZoningByLaw;
 using Trejak.ZoningByLaw.BuildingBlocks;
 using Trejak.ZoningByLaw.Prefab;
@@ -68,18 +69,17 @@ namespace ZoningByLaw.BuildingBlocks
 
         public static bool EvalAssetPack(ByLawItem item, BuildingByLawProperties properties)
         {
-            return true;
-            //for(int i = 0; i < item.valueArrInt.Length; i++)
-            //{
-            //    for(int j = 0; j < properties.assetPacks.Length; j++)
-            //    {
-            //        if (properties.assetPacks[j] == item.valueArrInt[i])
-            //        {
-            //            return true;
-            //        }
-            //    }
-            //}
-            //return false;
+            for(int i = 0; i < item.valueNumberArray.Length; i++)
+            {
+                for (int j = 0; j < properties.assetPacks.Length; j++)
+                {
+                    if (properties.assetPacks[j] == item.valueNumberArray[i])
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         private static float PollutionLevelValue(ByLawItemType itemType, BuildingByLawProperties properties) => itemType switch
@@ -152,6 +152,12 @@ namespace ZoningByLaw.BuildingBlocks
             matchCount += (ByLawZoneType.Industrial & flag) != 0 && properties.isIndustry ? 1 : 0;
             matchCount += (ByLawZoneType.Commercial & flag) != 0 && properties.isCommercial ? 1 : 0;
 
+            int numberOfFlags = 0;
+            numberOfFlags += (ByLawZoneType.Residential & flag) != 0 ? 1 : 0;
+            numberOfFlags += (ByLawZoneType.Office & flag) != 0 ? 1 : 0;
+            numberOfFlags += (ByLawZoneType.Industrial & flag) != 0 ? 1 : 0;
+            numberOfFlags += (ByLawZoneType.Commercial & flag) != 0 ? 1 : 0;
+
             switch (item.propertyOperator)
             {
                 case ByLawPropertyOperator.AtLeastOne:
@@ -161,7 +167,7 @@ namespace ZoningByLaw.BuildingBlocks
                 case ByLawPropertyOperator.IsNot:
                     return matchCount == 0;
                 case ByLawPropertyOperator.Is:
-                    return matchCount > 0 && missCount == 0;
+                    return matchCount == numberOfFlags && missCount == 0;
             }
             return true;
         }
@@ -237,6 +243,21 @@ namespace ZoningByLaw.BuildingBlocks
             }            
         }
 
+        public static int[] GetConstarintEnumValues(ByLawItemType itemType)
+        {
+            switch (itemType)
+            {
+                case ByLawItemType.Uses:
+                    return Array.ConvertAll((ByLawZoneType[])Enum.GetValues(typeof(ByLawZoneType)), e => (int) e);
+                case ByLawItemType.AirPollutionLevel:
+                case ByLawItemType.GroundPollutionLevel:
+                case ByLawItemType.NoisePollutionLevel:
+                    return Array.ConvertAll((ByLawPollutionThreshold[])Enum.GetValues(typeof(ByLawPollutionThreshold)), e => (int) e);
+                default:
+                    return null;
+            }
+        }
+
         public static ByLawConstraintType GetConstraintTypes(ByLawItemType itemType)
         {
             switch(itemType)
@@ -295,5 +316,43 @@ namespace ZoningByLaw.BuildingBlocks
             }
         }
 
+        public static List<ByLawPropertyOperator> GetPropertyOperators(ByLawItemType itemType)
+        {
+            var re = new List<ByLawPropertyOperator>();
+            switch (itemType)
+            {
+                case ByLawItemType.Uses:
+                    re.Add(ByLawPropertyOperator.Is);
+                    re.Add(ByLawPropertyOperator.IsNot);
+                    re.Add(ByLawPropertyOperator.AtLeastOne);
+                    re.Add(ByLawPropertyOperator.OnlyOneOf);
+                    break;
+                case ByLawItemType.Height:
+                case ByLawItemType.LotWidth:
+                case ByLawItemType.LotSize:
+                case ByLawItemType.LotDepth:
+                case ByLawItemType.Parking:
+                case ByLawItemType.FrontSetback:
+                case ByLawItemType.LeftSetback:
+                case ByLawItemType.RightSetback:
+                case ByLawItemType.RearSetback:
+                    re.Add(ByLawPropertyOperator.Is);
+                    break;
+                case ByLawItemType.AirPollutionLevel:
+                case ByLawItemType.GroundPollutionLevel:
+                case ByLawItemType.NoisePollutionLevel:
+                    re.Add(ByLawPropertyOperator.AtMost);
+                    break;
+                case ByLawItemType.AssetPack:
+                    re.Add(ByLawPropertyOperator.OnlyOneOf);
+                    break;
+                case ByLawItemType.None:
+                default:
+                    re.Add(ByLawPropertyOperator.None);
+                    break;
+            }
+
+            return re;
+        }
     }
 }

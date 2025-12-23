@@ -8,8 +8,6 @@ import { TextInput, TextInputTheme } from "../TextInput/TextInput";
 import { VanillaComponentResolver } from "vanillacomponentresolver";
 import classNames from "classnames";
 
-const AssetGridTheme: Theme | any = getModule("game-ui/game/components/item-grid/item-grid.module.scss", "classes");
-
 export const SearchTextBox = (props: { onChange?: (val: string) => void; value?: string }) => {
     const { translate } = useLocalization();
     let [searchQuery, setSearchQuery] = useState<string>(props.value == undefined ? "" : props.value);

@@ -107,7 +107,7 @@ namespace Trejak.ZoningByLaw
                 return true;
             } catch (Exception ex)
             {
-                Mod.log.Error("Error reading bylaw records: " + ex.Message);
+                Mod.log.Error(ex, "Error reading bylaw records");                                
             }
             records = new ByLawRecord[0];
             return false;

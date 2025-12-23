@@ -70,15 +70,17 @@ Please report bug reports and have discussions on the mod's thread in the [Citie
 	<!--Link to the forum post where the mod can be discussed-->
 	<!--<ForumLink Value="" />-->
 	<!--Version of the mod-->
-	<ModVersion Value="0.1.6" />
+	<ModVersion Value="0.2.0" />
 	<!--Recommended version of the base game to use the mod-->
-	<GameVersion Value="1.4.*" />
+	<GameVersion Value="1.5.*" />
 	<!--Dependency for the mod, can be set multiple times-->
 	<Dependency Id="74417" />
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
-	<!--<ChangeLog Value="Quick-fix for UI breaking bug A new bylaw will be added whenever you delete another one." />-->
 <ChangeLog>
-- Compatability with Bikes Patch
+- Compatability Asset Editor patch
+- Added Constraint: "Is" for Land-Use Type (selecting residential and commercial will only allow mixed-use buildings)
+- Bug fixes
+- Changed underlying system to allow for easier addition of new constraints in the future
 </ChangeLog>
 	<!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
 	<ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=_PaNeeFAT-w" />

@@ -5,8 +5,10 @@ import ByLawItemEnumEditor from "./ByLawItemEnumEditor";
 import { getMeasurementString } from "mods/utils";
 import { useLocalization } from "cs2/l10n";
 import ByLawItemAssetPackEditor from "./ByLawItemAssetPackEditor";
+import { CheckboxFieldData, FieldDataBase, RadioFieldData, RangeFieldData, setByLawItemValue } from "mods/bindings";
 
 type Props = {
+    fieldData: FieldDataBase;
     byLawItem: ByLawItem;
     isOpen: boolean;
     onChange?: (newItemValue: ByLawItem) => void;
@@ -16,7 +18,7 @@ type Props = {
  * Responsible for choosing which editor to display based on the property type
  */
 export default (
-    { byLawItem, isOpen, onChange: onChangeCallback }: Props,
+    { byLawItem, isOpen, onChange: onChangeCallback, fieldData }: Props,
 ): JSX.Element => {
     let localization = useLocalization();
     const measurementSuffix = getMeasurementString(
@@ -31,8 +33,7 @@ export default (
     let { constraintType: constraintType, byLawItemType: itemType } = byLawItem;
 
     if (
-        constraintType == ByLawConstraintType.Length ||
-        constraintType == ByLawConstraintType.Count
+        fieldData.fieldType === "range"
     ) {
         let onChange = (name: string, newValue: Bounds1) => {
             // Handle conversions to metric
@@ -54,9 +55,12 @@ export default (
                 ...byLawItem,
                 valueBounds1: newValue,
             };
-            onChangeCallback && onChangeCallback(nItemVal);
+            // onChangeCallback && onChangeCallback(nItemVal);
+            // Error Here: invalid cast on the C# side from here (guessing it's the whole "object" thing?)
+            setByLawItemValue(ByLawItemType[itemType], [newValue.min, newValue.max]);
         };
-        let boundsValue = byLawItem.valueBounds1;
+        const rangeFieldData = fieldData as RangeFieldData;
+        let boundsValue = byLawItem.valueBounds1;//{min: rangeFieldData.value[0], max: rangeFieldData.value[1]};
         let step = 1;
         if (isCellMeasurement) {
             boundsValue = {
@@ -81,26 +85,20 @@ export default (
                 onChange={onChange}
             />
         );
-    }
-
+    }    
     if (
-        constraintType == ByLawConstraintType.MultiSelect ||
-        constraintType == ByLawConstraintType.SingleSelect
+        ["radio", "checkbox"].includes(fieldData.fieldType)
     ) {
-
-        let onChange = (nValue: number) => {
-            let nItemVal = {
-                ...byLawItem,
-                valueByteFlag: nValue,
-            };
-            onChangeCallback && onChangeCallback(nItemVal);
+        let onChange = (nValue: number[]) => {
+            setByLawItemValue(ByLawItemType[itemType], nValue);
+            // onChangeCallback && onChangeCallback(nItemVal);
         };
-
+        console.log('Field Data Type:', fieldData.fieldType);
         return (
             <ByLawItemEnumEditor
-                constraintType={byLawItem.constraintType}
+                constraintType={fieldData.fieldType === "checkbox"? ByLawConstraintType.MultiSelect : ByLawConstraintType.SingleSelect}
                 itemType={byLawItem.byLawItemType}
-                itemValue={byLawItem.valueByteFlag}
+                fieldData={fieldData as RadioFieldData | CheckboxFieldData}
                 onChange={onChange}
             />
         );

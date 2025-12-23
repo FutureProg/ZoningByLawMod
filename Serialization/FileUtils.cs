@@ -1,13 +1,14 @@
 ﻿using Colossal.IO.AssetDatabase.Internal;
-using Colossal.Json;
 using Colossal.PSI.Environment;
 using Game.Prefabs;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Trejak.ZoningByLaw.UISystems;
+using Unity.Collections;
 using UnityEngine.Profiling;
 
 namespace Trejak.ZoningByLaw.Serialization
@@ -31,13 +32,32 @@ namespace Trejak.ZoningByLaw.Serialization
                 throw new NullReferenceException("ByLawRecord \"record\" cannot be null!");
             }
 
+            foreach(var block in record.zoningByLawBinding.blocks)
+            {
+                for(int i = 0; i < block.itemData.Length; i++)
+                {
+                    var item = block.itemData[i];
+                    if (!item.valueNumberArray.IsCreated)
+                    {                       
+                        item.valueNumberArray = new NativeArray<int>(0, Unity.Collections.Allocator.Persistent);
+                        block.itemData[i] = item;
+                    }                    
+                }
+            }
+
             if (!Directory.Exists(ByLawsFolder))
             {
                 Directory.CreateDirectory(ByLawsFolder);
             }
 
             var path = Path.Combine(ByLawsFolder, GetByLawFileName(record));
-            File.WriteAllText(path, JSON.Dump(record));
+            var settings = new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+                NullValueHandling = NullValueHandling.Ignore
+            };
+            string json = JsonConvert.SerializeObject(record, settings);
+            File.WriteAllText(path, json);
         }
 
         public static IEnumerable<string> GetByLawRecordFileNames()
@@ -77,7 +97,35 @@ namespace Trejak.ZoningByLaw.Serialization
             {
                 throw new FileNotFoundException($"Could not find Zoning ByLaw file with name: {filename}");
             }
-            ByLawRecord re = JSON.MakeInto<ByLawRecord>(JSON.Load(File.ReadAllText(path)));
+            
+            string json = File.ReadAllText(path);
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            };
+            ByLawRecord re = JsonConvert.DeserializeObject<ByLawRecord>(json, settings);
+            
+            // Ensure NativeArray fields are properly initialized
+            if (re.zoningByLawBinding.blocks != null && re.zoningByLawBinding.blocks.Length > 0)
+            {
+                for (int blockIdx = 0; blockIdx < re.zoningByLawBinding.blocks.Length; blockIdx++)
+                {
+                    var itemArr = re.zoningByLawBinding.blocks[blockIdx].itemData;
+                    if (itemArr != null)
+                    {
+                        for (int i = 0; i < itemArr.Length; i++)
+                        {
+                            var item = itemArr[i];
+                            if (!item.valueNumberArray.IsCreated)
+                            {
+                                item.valueNumberArray = new NativeArray<int>(0, Unity.Collections.Allocator.Persistent);
+                                re.zoningByLawBinding.blocks[blockIdx].itemData[i] = item;
+                            }
+                        }
+                    }
+                }
+            }
+            
             return re;
         }
 
