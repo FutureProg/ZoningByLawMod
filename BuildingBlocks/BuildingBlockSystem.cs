@@ -263,6 +263,8 @@ namespace ZoningByLaw.BuildingBlocks
                 case ByLawItemType.GroundPollutionLevel:
                 case ByLawItemType.NoisePollutionLevel:
                     return typeof(ByLawPollutionThreshold);
+                case ByLawItemType.Density:
+                    return typeof(BuildingDensity);
                 default:
                     return null;
             }            
@@ -278,6 +280,8 @@ namespace ZoningByLaw.BuildingBlocks
                 case ByLawItemType.GroundPollutionLevel:
                 case ByLawItemType.NoisePollutionLevel:
                     return Array.ConvertAll((ByLawPollutionThreshold[])Enum.GetValues(typeof(ByLawPollutionThreshold)), e => (int) e);
+                case ByLawItemType.Density:
+                    return Array.ConvertAll((BuildingDensity[])Enum.GetValues(typeof(BuildingDensity)), e => (int)e);
                 default:
                     return null;
             }
