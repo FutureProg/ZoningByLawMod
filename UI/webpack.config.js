@@ -65,7 +65,16 @@ module.exports = {
               },
             },
           },
-          "sass-loader",
+          {
+            loader: "sass-loader",
+            options: {
+              api: "modern",
+              sourceMap: true,
+              sassOptions: {
+                style: "expanded"
+              }
+            }
+          }
         ],
       },
       {
@@ -92,7 +101,7 @@ module.exports = {
     publicPath: `coui://ui-mods/`,
   },
   optimization: {
-    minimize: true,
+    minimize: false,
     minimizer: [
       new TerserPlugin({
         extractComments: {
