@@ -13,8 +13,14 @@ export type FieldDataBase = {
     label: string;
     fieldType: "checkbox" | "radio" | "select" | "text" | "number" | "range";
     options?: FieldDataOption[];
-    operatorOptions: ByLawPropertyOperator[];
+    operatorOptions: OperatorOption[];
     selectedOperator: ByLawPropertyOperator;
+}
+
+export type OperatorOption = {
+    label: string;
+    value: ByLawPropertyOperator;
+    image: string | undefined;
 }
 
 export type FieldDataOption = {
