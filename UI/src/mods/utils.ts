@@ -166,6 +166,12 @@ export const getOperationTypes = (byLawItemType: ByLawItemType) : ByLawPropertyO
             re.push(ByLawPropertyOperator.Is); 
             // re.push(ByLawPropertyOperator.IsNot);                                   
             return re;
+        case ByLawItemType.Density:
+            re.push(ByLawPropertyOperator.AtLeast);
+            re.push(ByLawPropertyOperator.AtMost);
+            re.push(ByLawPropertyOperator.AtLeastOne);
+            re.push(ByLawPropertyOperator.IsNot);
+            return re;
         case ByLawItemType.NoisePollutionLevel:
         case ByLawItemType.GroundPollutionLevel:
         case ByLawItemType.AirPollutionLevel:
