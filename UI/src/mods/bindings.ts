@@ -131,10 +131,13 @@ export const setByLawItemValue = (id: string, value: any) => {
         id: id,
         value: value
     } as SetItemValuePayload;
-    if (Array.isArray(value) && typeof value[0] === 'number') {
+    if (Array.isArray(value) && (value.length === 0 || typeof value[0] === 'number')) {
+        // Every array-valued field here (range bounds, multi-select selections) is an int
+        // array; an empty array (e.g. deselecting the last option) has no element to check
+        // the type of but is still a valid, meaningful value that must be sent through.
         console.log("Calling SetByLawItemValueIntArr");
-        trigger(mod.fullname, "SetByLawItemValueIntArr", id, payload);    
-    } 
+        trigger(mod.fullname, "SetByLawItemValueIntArr", id, payload);
+    }
     else if (typeof value === 'number') {
         console.log("Calling SetByLawItemValueInt");
         trigger(mod.fullname, "SetByLawItemValueInt", id, payload);    

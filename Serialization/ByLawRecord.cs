@@ -324,14 +324,30 @@ namespace Trejak.ZoningByLaw.Serialization
             if (item.byLawItemType == BuildingBlocks.ByLawItemType.AssetPack)
             {
                 valueNumberArray = null;
-                var indexBuildingsSystem = Unity.Entities.World.DefaultGameObjectInjectionWorld?.GetExistingSystemManaged<IndexBuildingsSystem>();
-                assetPackNames = item.valueNumberArray.IsCreated
-                    ? item.valueNumberArray
+                if (item.valueNumberArray.IsCreated && item.valueNumberArray.Length > 0)
+                {
+                    var indexBuildingsSystem = Unity.Entities.World.DefaultGameObjectInjectionWorld?.GetExistingSystemManaged<IndexBuildingsSystem>();
+                    assetPackNames = item.valueNumberArray
                         .Select(hash => indexBuildingsSystem?.GetAssetPackByHash(hash))
                         .Where(p => p != null)
                         .Select(p => p.name)
-                        .ToArray()
-                    : null;
+                        .ToArray();
+                    // Every hash is expected to resolve, since it can only have been selected from an
+                    // option list the same index already produced. If some don't, the index isn't ready
+                    // (e.g. saved before IndexBuildingsSystem finished its first pass, or during world
+                    // teardown) - surface that instead of silently dropping the user's selection on disk.
+                    if (assetPackNames.Length < item.valueNumberArray.Length)
+                    {
+                        Mod.log.Warn(
+                            $"AssetPack by-law item: could not resolve {item.valueNumberArray.Length - assetPackNames.Length} " +
+                            $"of {item.valueNumberArray.Length} selected pack hash(es) to a name while saving " +
+                            "(IndexBuildingsSystem not ready?); those selections will not be persisted this save.");
+                    }
+                }
+                else
+                {
+                    assetPackNames = null;
+                }
             }
             else
             {
