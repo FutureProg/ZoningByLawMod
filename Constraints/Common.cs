@@ -17,9 +17,9 @@ public struct BaseConstraintData
 public enum BuildingDensity : byte
 {
     None = 0,
-    Low,
-    Medium,
-    High
+    Low = 1,
+    Medium = 2,
+    High = 4
 }
 
 public static class ConstraintMapper
@@ -41,7 +41,7 @@ public static class ConstraintMapper
             ZoneDensity.Low => BuildingDensity.Low,
             ZoneDensity.Medium => BuildingDensity.Medium,
             ZoneDensity.High => BuildingDensity.High,
-            _ => throw new ArgumentOutOfRangeException(nameof(density), $"Unsupported ZoneDensity value: {density}"),
+            _ => BuildingDensity.None,
         };
     }
 } 

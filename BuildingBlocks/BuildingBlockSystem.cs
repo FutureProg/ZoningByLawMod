@@ -95,21 +95,15 @@ namespace ZoningByLaw.BuildingBlocks
         public static bool EvalDensity(ByLawItem item, BuildingByLawProperties properties)
         {
             var density = properties.buildingDensity;
-            var densityFlag = (BuildingDensity) item.valueByteFlag;
+            var densityMask = (BuildingDensity) item.valueByteFlag;
             switch (item.propertyOperator)
             {
                 case ByLawPropertyOperator.Is:
-                    return density == densityFlag;
+                    return (densityMask & density) == density && density != BuildingDensity.None;
                 case ByLawPropertyOperator.IsNot:
-                    return density != densityFlag;
-                case ByLawPropertyOperator.AtLeast:
-                    return density >= densityFlag;
-                case ByLawPropertyOperator.AtMost:
-                    return density <= densityFlag;
+                    return (densityMask & density) == 0;
                 case ByLawPropertyOperator.AtLeastOne:
-                    return ((density & BuildingDensity.Low) != 0 && (densityFlag & BuildingDensity.Low) != 0) ||
-                           ((density & BuildingDensity.Medium) != 0 && (densityFlag & BuildingDensity.Medium) != 0) ||
-                           ((density & BuildingDensity.High) != 0 && (densityFlag & BuildingDensity.High) != 0);
+                    return (densityMask & density) != 0;
                 default:
                     return false;
             }
@@ -359,10 +353,8 @@ namespace ZoningByLaw.BuildingBlocks
                     re.Add(ByLawPropertyOperator.OnlyOneOf);
                     break;
                 case ByLawItemType.Density:
-                    re.Add(ByLawPropertyOperator.IsNot);
                     re.Add(ByLawPropertyOperator.Is);
-                    re.Add(ByLawPropertyOperator.AtLeast);
-                    re.Add(ByLawPropertyOperator.AtMost);
+                    re.Add(ByLawPropertyOperator.IsNot);
                     re.Add(ByLawPropertyOperator.AtLeastOne);
                     break;
                 case ByLawItemType.Height:
