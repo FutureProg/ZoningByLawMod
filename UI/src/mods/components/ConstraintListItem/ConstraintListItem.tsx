@@ -9,7 +9,6 @@ import classNames from 'classnames';
 import ConstraintOperatorText from '../ConstraintOperatorText/ConstraintOperatorText';
 import { useLocalization } from 'cs2/l10n';
 import { Dropdown, DropdownItem, DropdownToggle, FOCUS_DISABLED } from 'cs2/ui';
-import { deepCopy, getOperationTypes } from 'mods/utils';
 import { Theme } from 'cs2/bindings';
 import { getModule } from 'cs2/modding';
 import { FieldDataBase, setByLawItemPropertyOperator } from 'mods/bindings';
@@ -56,16 +55,16 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
         // });
         setByLawItemPropertyOperator(props.fieldData.id, operator);
     }
-
-    const operatorOptions = getOperationTypes(props.itemType).map((operator, index) => {
+    
+    const operatorOptions = props.fieldData.operatorOptions.map((operator, index) => {
         return (
             <DropdownItem 
                 focusKey={FOCUS_DISABLED}
                 onChange={onPropertyOperatorChange} 
-                value={operator} 
-                key={props.itemType + " " + operator}
-                selected={operator == props.value?.propertyOperator}>
-                {translate(`ZBL.PropertyOperator[${ByLawPropertyOperator[operator]}]`)}
+                value={operator.value} 
+                key={props.itemType + " " + operator.value}
+                selected={operator.value == props.value?.propertyOperator}>
+                {translate(`ZBL.PropertyOperator[${ByLawPropertyOperator[operator.value]}]`)}
             </DropdownItem>
         )
     });

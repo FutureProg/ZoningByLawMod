@@ -56,7 +56,8 @@ export enum ByLawItemType {
     AirPollutionLevel,
     GroundPollutionLevel,
     NoisePollutionLevel,
-    AssetPack
+    AssetPack,
+    Density
 }
 
 export enum ByLawConstraintType {

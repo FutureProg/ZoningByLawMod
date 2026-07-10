@@ -166,6 +166,13 @@ export const getOperationTypes = (byLawItemType: ByLawItemType) : ByLawPropertyO
             re.push(ByLawPropertyOperator.Is); 
             // re.push(ByLawPropertyOperator.IsNot);                                   
             return re;
+        case ByLawItemType.Density:
+            // Is and AtLeastOne are equivalent since a building only has one density value, so Is is
+            // omitted as redundant. AtLeastOne is listed first (and thus the default via
+            // getDefaultPropertyOperator) to match BuildingBlockSystem.GetPropertyOperators.
+            re.push(ByLawPropertyOperator.AtLeastOne);
+            re.push(ByLawPropertyOperator.IsNot);
+            return re;
         case ByLawItemType.NoisePollutionLevel:
         case ByLawItemType.GroundPollutionLevel:
         case ByLawItemType.AirPollutionLevel:

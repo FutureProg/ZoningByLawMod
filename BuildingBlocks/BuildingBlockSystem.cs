@@ -25,6 +25,12 @@ namespace ZoningByLaw.BuildingBlocks
             {
                 return false;
             }
+            // An empty/None item is not a real constraint. It must pass, otherwise a single
+            // stray item (e.g. legacy data) would AND every building down to zero matches.
+            if (item.byLawItemType == ByLawItemType.None)
+            {
+                return true;
+            }
             switch(item.constraintType)
             {
                 case ByLawConstraintType.Count:
@@ -62,6 +68,8 @@ namespace ZoningByLaw.BuildingBlocks
                     return EvalLandUse(building, properties, item, evalParams);
                 case ByLawItemType.AssetPack:
                     return EvalAssetPack(item, properties);
+                case ByLawItemType.Density:
+                    return EvalDensity(item, properties);
                 default:
                     return false;
             }
@@ -89,6 +97,28 @@ namespace ZoningByLaw.BuildingBlocks
             ByLawItemType.NoisePollutionLevel => properties.pollutionData.m_NoisePollution,
             _ => 0.0f
         };
+
+        public static bool EvalDensity(ByLawItem item, BuildingByLawProperties properties)
+        {
+            var density = properties.buildingDensity;
+            var densityMask = (BuildingDensity) item.valueByteFlag;
+            // BuildingDensity.None means the building has no density classification (e.g. it isn't a
+            // zone-spawned building), so it participates in no density constraint regardless of operator.
+            // Every branch below excludes it so Is, IsNot, and AtLeastOne stay consistent.
+            switch (item.propertyOperator)
+            {
+                // Is is no longer offered in GetPropertyOperators (identical to AtLeastOne for a
+                // single-value density), but is still evaluated here for any by-law saved before that change.
+                case ByLawPropertyOperator.Is:
+                    return (densityMask & density) == density && density != BuildingDensity.None;
+                case ByLawPropertyOperator.IsNot:
+                    return (densityMask & density) == 0 && density != BuildingDensity.None;
+                case ByLawPropertyOperator.AtLeastOne:
+                    return (densityMask & density) != 0;
+                default:
+                    return false;
+            }
+        }
 
         public static bool EvalPollution(Entity building, BuildingByLawProperties properties, ByLawItem item, EvaluationParams evalParams)
         {
@@ -238,6 +268,8 @@ namespace ZoningByLaw.BuildingBlocks
                 case ByLawItemType.GroundPollutionLevel:
                 case ByLawItemType.NoisePollutionLevel:
                     return typeof(ByLawPollutionThreshold);
+                case ByLawItemType.Density:
+                    return typeof(BuildingDensity);
                 default:
                     return null;
             }            
@@ -253,6 +285,8 @@ namespace ZoningByLaw.BuildingBlocks
                 case ByLawItemType.GroundPollutionLevel:
                 case ByLawItemType.NoisePollutionLevel:
                     return Array.ConvertAll((ByLawPollutionThreshold[])Enum.GetValues(typeof(ByLawPollutionThreshold)), e => (int) e);
+                case ByLawItemType.Density:
+                    return Array.ConvertAll((BuildingDensity[])Enum.GetValues(typeof(BuildingDensity)), e => (int)e);
                 default:
                     return null;
             }
@@ -264,6 +298,7 @@ namespace ZoningByLaw.BuildingBlocks
             {
                 case ByLawItemType.Uses:
                 case ByLawItemType.AssetPack:
+                case ByLawItemType.Density:
                     return ByLawConstraintType.MultiSelect;
                 case ByLawItemType.Height:
                 case ByLawItemType.LotWidth:
@@ -303,6 +338,7 @@ namespace ZoningByLaw.BuildingBlocks
                 case ByLawItemType.LeftSetback:
                 case ByLawItemType.RightSetback:
                 case ByLawItemType.RearSetback:
+                case ByLawItemType.Density:
                     return ByLawItemCategory.Building;
 
                 case ByLawItemType.NoisePollutionLevel:
@@ -326,6 +362,13 @@ namespace ZoningByLaw.BuildingBlocks
                     re.Add(ByLawPropertyOperator.IsNot);
                     re.Add(ByLawPropertyOperator.AtLeastOne);
                     re.Add(ByLawPropertyOperator.OnlyOneOf);
+                    break;
+                case ByLawItemType.Density:
+                    // Is and AtLeastOne are equivalent here since a building only ever has one density
+                    // value, so Is is omitted as redundant. AtLeastOne is listed first (and is thus the
+                    // default) since it reads more naturally for a single-value match.
+                    re.Add(ByLawPropertyOperator.AtLeastOne);
+                    re.Add(ByLawPropertyOperator.IsNot);
                     break;
                 case ByLawItemType.Height:
                 case ByLawItemType.LotWidth:
