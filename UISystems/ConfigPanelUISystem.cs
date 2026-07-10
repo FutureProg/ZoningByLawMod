@@ -229,11 +229,16 @@ namespace Trejak.ZoningByLaw.UI
                             List<FieldDataOption<object>> mappedValues = new List<FieldDataOption<object>>();
                             if (itemType == ByLawItemType.AssetPack)
                             {
+                                // AssetPackPrefab has no geometry, so its raw thumbnailUrl (a
+                                // ThumbnailCamera render) never resolves. ImageSystem.GetThumbnail
+                                // tries the prefab's own UIObject icon first (what packs normally
+                                // ship with) and only falls back to a camera render if that's
+                                // missing - the same resolution Find It uses for asset pack icons.
                                 mappedValues = _indexBuildingsSystem.GetAssetPacks()
                                     .Select(ap => new FieldDataOption<object>()
                                     {
                                         label = ap.name,
-                                        image = ap.thumbnailUrl,
+                                        image = ImageSystem.GetThumbnail(ap),
                                         value = _indexBuildingsSystem.GetAssetPackHash(ap)
                                     }).ToList();
                             } else
