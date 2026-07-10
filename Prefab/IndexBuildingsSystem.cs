@@ -229,16 +229,21 @@ namespace Trejak.ZoningByLaw.Prefab
                     // Determine the zone density
                     props.buildingDensity = BuildingDensity.None;
                     if (SystemAPI.HasComponent<SpawnableBuildingData>(buildingEntity))
-                    {                        
+                    {
                         var spawnableBuildingData = SystemAPI.GetComponent<SpawnableBuildingData>(buildingEntity);
                         var zonePrefabEntity = spawnableBuildingData.m_ZonePrefab;
-                        if (zonePrefabEntity != Entity.Null)
+                        if (zonePrefabEntity != Entity.Null
+                            && SystemAPI.HasComponent<ZoneData>(zonePrefabEntity)
+                            && SystemAPI.HasComponent<ZonePropertiesData>(zonePrefabEntity))
                         {
                             var zoneData = SystemAPI.GetComponent<ZoneData>(zonePrefabEntity);
                             var zonePropertiesData = SystemAPI.GetComponent<ZonePropertiesData>(zonePrefabEntity);
                             var zoneDensity = PropertyUtils.GetZoneDensity(zoneData, zonePropertiesData);
-                            var buildingDensity = ConstraintMapper.ToBuildingDensityConstraint(zoneDensity);
-                            props.buildingDensity = buildingDensity;
+                            props.buildingDensity = ConstraintMapper.ToBuildingDensityConstraint(zoneDensity);
+                            if (zoneDensity != ZoneDensity.None)
+                            {
+                                Mod.log.Info($"Density indexed: prefab={prefabData.m_Index}, zone={zonePrefabEntity.Index}, density={zoneDensity}");
+                            }
                         }
                     }
 
