@@ -103,10 +103,12 @@ namespace ZoningByLaw.BuildingBlocks
             var density = properties.buildingDensity;
             var densityMask = (BuildingDensity) item.valueByteFlag;
             // BuildingDensity.None means the building has no density classification (e.g. it isn't a
-            // zone-spawned building), so it participates in no density constraint - not Is, IsNot, or
-            // AtLeastOne. Every branch below excludes it so the three operators stay consistent.
+            // zone-spawned building), so it participates in no density constraint regardless of operator.
+            // Every branch below excludes it so Is, IsNot, and AtLeastOne stay consistent.
             switch (item.propertyOperator)
             {
+                // Is is no longer offered in GetPropertyOperators (identical to AtLeastOne for a
+                // single-value density), but is still evaluated here for any by-law saved before that change.
                 case ByLawPropertyOperator.Is:
                     return (densityMask & density) == density && density != BuildingDensity.None;
                 case ByLawPropertyOperator.IsNot:
@@ -362,9 +364,11 @@ namespace ZoningByLaw.BuildingBlocks
                     re.Add(ByLawPropertyOperator.OnlyOneOf);
                     break;
                 case ByLawItemType.Density:
-                    re.Add(ByLawPropertyOperator.Is);
-                    re.Add(ByLawPropertyOperator.IsNot);
+                    // Is and AtLeastOne are equivalent here since a building only ever has one density
+                    // value, so Is is omitted as redundant. AtLeastOne is listed first (and is thus the
+                    // default) since it reads more naturally for a single-value match.
                     re.Add(ByLawPropertyOperator.AtLeastOne);
+                    re.Add(ByLawPropertyOperator.IsNot);
                     break;
                 case ByLawItemType.Height:
                 case ByLawItemType.LotWidth:
