@@ -4,13 +4,9 @@
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .assetPackButton {
     border-radius: 1rem;
-    background-color: black;
-
-    &.buttonOn {
-        background-color: blue;
-    }
 }
