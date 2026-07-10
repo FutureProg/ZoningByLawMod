@@ -62,7 +62,7 @@ export const ConstraintListItem = (props: ConstraintListItemProps) => {
                 focusKey={FOCUS_DISABLED}
                 onChange={onPropertyOperatorChange} 
                 value={operator.value} 
-                key={props.itemType + " " + operator}
+                key={props.itemType + " " + operator.value}
                 selected={operator.value == props.value?.propertyOperator}>
                 {translate(`ZBL.PropertyOperator[${ByLawPropertyOperator[operator.value]}]`)}
             </DropdownItem>
