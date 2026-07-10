@@ -247,15 +247,22 @@ namespace Trejak.ZoningByLaw.UI
                             {
                                 var enumType = BuildingBlockSystem.GetConstraintEnumType(itemType);
                                 var enumValues = Enum.GetValues(enumType);
-                                // This cast is throwing an error 
                                 foreach(var val in enumValues)
                                 {
+                                    // The 0/None value is never a meaningful flag in a multi-select
+                                    // bitmask (it contributes nothing), so hide it. It stays available
+                                    // for single-select constraints where None is a real category
+                                    // (e.g. pollution "None" = reject any measurable pollution).
+                                    if (constraintType == ByLawConstraintType.MultiSelect && Convert.ToInt32(val) == 0)
+                                    {
+                                        continue;
+                                    }
                                     mappedValues.Add(new FieldDataOption<object>()
                                     {
                                         label = "ZBL.FlagValues[" + Enum.GetName(enumType, val) + "]",
                                         value = val
                                     });
-                                }                                
+                                }
                             }                            
 
                             if (constraintType == ByLawConstraintType.MultiSelect)
