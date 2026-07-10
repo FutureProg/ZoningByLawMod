@@ -240,7 +240,6 @@ namespace Trejak.ZoningByLaw.Prefab
                             var zonePropertiesData = SystemAPI.GetComponent<ZonePropertiesData>(zonePrefabEntity);
                             var zoneDensity = PropertyUtils.GetZoneDensity(zoneData, zonePropertiesData);
                             props.buildingDensity = ConstraintMapper.ToBuildingDensityConstraint(zoneDensity);
-                            Mod.log.Info($"Density indexed: prefab={prefabData.m_Index}, zone={zonePrefabEntity.Index}, density={zoneDensity}");
                         }
                     }
 

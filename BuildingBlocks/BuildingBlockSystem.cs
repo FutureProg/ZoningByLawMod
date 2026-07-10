@@ -25,6 +25,12 @@ namespace ZoningByLaw.BuildingBlocks
             {
                 return false;
             }
+            // An empty/None item is not a real constraint. It must pass, otherwise a single
+            // stray item (e.g. legacy data) would AND every building down to zero matches.
+            if (item.byLawItemType == ByLawItemType.None)
+            {
+                return true;
+            }
             switch(item.constraintType)
             {
                 case ByLawConstraintType.Count:
