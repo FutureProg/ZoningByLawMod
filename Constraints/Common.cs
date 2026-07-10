@@ -41,7 +41,7 @@ public static class ConstraintMapper
             ZoneDensity.Low => BuildingDensity.Low,
             ZoneDensity.Medium => BuildingDensity.Medium,
             ZoneDensity.High => BuildingDensity.High,
-            _ => BuildingDensity.None,
+            _ => throw new ArgumentOutOfRangeException(nameof(density), $"Unsupported ZoneDensity value: {density}"),
         };
     }
 } 
