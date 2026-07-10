@@ -226,7 +226,10 @@ namespace Trejak.ZoningByLaw.Prefab
                         assetPacks = new NativeArray<int>(nonNullAssetPacks.Select(p => p.name.GetHashCode()).ToArray(), Allocator.Persistent)                       
                     };
 
-                    // Determine the zone density
+                    // Determine the zone density. Buildings that aren't zone-spawned (no
+                    // SpawnableBuildingData, or a zone prefab without ZoneData/ZonePropertiesData)
+                    // stay BuildingDensity.None, which EvalDensity treats as "matches no density
+                    // constraint" rather than as a real density category.
                     props.buildingDensity = BuildingDensity.None;
                     if (SystemAPI.HasComponent<SpawnableBuildingData>(buildingEntity))
                     {

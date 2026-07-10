@@ -102,12 +102,15 @@ namespace ZoningByLaw.BuildingBlocks
         {
             var density = properties.buildingDensity;
             var densityMask = (BuildingDensity) item.valueByteFlag;
+            // BuildingDensity.None means the building has no density classification (e.g. it isn't a
+            // zone-spawned building), so it participates in no density constraint - not Is, IsNot, or
+            // AtLeastOne. Every branch below excludes it so the three operators stay consistent.
             switch (item.propertyOperator)
             {
                 case ByLawPropertyOperator.Is:
                     return (densityMask & density) == density && density != BuildingDensity.None;
                 case ByLawPropertyOperator.IsNot:
-                    return (densityMask & density) == 0;
+                    return (densityMask & density) == 0 && density != BuildingDensity.None;
                 case ByLawPropertyOperator.AtLeastOne:
                     return (densityMask & density) != 0;
                 default:

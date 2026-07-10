@@ -16,6 +16,9 @@ public struct BaseConstraintData
 
 public enum BuildingDensity : byte
 {
+    // None means "no density classification" - the building is not zone-spawned (no
+    // SpawnableBuildingData/ZoneData/ZonePropertiesData). It is not a selectable density value and
+    // matches no density constraint during evaluation (see BuildingBlockSystem.EvalDensity).
     None = 0,
     Low = 1,
     Medium = 2,
