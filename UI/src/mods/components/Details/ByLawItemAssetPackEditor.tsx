@@ -1,4 +1,3 @@
-import classNames from "classnames";
 import styles from "./ByLawItemAssetPackEditor.module.scss";
 import { Button } from "cs2/ui";
 import { FieldDataOption } from "mods/bindings";
@@ -35,7 +34,7 @@ const AssetPackButton = (props: {itemArr: number[], option: FieldDataOption, onB
         <Button variant="icon"
             src={props.option.image}
             selected={isEnabled}
-            className={classNames(styles.assetPackButton, {[styles.buttonOn]: isEnabled})}
+            className={styles.assetPackButton}
             onSelect={() => props.onButtonToggle(props.option.value)}/>
     );
 }
