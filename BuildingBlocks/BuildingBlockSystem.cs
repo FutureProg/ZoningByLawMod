@@ -387,7 +387,10 @@ namespace ZoningByLaw.BuildingBlocks
                     re.Add(ByLawPropertyOperator.AtMost);
                     break;
                 case ByLawItemType.AssetPack:
-                    re.Add(ByLawPropertyOperator.OnlyOneOf);
+                    // EvalAssetPack matches if the building belongs to ANY selected pack, i.e. "at least
+                    // one", not "exactly one" - AtLeastOne is the operator whose label actually matches
+                    // that behavior.
+                    re.Add(ByLawPropertyOperator.AtLeastOne);
                     break;
                 case ByLawItemType.None:
                 default:

@@ -125,8 +125,6 @@ namespace Trejak.ZoningByLaw.UI
             this.AddBinding(_setByLawName = new TriggerBinding<string>(uiGroupName, "SetByLawName", SetByLawName));
             this.AddBinding(_setByLawZoneColour =
                 new TriggerBinding<Color, Color>(uiGroupName, "SetByLawZoneColour", SetByLawZoneColour));
-            this.AddBinding(new GetterMapBinding<string, int>(uiGroupName, "assetPackNameToHash",
-                (string key) => key.GetHashCode()));
             //this.AddBinding(_toggleByLawRenderPreview = new TriggerBinding(uiGroupName, "ToggleByLawRenderPreview", ToggleByLawRenderPreview));
 
             _byLawFieldsBinding = this.CreateBinding("ByLawFields", GetFields);            
@@ -204,11 +202,6 @@ namespace Trejak.ZoningByLaw.UI
                 for (int j = 0; j < itemTypesArr.Length; j++)
                 {
                     ByLawItemType itemType = (ByLawItemType)itemTypesArr.GetValue(j);
-                    // Omit Asset Pack Item Type
-                    if(itemType == ByLawItemType.AssetPack)
-                    {
-                        continue;
-                    }
                     string itemTypeId = Enum.GetName(typeof(ByLawItemType), itemType);
                     var constraintType = BuildingBlockSystem.GetConstraintTypes(itemType);
                     var operators = BuildingBlockSystem.GetPropertyOperators(itemType).Select(op =>
@@ -299,12 +292,7 @@ namespace Trejak.ZoningByLaw.UI
                 {
                     var item = bylawItemBuffer[j];
                     if (item.byLawItemType == ByLawItemType.None) continue;
-                    // Temporarily Skip Asset Pack here
-                    if (item.byLawItemType == ByLawItemType.AssetPack)
-                    {
-                        continue;
-                    }
-                    var itemTypeKey = Enum.GetName(typeof(ByLawItemType), item.byLawItemType);                    
+                    var itemTypeKey = Enum.GetName(typeof(ByLawItemType), item.byLawItemType);
                     var constraintType = BuildingBlockSystem.GetConstraintTypes(item.byLawItemType);
                     switch (constraintType)
                     {                                                    
