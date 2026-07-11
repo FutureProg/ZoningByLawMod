@@ -4,18 +4,5 @@
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 1rem;
-}
-
-.assetPackButton {
-    border-radius: 1rem;
-    opacity: 0.55;
-    // inset so the ring isn't clipped by the button's own border-radius/overflow
-    box-shadow: inset 0 0 0 2px transparent;
-    transition: opacity 0.1s ease, box-shadow 0.1s ease;
-
-    &.buttonOn {
-        opacity: 1;
-        box-shadow: inset 0 0 0 2px #5db4ff;
-    }
+    gap: 0.75rem;
 }

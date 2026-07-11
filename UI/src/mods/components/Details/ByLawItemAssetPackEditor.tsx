@@ -1,8 +1,7 @@
-import classNames from "classnames";
 import styles from "./ByLawItemAssetPackEditor.module.scss";
-import { Button } from "cs2/ui";
 import { FieldDataOption } from "mods/bindings";
 import { ByLawConstraintType, ByLawItemType } from "mods/types";
+import { VanillaComponentResolver } from "vanillacomponentresolver";
 
 export interface ByLawItemAssetPackEditorProps {
     itemType: ByLawItemType;
@@ -31,11 +30,11 @@ export default (props: ByLawItemAssetPackEditorProps) => {
 
 const AssetPackButton = (props: {itemArr: number[], option: FieldDataOption, onButtonToggle: (hash: number) => void}) => {
     let isEnabled = props.itemArr.includes(props.option.value);
+    let ToolButton = VanillaComponentResolver.instance.ToolButton;
     return (
-        <Button variant="icon"
-            src={props.option.image}
+        <ToolButton
+            src={props.option.image ?? ""}
             selected={isEnabled}
-            className={classNames(styles.assetPackButton, {[styles.buttonOn]: isEnabled})}
             onSelect={() => props.onButtonToggle(props.option.value)}/>
     );
 }
