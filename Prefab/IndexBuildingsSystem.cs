@@ -16,10 +16,10 @@ using Unity.Mathematics;
 
 namespace Trejak.ZoningByLaw.Prefab
 {
-    // Asset pack names are hashed with string.GetHashCode() rather than persisted directly, since that
-    // hash isn't guaranteed stable across process restarts. Both the runtime index below and
-    // SerializableByLawItem (which persists pack *names*, not hashes) call through this single function
-    // so a saved by-law and the live index always agree within the same running session.
+    // Runtime asset-pack hashes are always computed via this single function, never persisted
+    // directly, since string.GetHashCode() isn't guaranteed stable across process restarts.
+    // SerializableByLawItem persists the pack *names* instead and recomputes the hash on load
+    // via this same function, so a saved by-law and the live index always agree within a session.
     public static class AssetPackHashUtils
     {
         public static int NameToHash(string name) => name.GetHashCode();
@@ -169,11 +169,17 @@ namespace Trejak.ZoningByLaw.Prefab
                     // Asset pack membership for zone-spawned growables lives on the *zone* prefab, not the
                     // building prefab (matches how Find It reads it: building -> SpawnableBuildingData.m_ZonePrefab
                     // -> zone prefab -> AssetPackItem). Building-level AssetPackItem is also unioned in for any
-                    // non-zone-spawned buildings/extensions that carry it directly.
-                    var nonNullAssetPacks = new List<AssetPackPrefab>();
+                    // non-zone-spawned buildings/extensions that carry it directly. Most buildings belong to no
+                    // pack at all, so the list is only allocated once a pack is actually found, to avoid
+                    // allocating (and immediately discarding) a List<AssetPackPrefab> for every building processed.
+                    List<AssetPackPrefab> nonNullAssetPacks = null;
                     if (prefab.TryGet<AssetPackItem>(out var buildingAssetPacks))
                     {
-                        nonNullAssetPacks.AddRange(buildingAssetPacks.m_Packs.Where(p => p != null));
+                        foreach (var pack in buildingAssetPacks.m_Packs)
+                        {
+                            if (pack == null) continue;
+                            (nonNullAssetPacks ??= new List<AssetPackPrefab>()).Add(pack);
+                        }
                     }
                     if (SystemAPI.HasComponent<SpawnableBuildingData>(buildingEntity))
                     {
@@ -183,15 +189,18 @@ namespace Trejak.ZoningByLaw.Prefab
                             var zonePrefabBase = _prefabSystem.GetPrefab<PrefabBase>(zonePrefabEntity);
                             if (zonePrefabBase != null && zonePrefabBase.TryGet<AssetPackItem>(out var zoneAssetPacks))
                             {
-                                nonNullAssetPacks.AddRange(
-                                    zoneAssetPacks.m_Packs.Where(p => p != null && !nonNullAssetPacks.Contains(p))
-                                );
+                                foreach (var pack in zoneAssetPacks.m_Packs)
+                                {
+                                    if (pack == null || (nonNullAssetPacks != null && nonNullAssetPacks.Contains(pack))) continue;
+                                    (nonNullAssetPacks ??= new List<AssetPackPrefab>()).Add(pack);
+                                }
                             }
                         }
                     }
-                    _assetPackPrefabs.AddRange(
-                        nonNullAssetPacks.Where(p => !_assetPackPrefabs.Contains(p))
-                    );
+                    if (nonNullAssetPacks != null)
+                    {
+                        _assetPackPrefabs.AddRange(nonNullAssetPacks.Where(p => !_assetPackPrefabs.Contains(p)));
+                    }
                     while (prefabData.m_Index >= _properties.Length)
                     {
                         _properties.Add(new BuildingByLawProperties() { initialized = false });
@@ -246,7 +255,9 @@ namespace Trejak.ZoningByLaw.Prefab
                         isCommercial = archetypeComponents.Contains(typeof(CommercialProperty)),
                         isStorage = archetypeComponents.Contains(typeof(StorageProperty)) && archetypeComponents.Contains(typeof(IndustrialProperty)),
                         pollutionData = hasPollutionData ? pollutionData : default,
-                        assetPacks = new NativeArray<int>(nonNullAssetPacks.Select(p => AssetPackHashUtils.NameToHash(p.name)).ToArray(), Allocator.Persistent)
+                        assetPacks = nonNullAssetPacks != null
+                            ? new NativeArray<int>(nonNullAssetPacks.Select(p => AssetPackHashUtils.NameToHash(p.name)).ToArray(), Allocator.Persistent)
+                            : new NativeArray<int>(0, Allocator.Persistent)
                     };
 
                     // Determine the zone density. Buildings that aren't zone-spawned (no
