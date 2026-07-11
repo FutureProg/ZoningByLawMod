@@ -248,12 +248,14 @@ namespace Trejak.ZoningByLaw.UI
                                     }).ToList();
                             } else if (itemType == ByLawItemType.Theme)
                             {
-                                // Same resolution as AssetPack above: ThemePrefab is a plain PrefabBase with
-                                // no geometry of its own, so its icon/display name are resolved the same way.
+                                // ThemePrefab's icon resolves the same way as AssetPack above, but its
+                                // display name lives in a separate locale group - vanilla's own theme
+                                // picker/tooltip UI resolves theme names via "Assets.THEME[<prefab name>]",
+                                // not "Assets.NAME[...]" (that group is for generic prefabs/asset packs).
                                 mappedValues = _indexBuildingsSystem.GetThemes()
                                     .Select(theme => new FieldDataOption<object>()
                                     {
-                                        label = $"Assets.NAME[{theme.name}]",
+                                        label = $"Assets.THEME[{theme.name}]",
                                         image = ImageSystem.GetThumbnail(theme),
                                         value = _indexBuildingsSystem.GetThemeHash(theme)
                                     }).ToList();
