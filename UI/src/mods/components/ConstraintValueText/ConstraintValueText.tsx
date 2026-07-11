@@ -1,6 +1,6 @@
 import { UnitSystem, useLocalization } from "cs2/l10n";
 import { BOUNDS_VALUE_DISABLED, ByLawConstraintType, ByLawItem, ByLawItemType, ByLawZoneType, PollutionValues } from "mods/types";
-import { getMeasurementString } from "mods/utils";
+import { getMeasurementString, isDynamicNameBasedMultiSelect } from "mods/utils";
 
 
 //&#160; = space character code (should improve how all of this is done tbh...)
@@ -36,18 +36,16 @@ export default (props: {className?: string, item?: ByLawItem}) => {
             }
             break; 
         }
-        case ByLawConstraintType.MultiSelect: {            
-            switch(props.item!.byLawItemType) {
-                default: {
-                    let value = props.item.valueByteFlag;
-                    let count = Object.keys(ByLawZoneType)
-                        .filter(key => !isNaN(Number(key)))                        
-                        .map((key, _) => ((Number(key) & value) != 0? 1 : 0) as number)
-                        .reduce((prevValue, currentValue) => prevValue + currentValue, 0);
-                    textChild = <span>{count}&#160;{translate("ZBL.ByLawValueText[Items]", "item[s]")}</span>;
-                    break;
-                }
-            }
+        case ByLawConstraintType.MultiSelect: {
+            // AssetPack/Theme options are a runtime-discovered list stored as valueNumberArray (a set of
+            // prefab-name hashes), not a fixed-enum bitmask, so their count is just its length.
+            let count = isDynamicNameBasedMultiSelect(props.item!.byLawItemType)
+                ? (props.item.valueNumberArray?.length ?? 0)
+                : Object.keys(ByLawZoneType)
+                    .filter(key => !isNaN(Number(key)))
+                    .map((key, _) => ((Number(key) & props.item!.valueByteFlag) != 0? 1 : 0) as number)
+                    .reduce((prevValue, currentValue) => prevValue + currentValue, 0);
+            textChild = <span>{count}&#160;{translate("ZBL.ByLawValueText[Items]", "item[s]")}</span>;
             break;
         }
         case ByLawConstraintType.SingleSelect: {

@@ -19,7 +19,8 @@ export const GetDefaultByLawItem = () : ByLawItem => ({
     propertyOperator: ByLawPropertyOperator.None,
     valueBounds1: {max: 0, min: 0} as Bounds1,
     valueByteFlag: 0,
-    valueNumber: 0
+    valueNumber: 0,
+    valueNumberArray: []
 });
 
 export const GetDefaultZoningByLawBinding = () : ZoningByLawBinding => ({
@@ -154,6 +155,11 @@ export const getOperationTypes = (byLawItemType: ByLawItemType) : ByLawPropertyO
         case ByLawItemType.AssetPack:
             re.push(ByLawPropertyOperator.OnlyOneOf);
             return re;
+        case ByLawItemType.Theme:
+            // Matches BuildingBlockSystem.GetPropertyOperators: EvalTheme matches if the building's theme
+            // is any one of the selected themes, i.e. "at least one".
+            re.push(ByLawPropertyOperator.AtLeastOne);
+            return re;
         case ByLawItemType.Height:
         case ByLawItemType.LotWidth:
         case ByLawItemType.LotSize:
@@ -190,11 +196,18 @@ export const getOperationTypes = (byLawItemType: ByLawItemType) : ByLawPropertyO
 
 export const getDefaultPropertyOperator = (byLawItemType: ByLawItemType) : ByLawPropertyOperator => getOperationTypes(byLawItemType)[0];
 
+// Mirrors BuildingBlockSystem.IsDynamicNameBasedMultiSelect: item types whose options are a
+// runtime-discovered list rather than a fixed enum, so they're rendered with the shared icon
+// multi-select editor instead of the generic radio/checkbox enum editor.
+export const isDynamicNameBasedMultiSelect = (byLawItemType: ByLawItemType) : boolean =>
+    byLawItemType === ByLawItemType.AssetPack || byLawItemType === ByLawItemType.Theme;
+
 export const getConstraintTypes = (byLawItemType: ByLawItemType) : ByLawConstraintType[] => {
     let re : ByLawConstraintType[] = [];
     switch(byLawItemType) {
         case ByLawItemType.LandUse:
         case ByLawItemType.AssetPack:
+        case ByLawItemType.Theme:
             re.push(ByLawConstraintType.MultiSelect);
             break;
         case ByLawItemType.Height:
@@ -232,6 +245,7 @@ export const getItemCategories = (itemType: ByLawItemType) : ByLawItemCategory =
         case ByLawItemType.Parking:
         case ByLawItemType.LotDepth:
         case ByLawItemType.AssetPack:
+        case ByLawItemType.Theme:
             return ByLawItemCategory.Lot;
     
         case ByLawItemType.Height:               

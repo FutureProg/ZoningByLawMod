@@ -57,7 +57,8 @@ export enum ByLawItemType {
     GroundPollutionLevel,
     NoisePollutionLevel,
     AssetPack,
-    Density
+    Density,
+    Theme
 }
 
 export enum ByLawConstraintType {
@@ -91,6 +92,7 @@ export interface ByLawItem {
     valueBounds1: Bounds1;
     valueByteFlag: number;
     valueNumber: number;
+    valueNumberArray: number[];
 }
 
 export enum BlockType

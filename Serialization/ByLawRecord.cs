@@ -312,6 +312,12 @@ namespace Trejak.ZoningByLaw.Serialization
         [JsonProperty("assetPackNames", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string[] assetPackNames;
 
+        // Theme membership is persisted by stable string name for the same reason as assetPackNames
+        // above: string.GetHashCode() isn't guaranteed stable across process restarts. Resolved back to
+        // hashes on load via ThemeHashUtils.NameToHash.
+        [JsonProperty("themeNames", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string[] themeNames;
+
         public SerializableByLawItem(BuildingBlocks.ByLawItem item)
         {
             byLawItemType = item.byLawItemType.ToString();
@@ -321,39 +327,46 @@ namespace Trejak.ZoningByLaw.Serialization
             valueBounds1 = new SerializableBounds1(item.valueBounds1);
             valueByteFlag = item.valueByteFlag;
             valueNumber = item.valueNumber;
+            valueNumberArray = null;
+            assetPackNames = null;
+            themeNames = null;
+
+            var indexBuildingsSystem = Unity.Entities.World.DefaultGameObjectInjectionWorld?.GetExistingSystemManaged<IndexBuildingsSystem>();
             if (item.byLawItemType == BuildingBlocks.ByLawItemType.AssetPack)
             {
-                valueNumberArray = null;
-                if (item.valueNumberArray.IsCreated && item.valueNumberArray.Length > 0)
-                {
-                    var indexBuildingsSystem = Unity.Entities.World.DefaultGameObjectInjectionWorld?.GetExistingSystemManaged<IndexBuildingsSystem>();
-                    assetPackNames = item.valueNumberArray
-                        .Select(hash => indexBuildingsSystem?.GetAssetPackByHash(hash))
-                        .Where(p => p != null)
-                        .Select(p => p.name)
-                        .ToArray();
-                    // Every hash is expected to resolve, since it can only have been selected from an
-                    // option list the same index already produced. If some don't, the index isn't ready
-                    // (e.g. saved before IndexBuildingsSystem finished its first pass, or during world
-                    // teardown) - surface that instead of silently dropping the user's selection on disk.
-                    if (assetPackNames.Length < item.valueNumberArray.Length)
-                    {
-                        Mod.log.Warn(
-                            $"AssetPack by-law item: could not resolve {item.valueNumberArray.Length - assetPackNames.Length} " +
-                            $"of {item.valueNumberArray.Length} selected pack hash(es) to a name while saving " +
-                            "(IndexBuildingsSystem not ready?); those selections will not be persisted this save.");
-                    }
-                }
-                else
-                {
-                    assetPackNames = null;
-                }
+                assetPackNames = ResolveDynamicMultiSelectNames(item, "AssetPack", hash => indexBuildingsSystem?.GetAssetPackByHash(hash)?.name);
+            }
+            else if (item.byLawItemType == BuildingBlocks.ByLawItemType.Theme)
+            {
+                themeNames = ResolveDynamicMultiSelectNames(item, "Theme", hash => indexBuildingsSystem?.GetThemeByHash(hash)?.name);
             }
             else
             {
                 valueNumberArray = item.valueNumberArray.IsCreated ? item.valueNumberArray.ToArray() : null;
-                assetPackNames = null;
             }
+        }
+
+        // Shared by every dynamic, name-based multi-select item type (AssetPack, Theme, ...): resolves the
+        // runtime hash selection back to stable names for persistence, since string.GetHashCode() isn't
+        // guaranteed stable across process restarts. Every hash is expected to resolve, since it can only
+        // have been selected from an option list the same index already produced - if some don't, the index
+        // isn't ready (e.g. saved before IndexBuildingsSystem finished its first pass, or during world
+        // teardown), which is surfaced here instead of silently dropping the user's selection on disk.
+        private static string[] ResolveDynamicMultiSelectNames(BuildingBlocks.ByLawItem item, string typeLabel, Func<int, string> hashToName)
+        {
+            if (!item.valueNumberArray.IsCreated || item.valueNumberArray.Length == 0)
+            {
+                return null;
+            }
+            var names = item.valueNumberArray.Select(hashToName).Where(n => n != null).ToArray();
+            if (names.Length < item.valueNumberArray.Length)
+            {
+                Mod.log.Warn(
+                    $"{typeLabel} by-law item: could not resolve {item.valueNumberArray.Length - names.Length} " +
+                    $"of {item.valueNumberArray.Length} selected hash(es) to a name while saving " +
+                    "(IndexBuildingsSystem not ready?); those selections will not be persisted this save.");
+            }
+            return names;
         }
 
         public BuildingBlocks.ByLawItem ToByLawItem()
@@ -361,7 +374,9 @@ namespace Trejak.ZoningByLaw.Serialization
             var parsedItemType = Enum.TryParse<BuildingBlocks.ByLawItemType>(byLawItemType, out var bit) ? bit : BuildingBlocks.ByLawItemType.None;
             int[] numberArray = parsedItemType == BuildingBlocks.ByLawItemType.AssetPack
                 ? (assetPackNames ?? new string[0]).Select(AssetPackHashUtils.NameToHash).ToArray()
-                : (valueNumberArray ?? new int[0]);
+                : parsedItemType == BuildingBlocks.ByLawItemType.Theme
+                    ? (themeNames ?? new string[0]).Select(ThemeHashUtils.NameToHash).ToArray()
+                    : (valueNumberArray ?? new int[0]);
             return new BuildingBlocks.ByLawItem
             {
                 byLawItemType = parsedItemType,

@@ -246,6 +246,19 @@ namespace Trejak.ZoningByLaw.UI
                                         image = ImageSystem.GetThumbnail(ap),
                                         value = _indexBuildingsSystem.GetAssetPackHash(ap)
                                     }).ToList();
+                            } else if (itemType == ByLawItemType.Theme)
+                            {
+                                // ThemePrefab's icon resolves the same way as AssetPack above, but its
+                                // display name lives in a separate locale group - vanilla's own theme
+                                // picker/tooltip UI resolves theme names via "Assets.THEME[<prefab name>]",
+                                // not "Assets.NAME[...]" (that group is for generic prefabs/asset packs).
+                                mappedValues = _indexBuildingsSystem.GetThemes()
+                                    .Select(theme => new FieldDataOption<object>()
+                                    {
+                                        label = $"Assets.THEME[{theme.name}]",
+                                        image = ImageSystem.GetThumbnail(theme),
+                                        value = _indexBuildingsSystem.GetThemeHash(theme)
+                                    }).ToList();
                             } else
                             {
                                 var enumType = BuildingBlockSystem.GetConstraintEnumType(itemType);
@@ -318,7 +331,7 @@ namespace Trejak.ZoningByLaw.UI
                             ((RadioFieldData)fieldDict[itemTypeKey]).value = item.valueByteFlag;
                             break;
                         case ByLawConstraintType.MultiSelect:
-                            if (item.byLawItemType == ByLawItemType.AssetPack)
+                            if (BuildingBlockSystem.IsDynamicNameBasedMultiSelect(item.byLawItemType))
                             {
                                 ((CheckboxFieldData)fieldDict[itemTypeKey]).value = item.valueNumberArray.ToArray();
                             } else
@@ -403,23 +416,23 @@ namespace Trejak.ZoningByLaw.UI
                                     $"Failed to parse int value '{opIntValue}' to ByLawPropertyOperator for field '{field}'");
                             }
                         }
-                        else if (item.byLawItemType == ByLawItemType.AssetPack && value.GetType().IsArray)
+                        else if (BuildingBlockSystem.IsDynamicNameBasedMultiSelect(item.byLawItemType) && value.GetType().IsArray)
                         {
                             var valArr = value as Array;
-                            var assetHashList = new List<int>();
+                            var selectedHashList = new List<int>();
                             for (int idx = 0; idx < valArr.Length; idx++)
                             {
-                                assetHashList.Add(int.Parse(valArr.GetValue(idx).ToString()));
+                                selectedHashList.Add(int.Parse(valArr.GetValue(idx).ToString()));
                             }
-                            var assetHashes = assetHashList.ToArray();
+                            var selectedHashes = selectedHashList.ToArray();
                             if (item.valueNumberArray.IsCreated)
                             {
                                 item.valueNumberArray.Dispose();
                             }
-                            item.valueNumberArray = new NativeArray<int>(assetHashes, Allocator.Persistent);
+                            item.valueNumberArray = new NativeArray<int>(selectedHashes, Allocator.Persistent);
                             bylawItemBuffer[i] = item;
                             Mod.log.Info(
-                                $"Set valueNumberArray to [{string.Join(", ", assetHashes)}]");
+                                $"Set valueNumberArray to [{string.Join(", ", selectedHashes)}]");
                         }
                         else switch (value)
                             {

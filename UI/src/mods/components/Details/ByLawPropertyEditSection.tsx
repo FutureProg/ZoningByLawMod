@@ -2,9 +2,9 @@ import { ByLawConstraintType, ByLawItem, ByLawItemType } from "mods/types";
 import { ByLawItemBounds1Editor } from "./ByLawItemBounds1Editor";
 import { Bounds1 } from "cs2/bindings";
 import ByLawItemEnumEditor from "./ByLawItemEnumEditor";
-import { getMeasurementString } from "mods/utils";
+import { getMeasurementString, isDynamicNameBasedMultiSelect } from "mods/utils";
 import { useLocalization } from "cs2/l10n";
-import ByLawItemAssetPackEditor from "./ByLawItemAssetPackEditor";
+import ByLawItemIconMultiSelectEditor from "./ByLawItemIconMultiSelectEditor";
 import { CheckboxFieldData, FieldDataBase, RadioFieldData, RangeFieldData, setByLawItemValue } from "mods/bindings";
 
 type Props = {
@@ -87,14 +87,14 @@ export default (
         );
     }    
     if (
-        itemType === ByLawItemType.AssetPack && fieldData.fieldType === "checkbox"
+        isDynamicNameBasedMultiSelect(itemType) && fieldData.fieldType === "checkbox"
     ) {
         let onChange = (nValue: number[]) => {
             setByLawItemValue(ByLawItemType[itemType], nValue);
         };
         let checkboxValue = (fieldData as CheckboxFieldData).value as number[] | number;
         return (
-            <ByLawItemAssetPackEditor
+            <ByLawItemIconMultiSelectEditor
                 constraintType={constraintType}
                 itemType={itemType}
                 itemArr={Array.isArray(checkboxValue) ? checkboxValue : checkboxValue != null ? [checkboxValue] : []}
