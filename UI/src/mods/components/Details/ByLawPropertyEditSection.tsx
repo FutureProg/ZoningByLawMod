@@ -87,6 +87,23 @@ export default (
         );
     }    
     if (
+        itemType === ByLawItemType.AssetPack && fieldData.fieldType === "checkbox"
+    ) {
+        let onChange = (nValue: number[]) => {
+            setByLawItemValue(ByLawItemType[itemType], nValue);
+        };
+        let checkboxValue = (fieldData as CheckboxFieldData).value as number[] | number;
+        return (
+            <ByLawItemAssetPackEditor
+                constraintType={constraintType}
+                itemType={itemType}
+                itemArr={Array.isArray(checkboxValue) ? checkboxValue : checkboxValue != null ? [checkboxValue] : []}
+                options={fieldData.options ?? []}
+                onChange={onChange}
+            />
+        );
+    }
+    if (
         ["radio", "checkbox"].includes(fieldData.fieldType)
     ) {
         let onChange = (nValue: number[]) => {

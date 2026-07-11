@@ -303,6 +303,15 @@ namespace Trejak.ZoningByLaw.Serialization
         public int valueNumber;
         public int[] valueNumberArray;
 
+        // Asset pack membership is persisted by stable string name, not by the hashes used at runtime
+        // (string.GetHashCode() isn't guaranteed stable across process restarts). Hashes are recomputed
+        // from these names on load, via the same AssetPackHashUtils.NameToHash used by IndexBuildingsSystem,
+        // so a saved by-law always matches the live index within a session. Records saved before this field
+        // existed have no assetPackNames and are treated as an empty selection (their old raw-hash
+        // valueNumberArray is intentionally ignored for AssetPack items, since it was never valid to begin with).
+        [JsonProperty("assetPackNames", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string[] assetPackNames;
+
         public SerializableByLawItem(BuildingBlocks.ByLawItem item)
         {
             byLawItemType = item.byLawItemType.ToString();
@@ -312,21 +321,57 @@ namespace Trejak.ZoningByLaw.Serialization
             valueBounds1 = new SerializableBounds1(item.valueBounds1);
             valueByteFlag = item.valueByteFlag;
             valueNumber = item.valueNumber;
-            valueNumberArray = item.valueNumberArray.IsCreated ? item.valueNumberArray.ToArray() : null;
+            if (item.byLawItemType == BuildingBlocks.ByLawItemType.AssetPack)
+            {
+                valueNumberArray = null;
+                if (item.valueNumberArray.IsCreated && item.valueNumberArray.Length > 0)
+                {
+                    var indexBuildingsSystem = Unity.Entities.World.DefaultGameObjectInjectionWorld?.GetExistingSystemManaged<IndexBuildingsSystem>();
+                    assetPackNames = item.valueNumberArray
+                        .Select(hash => indexBuildingsSystem?.GetAssetPackByHash(hash))
+                        .Where(p => p != null)
+                        .Select(p => p.name)
+                        .ToArray();
+                    // Every hash is expected to resolve, since it can only have been selected from an
+                    // option list the same index already produced. If some don't, the index isn't ready
+                    // (e.g. saved before IndexBuildingsSystem finished its first pass, or during world
+                    // teardown) - surface that instead of silently dropping the user's selection on disk.
+                    if (assetPackNames.Length < item.valueNumberArray.Length)
+                    {
+                        Mod.log.Warn(
+                            $"AssetPack by-law item: could not resolve {item.valueNumberArray.Length - assetPackNames.Length} " +
+                            $"of {item.valueNumberArray.Length} selected pack hash(es) to a name while saving " +
+                            "(IndexBuildingsSystem not ready?); those selections will not be persisted this save.");
+                    }
+                }
+                else
+                {
+                    assetPackNames = null;
+                }
+            }
+            else
+            {
+                valueNumberArray = item.valueNumberArray.IsCreated ? item.valueNumberArray.ToArray() : null;
+                assetPackNames = null;
+            }
         }
 
         public BuildingBlocks.ByLawItem ToByLawItem()
         {
+            var parsedItemType = Enum.TryParse<BuildingBlocks.ByLawItemType>(byLawItemType, out var bit) ? bit : BuildingBlocks.ByLawItemType.None;
+            int[] numberArray = parsedItemType == BuildingBlocks.ByLawItemType.AssetPack
+                ? (assetPackNames ?? new string[0]).Select(AssetPackHashUtils.NameToHash).ToArray()
+                : (valueNumberArray ?? new int[0]);
             return new BuildingBlocks.ByLawItem
             {
-                byLawItemType = Enum.TryParse<BuildingBlocks.ByLawItemType>(byLawItemType, out var bit) ? bit : BuildingBlocks.ByLawItemType.None,
+                byLawItemType = parsedItemType,
                 constraintType = Enum.TryParse<BuildingBlocks.ByLawConstraintType>(constraintType, out var ct) ? ct : BuildingBlocks.ByLawConstraintType.None,
                 itemCategory = Enum.TryParse<BuildingBlocks.ByLawItemCategory>(itemCategory, out var ic) ? ic : BuildingBlocks.ByLawItemCategory.None,
                 propertyOperator = Enum.TryParse<BuildingBlocks.ByLawPropertyOperator>(propertyOperator, out var po) ? po : BuildingBlocks.ByLawPropertyOperator.None,
                 valueBounds1 = valueBounds1.ToBounds1(),
                 valueByteFlag = valueByteFlag,
                 valueNumber = valueNumber,
-                valueNumberArray = new NativeArray<int>(valueNumberArray ?? new int[0], Allocator.Persistent)
+                valueNumberArray = new NativeArray<int>(numberArray, Allocator.Persistent)
             };
         }
     }

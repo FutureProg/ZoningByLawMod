@@ -1,16 +1,11 @@
 .view {
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-}
+    flex-wrap: wrap;        
+    justify-content: flex-start;
+    padding: 6rem 32rem;
 
-.assetPackButton {
-    border-radius: 1rem;
-    background-color: black;
-
-    &.buttonOn {
-        background-color: blue;
+    > button {
+        margin-top: 6rem;
+        margin-left: 6rem;
     }
 }

@@ -1,28 +1,26 @@
-import classNames from "classnames";
 import styles from "./ByLawItemAssetPackEditor.module.scss";
-import { useMapValue, useValue } from "cs2/api";
-import { AssetPack, toolbar } from "cs2/bindings";
-import { Button } from "cs2/ui";
-import { assetPackNameToHash$ } from "mods/bindings";
+import { Tooltip } from "cs2/ui";
+import { useLocalization } from "cs2/l10n";
+import { FieldDataOption } from "mods/bindings";
 import { ByLawConstraintType, ByLawItemType } from "mods/types";
+import { VanillaComponentResolver } from "vanillacomponentresolver";
 
 export interface ByLawItemAssetPackEditorProps {
     itemType: ByLawItemType;
     itemArr: number[];
     constraintType: ByLawConstraintType;
+    options: FieldDataOption[];
     onChange?: (newArrayValue: number[]) => void;
 }
 
 export default (props: ByLawItemAssetPackEditorProps) => {
-    let assetPacks = useValue(toolbar.assetPacks$);
-    
-    let onButtonToggle = (packHash: number, packName: string) => {
+    let onButtonToggle = (packHash: number) => {
         let newArrayValue = props.itemArr.includes(packHash) ? props.itemArr.filter((v) => v != packHash) : [...props.itemArr, packHash];
         props.onChange && props.onChange(newArrayValue);
     }
 
-    let buttons = assetPacks.map((assetPack) => {
-        return <AssetPackButton itemArr={props.itemArr} assetPack={assetPack} onButtonToggle={onButtonToggle} key={assetPack.name}/>
+    let buttons = props.options.map((option) => {
+        return <AssetPackButton itemArr={props.itemArr} option={option} onButtonToggle={onButtonToggle} key={option.value}/>
     });
 
     return (
@@ -32,13 +30,16 @@ export default (props: ByLawItemAssetPackEditorProps) => {
     );
 }
 
-const AssetPackButton = (props: {itemArr: number[], assetPack: AssetPack, onButtonToggle: (hash: number, name: string) => void}) => {
-    let isEnabled = props.itemArr.includes(useMapValue(assetPackNameToHash$, props.assetPack.name));
-    let assetPackHash = useMapValue(assetPackNameToHash$, props.assetPack.name);
+const AssetPackButton = (props: {itemArr: number[], option: FieldDataOption, onButtonToggle: (hash: number) => void}) => {
+    let { translate } = useLocalization();
+    let isEnabled = props.itemArr.includes(props.option.value);
+    let ToolButton = VanillaComponentResolver.instance.ToolButton;
     return (
-        <Button variant="icon"
-            src={props.assetPack.icon}            
-            className={classNames({[styles.buttonOn]: isEnabled}, styles.assetPackButton)} 
-            onSelect={() => props.onButtonToggle(assetPackHash, props.assetPack.name)}/>
+        <Tooltip tooltip={translate(props.option.label, props.option.label)} direction="up">
+            <ToolButton
+                src={props.option.image ?? ""}
+                selected={isEnabled}
+                onSelect={() => props.onButtonToggle(props.option.value)}/>
+        </Tooltip>
     );
 }
