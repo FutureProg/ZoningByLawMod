@@ -1,4 +1,5 @@
 import styles from "./ByLawItemAssetPackEditor.module.scss";
+import { Tooltip } from "cs2/ui";
 import { FieldDataOption } from "mods/bindings";
 import { ByLawConstraintType, ByLawItemType } from "mods/types";
 import { VanillaComponentResolver } from "vanillacomponentresolver";
@@ -32,9 +33,11 @@ const AssetPackButton = (props: {itemArr: number[], option: FieldDataOption, onB
     let isEnabled = props.itemArr.includes(props.option.value);
     let ToolButton = VanillaComponentResolver.instance.ToolButton;
     return (
-        <ToolButton
-            src={props.option.image ?? ""}
-            selected={isEnabled}
-            onSelect={() => props.onButtonToggle(props.option.value)}/>
+        <Tooltip tooltip={props.option.label} direction="up">
+            <ToolButton
+                src={props.option.image ?? ""}
+                selected={isEnabled}
+                onSelect={() => props.onButtonToggle(props.option.value)}/>
+        </Tooltip>
     );
 }
