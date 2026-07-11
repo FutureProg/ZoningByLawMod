@@ -1,5 +1,6 @@
 import styles from "./ByLawItemAssetPackEditor.module.scss";
 import { Tooltip } from "cs2/ui";
+import { useLocalization } from "cs2/l10n";
 import { FieldDataOption } from "mods/bindings";
 import { ByLawConstraintType, ByLawItemType } from "mods/types";
 import { VanillaComponentResolver } from "vanillacomponentresolver";
@@ -30,10 +31,11 @@ export default (props: ByLawItemAssetPackEditorProps) => {
 }
 
 const AssetPackButton = (props: {itemArr: number[], option: FieldDataOption, onButtonToggle: (hash: number) => void}) => {
+    let { translate } = useLocalization();
     let isEnabled = props.itemArr.includes(props.option.value);
     let ToolButton = VanillaComponentResolver.instance.ToolButton;
     return (
-        <Tooltip tooltip={props.option.label} direction="up">
+        <Tooltip tooltip={translate(props.option.label, props.option.label)} direction="up">
             <ToolButton
                 src={props.option.image ?? ""}
                 selected={isEnabled}

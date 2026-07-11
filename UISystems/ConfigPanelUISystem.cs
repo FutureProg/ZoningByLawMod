@@ -234,10 +234,15 @@ namespace Trejak.ZoningByLaw.UI
                                 // tries the prefab's own UIObject icon first (what packs normally
                                 // ship with) and only falls back to a camera render if that's
                                 // missing - the same resolution Find It uses for asset pack icons.
+                                // ap.name is the internal prefab identifier (e.g. "MediterraneanHeritagePack"),
+                                // not the display name. Vanilla resolves the display name for a prefab via
+                                // PrefabUISystem.GetTitleAndDescription, which for a plain (non-service,
+                                // non-upgrade) prefab is the locale key "Assets.NAME[<prefab name>]" - use the
+                                // same key here and translate it client-side, like every other option label.
                                 mappedValues = _indexBuildingsSystem.GetAssetPacks()
                                     .Select(ap => new FieldDataOption<object>()
                                     {
-                                        label = ap.name,
+                                        label = $"Assets.NAME[{ap.name}]",
                                         image = ImageSystem.GetThumbnail(ap),
                                         value = _indexBuildingsSystem.GetAssetPackHash(ap)
                                     }).ToList();
