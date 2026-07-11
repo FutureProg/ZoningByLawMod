@@ -3,11 +3,13 @@ $gap: 0.75rem;
 $max-columns: 6;
 
 .view {
-    display: grid;
-    // Auto-fill as many button-sized columns as fit, but the max-width below caps a
-    // row at $max-columns worth of buttons+gaps, so it always wraps well before that.
-    grid-template-columns: repeat(auto-fill, minmax($button-size, 1fr));
-    gap: $gap;
-    max-width: calc(#{$max-columns} * #{$button-size} + #{$max-columns - 1} * #{$gap});
-    justify-content: center;
+    display: flex;
+    flex-wrap: wrap;        
+    justify-content: flex-start;
+    padding: 6rem 32rem;
+
+    > button {
+        margin-top: 6rem;
+        margin-left: 6rem;
+    }
 }
