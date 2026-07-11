@@ -41,12 +41,19 @@ All that and more is possible with the Zoning By-Law Builder.
 # Special Thanks To:
 
 ✨T.D.W
+    
 ✨Yenyang
+    
 ✨City Planner Plays
+    
 ✨Konsi
+    
 ✨Klyte
+    
 ✨Krzychu
+    
 ✨Quboid
+    
 ✨Triton Supreme
 and the Cities: Skylines Modding Discord community
 
@@ -70,14 +77,15 @@ Please report bug reports and have discussions on the mod's thread in the [Citie
 	<!--Link to the forum post where the mod can be discussed-->
 	<!--<ForumLink Value="" />-->
 	<!--Version of the mod-->
-	<ModVersion Value="0.3.0" />
+	<ModVersion Value="0.4.0" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.6.*" />
 	<!--Dependency for the mod, can be set multiple times-->
 	<Dependency Id="74417" />
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 <ChangeLog>
-- Added support for Density constraints (Low, Medium, High)
+- Added Support for Asset Packs Constraints
+- Added Support for Theme Constraints
 </ChangeLog>
 	<!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
     <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=_PaNeeFAT-w" />
