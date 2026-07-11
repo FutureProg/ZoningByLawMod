@@ -12,6 +12,11 @@ namespace ZoningByLaw.BuildingBlocks
 {
     public static class BuildingBlockSystem
     {
+        // Item types whose options are a runtime-discovered, dynamic list (not a fixed enum), and so are
+        // stored/edited by stable name rather than by the valueByteFlag bitmask path - see ByLawRecord's
+        // per-type *Names fields and ConfigPanelUISystem's checkbox handling for AssetPack/Theme.
+        public static bool IsDynamicNameBasedMultiSelect(ByLawItemType itemType) =>
+            itemType == ByLawItemType.AssetPack || itemType == ByLawItemType.Theme;
 
         public struct EvaluationParams
         {
@@ -68,6 +73,8 @@ namespace ZoningByLaw.BuildingBlocks
                     return EvalLandUse(building, properties, item, evalParams);
                 case ByLawItemType.AssetPack:
                     return EvalAssetPack(item, properties);
+                case ByLawItemType.Theme:
+                    return EvalTheme(item, properties);
                 case ByLawItemType.Density:
                     return EvalDensity(item, properties);
                 default:
@@ -82,6 +89,21 @@ namespace ZoningByLaw.BuildingBlocks
                 for (int j = 0; j < properties.assetPacks.Length; j++)
                 {
                     if (properties.assetPacks[j] == item.valueNumberArray[i])
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public static bool EvalTheme(ByLawItem item, BuildingByLawProperties properties)
+        {
+            for (int i = 0; i < item.valueNumberArray.Length; i++)
+            {
+                for (int j = 0; j < properties.themes.Length; j++)
+                {
+                    if (properties.themes[j] == item.valueNumberArray[i])
                     {
                         return true;
                     }
@@ -299,6 +321,7 @@ namespace ZoningByLaw.BuildingBlocks
                 case ByLawItemType.Uses:
                 case ByLawItemType.AssetPack:
                 case ByLawItemType.Density:
+                case ByLawItemType.Theme:
                     return ByLawConstraintType.MultiSelect;
                 case ByLawItemType.Height:
                 case ByLawItemType.LotWidth:
@@ -331,6 +354,7 @@ namespace ZoningByLaw.BuildingBlocks
                 case ByLawItemType.LotDepth:
                 case ByLawItemType.Parking:
                 case ByLawItemType.AssetPack:
+                case ByLawItemType.Theme:
                     return ByLawItemCategory.Lot;
 
                 case ByLawItemType.Height:               
@@ -390,6 +414,11 @@ namespace ZoningByLaw.BuildingBlocks
                     // EvalAssetPack matches if the building belongs to ANY selected pack, i.e. "at least
                     // one", not "exactly one" - AtLeastOne is the operator whose label actually matches
                     // that behavior.
+                    re.Add(ByLawPropertyOperator.AtLeastOne);
+                    break;
+                case ByLawItemType.Theme:
+                    // Same reasoning as AssetPack: EvalTheme matches if the building's (single) theme is
+                    // any one of the selected themes.
                     re.Add(ByLawPropertyOperator.AtLeastOne);
                     break;
                 case ByLawItemType.None:

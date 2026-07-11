@@ -1,11 +1,11 @@
-import styles from "./ByLawItemAssetPackEditor.module.scss";
+import styles from "./ByLawItemIconMultiSelectEditor.module.scss";
 import { Tooltip } from "cs2/ui";
 import { useLocalization } from "cs2/l10n";
 import { FieldDataOption } from "mods/bindings";
 import { ByLawConstraintType, ByLawItemType } from "mods/types";
 import { VanillaComponentResolver } from "vanillacomponentresolver";
 
-export interface ByLawItemAssetPackEditorProps {
+export interface ByLawItemIconMultiSelectEditorProps {
     itemType: ByLawItemType;
     itemArr: number[];
     constraintType: ByLawConstraintType;
@@ -13,14 +13,14 @@ export interface ByLawItemAssetPackEditorProps {
     onChange?: (newArrayValue: number[]) => void;
 }
 
-export default (props: ByLawItemAssetPackEditorProps) => {
-    let onButtonToggle = (packHash: number) => {
-        let newArrayValue = props.itemArr.includes(packHash) ? props.itemArr.filter((v) => v != packHash) : [...props.itemArr, packHash];
+export default (props: ByLawItemIconMultiSelectEditorProps) => {
+    let onButtonToggle = (hash: number) => {
+        let newArrayValue = props.itemArr.includes(hash) ? props.itemArr.filter((v) => v != hash) : [...props.itemArr, hash];
         props.onChange && props.onChange(newArrayValue);
     }
 
     let buttons = props.options.map((option) => {
-        return <AssetPackButton itemArr={props.itemArr} option={option} onButtonToggle={onButtonToggle} key={option.value}/>
+        return <IconMultiSelectButton itemArr={props.itemArr} option={option} onButtonToggle={onButtonToggle} key={option.value}/>
     });
 
     return (
@@ -30,7 +30,7 @@ export default (props: ByLawItemAssetPackEditorProps) => {
     );
 }
 
-const AssetPackButton = (props: {itemArr: number[], option: FieldDataOption, onButtonToggle: (hash: number) => void}) => {
+const IconMultiSelectButton = (props: {itemArr: number[], option: FieldDataOption, onButtonToggle: (hash: number) => void}) => {
     let { translate } = useLocalization();
     let isEnabled = props.itemArr.includes(props.option.value);
     let ToolButton = VanillaComponentResolver.instance.ToolButton;

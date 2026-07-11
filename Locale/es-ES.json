@@ -31,6 +31,7 @@
     "ZBL.ByLawItemType[Name]": "Nombre",
     "ZBL.ByLawItemType[Color]": "Color",
     "ZBL.ByLawItemType[AssetPack]": "Asset Pack",
+    "ZBL.ByLawItemType[Theme]": "Theme",
     "ZBL.ByLawValueText[Items]": "ítem(s)",
     "ZBL.ByLawValueText[BoundsTo]": "hasta",
     "ZBL.FlagValues[None]": "Ninguno",

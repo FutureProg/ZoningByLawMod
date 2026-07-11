@@ -36,7 +36,8 @@ namespace Trejak.ZoningByLaw.BuildingBlocks
         GroundPollutionLevel,
         NoisePollutionLevel,
         AssetPack,
-        Density
+        Density,
+        Theme
     }
 
     public enum ByLawConstraintType : int

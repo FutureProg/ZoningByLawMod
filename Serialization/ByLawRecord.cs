@@ -312,6 +312,12 @@ namespace Trejak.ZoningByLaw.Serialization
         [JsonProperty("assetPackNames", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string[] assetPackNames;
 
+        // Theme membership is persisted by stable string name for the same reason as assetPackNames
+        // above: string.GetHashCode() isn't guaranteed stable across process restarts. Resolved back to
+        // hashes on load via ThemeHashUtils.NameToHash.
+        [JsonProperty("themeNames", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string[] themeNames;
+
         public SerializableByLawItem(BuildingBlocks.ByLawItem item)
         {
             byLawItemType = item.byLawItemType.ToString();
@@ -324,6 +330,7 @@ namespace Trejak.ZoningByLaw.Serialization
             if (item.byLawItemType == BuildingBlocks.ByLawItemType.AssetPack)
             {
                 valueNumberArray = null;
+                themeNames = null;
                 if (item.valueNumberArray.IsCreated && item.valueNumberArray.Length > 0)
                 {
                     var indexBuildingsSystem = Unity.Entities.World.DefaultGameObjectInjectionWorld?.GetExistingSystemManaged<IndexBuildingsSystem>();
@@ -349,10 +356,36 @@ namespace Trejak.ZoningByLaw.Serialization
                     assetPackNames = null;
                 }
             }
+            else if (item.byLawItemType == BuildingBlocks.ByLawItemType.Theme)
+            {
+                valueNumberArray = null;
+                assetPackNames = null;
+                if (item.valueNumberArray.IsCreated && item.valueNumberArray.Length > 0)
+                {
+                    var indexBuildingsSystem = Unity.Entities.World.DefaultGameObjectInjectionWorld?.GetExistingSystemManaged<IndexBuildingsSystem>();
+                    themeNames = item.valueNumberArray
+                        .Select(hash => indexBuildingsSystem?.GetThemeByHash(hash))
+                        .Where(t => t != null)
+                        .Select(t => t.name)
+                        .ToArray();
+                    if (themeNames.Length < item.valueNumberArray.Length)
+                    {
+                        Mod.log.Warn(
+                            $"Theme by-law item: could not resolve {item.valueNumberArray.Length - themeNames.Length} " +
+                            $"of {item.valueNumberArray.Length} selected theme hash(es) to a name while saving " +
+                            "(IndexBuildingsSystem not ready?); those selections will not be persisted this save.");
+                    }
+                }
+                else
+                {
+                    themeNames = null;
+                }
+            }
             else
             {
                 valueNumberArray = item.valueNumberArray.IsCreated ? item.valueNumberArray.ToArray() : null;
                 assetPackNames = null;
+                themeNames = null;
             }
         }
 
@@ -361,7 +394,9 @@ namespace Trejak.ZoningByLaw.Serialization
             var parsedItemType = Enum.TryParse<BuildingBlocks.ByLawItemType>(byLawItemType, out var bit) ? bit : BuildingBlocks.ByLawItemType.None;
             int[] numberArray = parsedItemType == BuildingBlocks.ByLawItemType.AssetPack
                 ? (assetPackNames ?? new string[0]).Select(AssetPackHashUtils.NameToHash).ToArray()
-                : (valueNumberArray ?? new int[0]);
+                : parsedItemType == BuildingBlocks.ByLawItemType.Theme
+                    ? (themeNames ?? new string[0]).Select(ThemeHashUtils.NameToHash).ToArray()
+                    : (valueNumberArray ?? new int[0]);
             return new BuildingBlocks.ByLawItem
             {
                 byLawItemType = parsedItemType,

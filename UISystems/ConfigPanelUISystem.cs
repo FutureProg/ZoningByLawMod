@@ -246,6 +246,17 @@ namespace Trejak.ZoningByLaw.UI
                                         image = ImageSystem.GetThumbnail(ap),
                                         value = _indexBuildingsSystem.GetAssetPackHash(ap)
                                     }).ToList();
+                            } else if (itemType == ByLawItemType.Theme)
+                            {
+                                // Same resolution as AssetPack above: ThemePrefab is a plain PrefabBase with
+                                // no geometry of its own, so its icon/display name are resolved the same way.
+                                mappedValues = _indexBuildingsSystem.GetThemes()
+                                    .Select(theme => new FieldDataOption<object>()
+                                    {
+                                        label = $"Assets.NAME[{theme.name}]",
+                                        image = ImageSystem.GetThumbnail(theme),
+                                        value = _indexBuildingsSystem.GetThemeHash(theme)
+                                    }).ToList();
                             } else
                             {
                                 var enumType = BuildingBlockSystem.GetConstraintEnumType(itemType);
@@ -318,7 +329,7 @@ namespace Trejak.ZoningByLaw.UI
                             ((RadioFieldData)fieldDict[itemTypeKey]).value = item.valueByteFlag;
                             break;
                         case ByLawConstraintType.MultiSelect:
-                            if (item.byLawItemType == ByLawItemType.AssetPack)
+                            if (BuildingBlockSystem.IsDynamicNameBasedMultiSelect(item.byLawItemType))
                             {
                                 ((CheckboxFieldData)fieldDict[itemTypeKey]).value = item.valueNumberArray.ToArray();
                             } else
@@ -403,7 +414,7 @@ namespace Trejak.ZoningByLaw.UI
                                     $"Failed to parse int value '{opIntValue}' to ByLawPropertyOperator for field '{field}'");
                             }
                         }
-                        else if (item.byLawItemType == ByLawItemType.AssetPack && value.GetType().IsArray)
+                        else if (BuildingBlockSystem.IsDynamicNameBasedMultiSelect(item.byLawItemType) && value.GetType().IsArray)
                         {
                             var valArr = value as Array;
                             var assetHashList = new List<int>();
