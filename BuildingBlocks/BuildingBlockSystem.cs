@@ -84,6 +84,13 @@ namespace ZoningByLaw.BuildingBlocks
 
         public static bool EvalAssetPack(ByLawItem item, BuildingByLawProperties properties)
         {
+            // properties.assetPacks is left uncreated (rather than an explicit empty allocation) for
+            // buildings with no packs, and item.valueNumberArray likewise for a legacy/unset item - both
+            // guards are required since NativeArray indexing throws on an uncreated array even at Length 0.
+            if (!item.valueNumberArray.IsCreated || !properties.assetPacks.IsCreated)
+            {
+                return false;
+            }
             for(int i = 0; i < item.valueNumberArray.Length; i++)
             {
                 for (int j = 0; j < properties.assetPacks.Length; j++)
@@ -99,6 +106,10 @@ namespace ZoningByLaw.BuildingBlocks
 
         public static bool EvalTheme(ByLawItem item, BuildingByLawProperties properties)
         {
+            if (!item.valueNumberArray.IsCreated || !properties.themes.IsCreated)
+            {
+                return false;
+            }
             for (int i = 0; i < item.valueNumberArray.Length; i++)
             {
                 for (int j = 0; j < properties.themes.Length; j++)

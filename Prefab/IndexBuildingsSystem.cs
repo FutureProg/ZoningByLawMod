@@ -293,12 +293,17 @@ namespace Trejak.ZoningByLaw.Prefab
                         isCommercial = archetypeComponents.Contains(typeof(CommercialProperty)),
                         isStorage = archetypeComponents.Contains(typeof(StorageProperty)) && archetypeComponents.Contains(typeof(IndustrialProperty)),
                         pollutionData = hasPollutionData ? pollutionData : default,
+                        // Left uncreated (not an explicit zero-length allocation) when a building has none,
+                        // since most buildings belong to no pack/theme - EvalAssetPack/EvalTheme treat an
+                        // uncreated array the same as an empty one. This also means the *previous* value at
+                        // this slot must be disposed below before it's overwritten, since it may hold a
+                        // real allocation from an earlier UpdateIndex pass.
                         assetPacks = nonNullAssetPacks != null
                             ? new NativeArray<int>(nonNullAssetPacks.Select(p => AssetPackHashUtils.NameToHash(p.name)).ToArray(), Allocator.Persistent)
-                            : new NativeArray<int>(0, Allocator.Persistent),
+                            : default,
                         themes = buildingTheme != null
                             ? new NativeArray<int>(new[] { ThemeHashUtils.NameToHash(buildingTheme.name) }, Allocator.Persistent)
-                            : new NativeArray<int>(0, Allocator.Persistent)
+                            : default
                     };
 
                     // Determine the zone density. Buildings that aren't zone-spawned (no
@@ -329,6 +334,7 @@ namespace Trejak.ZoningByLaw.Prefab
                         }
                     }                    
                     processedEnts++;
+                    DisposeDynamicSelectionArrays(_properties[prefabData.m_Index]);
                     _properties[prefabData.m_Index] = props;
                     archetypeComponents.Dispose();
                 }
@@ -546,10 +552,28 @@ namespace Trejak.ZoningByLaw.Prefab
             }            
         }
 
+        // assetPacks/themes are only ever Allocator.Persistent when actually created (see UpdateIndex), so
+        // must be disposed individually - disposing the containing NativeList does not touch them.
+        private static void DisposeDynamicSelectionArrays(BuildingByLawProperties properties)
+        {
+            if (properties.assetPacks.IsCreated)
+            {
+                properties.assetPacks.Dispose();
+            }
+            if (properties.themes.IsCreated)
+            {
+                properties.themes.Dispose();
+            }
+        }
+
         protected override void OnDestroy()
         {
             base.OnDestroy();
             _propertiesReaders.Complete();
+            for (int i = 0; i < _properties.Length; i++)
+            {
+                DisposeDynamicSelectionArrays(_properties[i]);
+            }
             _properties.Dispose();
         }
 

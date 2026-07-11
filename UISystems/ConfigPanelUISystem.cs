@@ -419,20 +419,20 @@ namespace Trejak.ZoningByLaw.UI
                         else if (BuildingBlockSystem.IsDynamicNameBasedMultiSelect(item.byLawItemType) && value.GetType().IsArray)
                         {
                             var valArr = value as Array;
-                            var assetHashList = new List<int>();
+                            var selectedHashList = new List<int>();
                             for (int idx = 0; idx < valArr.Length; idx++)
                             {
-                                assetHashList.Add(int.Parse(valArr.GetValue(idx).ToString()));
+                                selectedHashList.Add(int.Parse(valArr.GetValue(idx).ToString()));
                             }
-                            var assetHashes = assetHashList.ToArray();
+                            var selectedHashes = selectedHashList.ToArray();
                             if (item.valueNumberArray.IsCreated)
                             {
                                 item.valueNumberArray.Dispose();
                             }
-                            item.valueNumberArray = new NativeArray<int>(assetHashes, Allocator.Persistent);
+                            item.valueNumberArray = new NativeArray<int>(selectedHashes, Allocator.Persistent);
                             bylawItemBuffer[i] = item;
                             Mod.log.Info(
-                                $"Set valueNumberArray to [{string.Join(", ", assetHashes)}]");
+                                $"Set valueNumberArray to [{string.Join(", ", selectedHashes)}]");
                         }
                         else switch (value)
                             {
