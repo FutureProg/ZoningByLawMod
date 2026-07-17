@@ -338,12 +338,13 @@ namespace ZoningByLaw.BuildingBlocks
                 case ByLawItemType.LotWidth:
                 case ByLawItemType.LotSize:
                 case ByLawItemType.LotDepth:
-                case ByLawItemType.Parking:
                 case ByLawItemType.FrontSetback:
                 case ByLawItemType.LeftSetback:
                 case ByLawItemType.RightSetback:
                 case ByLawItemType.RearSetback:
                     return ByLawConstraintType.Length;
+                case ByLawItemType.Parking:
+                    return ByLawConstraintType.Count;
                 case ByLawItemType.NoisePollutionLevel:
                 case ByLawItemType.GroundPollutionLevel:
                 case ByLawItemType.AirPollutionLevel:
