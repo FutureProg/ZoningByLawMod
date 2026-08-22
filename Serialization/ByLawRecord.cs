@@ -11,6 +11,7 @@ using Trejak.ZoningByLaw.Prefab;
 using Trejak.ZoningByLaw.UISystems;
 using Unity.Collections;
 using UnityEngine;
+using ZoningByLaw.BuildingBlocks;
 
 namespace Trejak.ZoningByLaw.Serialization
 {
@@ -380,7 +381,12 @@ namespace Trejak.ZoningByLaw.Serialization
             return new BuildingBlocks.ByLawItem
             {
                 byLawItemType = parsedItemType,
-                constraintType = Enum.TryParse<BuildingBlocks.ByLawConstraintType>(constraintType, out var ct) ? ct : BuildingBlocks.ByLawConstraintType.None,
+                // Recomputed from itemType rather than trusted from the serialized value: constraintType is
+                // purely a function of byLawItemType (see BuildingBlockSystem.GetConstraintTypes), never a
+                // user choice, so this also self-heals saves written while a type's mapping was wrong
+                // (e.g. Parking was misclassified as Length instead of Count, which made every Parking
+                // by-law item silently fail to match any building).
+                constraintType = BuildingBlockSystem.GetConstraintTypes(parsedItemType),
                 itemCategory = Enum.TryParse<BuildingBlocks.ByLawItemCategory>(itemCategory, out var ic) ? ic : BuildingBlocks.ByLawItemCategory.None,
                 propertyOperator = Enum.TryParse<BuildingBlocks.ByLawPropertyOperator>(propertyOperator, out var po) ? po : BuildingBlocks.ByLawPropertyOperator.None,
                 valueBounds1 = valueBounds1.ToBounds1(),
