@@ -1,5 +1,6 @@
 using Colossal.Mathematics;
 using Trejak.ZoningByLaw.BuildingBlocks;
+using Trejak.ZoningByLaw.Prefab;
 using Unity.Assertions;
 using Unity.Entities;
 using ZoningByLaw.BuildingBlocks;
