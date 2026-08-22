@@ -8,63 +8,63 @@
 	<!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
 	<!--LongDescription Value="This is a long description" /-->
 <LongDescription>
-# Zoning By-Law Builder
+  # Zoning By-Law Builder
 
-**Keep in mind this mod is in beta, and might have bugs.**
+  **Keep in mind this mod is in beta, and might have bugs.**
 
-**Beta Feature Reel - [YouTube](https://www.youtube.com/watch?v=_PaNeeFAT-w)**
+  **Beta Feature Reel - [YouTube](https://www.youtube.com/watch?v=_PaNeeFAT-w)**
 
-Using the constraint-based Zoning By-Law builder, craft the city of your dreams.
+  Using the constraint-based Zoning By-Law builder, craft the city of your dreams.
 
-Only want buildings of a certain height? How about requiring surface parking? Maybe wanna mix all the W2W buildings across regions into one zone?
-All that and more is possible with the Zoning By-Law Builder.
+  Only want buildings of a certain height? How about requiring surface parking? Maybe wanna mix all the W2W buildings across regions into one zone?
+  All that and more is possible with the Zoning By-Law Builder.
 
-# Upcoming Features
+  # Upcoming Features
 
-- Localization
-- Icons for By-Laws
-- New Constraints:
-	- Asset Pack
-  - Region
-	- Height-to-Setback Ratio
+  - Localization
+  - Icons for By-Laws
+  - New Constraints:
+  - ✅ Asset Pack
+  - ✅ Region
+  - Height-to-Setback Ratio
   - Storage Building
-- Preview buildings as you create the By-Law
-- City/District Policy to ensure building upgrades match By-Laws
+  - Preview buildings as you create the By-Law
+  - City/District Policy to ensure building upgrades match By-Laws
 
-# Limitations
+  # Limitations
 
-- This mod **does not** edit or create new buildings. When you zone a constraint-based zone, the system will try to find a building that fits the constraints.
-- Currently the mod does not take your unlock progress into account, so buildings above your level might appear in your city.
-- Parking requirements don't fully account for garages (this is because they currently don't function in vanilla).
-- When a building upgrades, it might not conform to the by-law, a future City/District policy will change that.
+  - This mod **does not** edit or create new buildings. When you zone a constraint-based zone, the system will try to find a building that fits the constraints.
+  - Currently the mod does not take your unlock progress into account, so buildings above your level might appear in your city.
+  - Parking requirements don't fully account for garages (this is because they currently don't function in vanilla).
+  - When a building upgrades, it might not conform to the by-law, a future City/District policy will change that.
 
-# Special Thanks To:
+  # Special Thanks To:
 
-✨T.D.W
-    
-✨Yenyang
-    
-✨City Planner Plays
-    
-✨Konsi
-    
-✨Klyte
-    
-✨Krzychu
-    
-✨Quboid
-    
-✨Triton Supreme
-and the Cities: Skylines Modding Discord community
+  ✨T.D.W
 
-# Known Issues
+  ✨Yenyang
 
-- Corner buildings spawn on a non-corner lot (this might be vanilla behaviour that the mod brings out more)
-- Scrollbar is invisible in editor (it's there, so you can use the mouse wheel or guess where it is)
+  ✨City Planner Plays
 
-## Bug Reporting and Discussions
+  ✨Konsi
 
-Please report bug reports and have discussions on the mod's thread in the [Cities: Skylines Modding Discord](https://discord.com/channels/1024242828114673724/1335344332797907148).
+  ✨Klyte
+
+  ✨Krzychu
+
+  ✨Quboid
+
+  ✨Triton Supreme
+  and the Cities: Skylines Modding Discord community
+
+  # Known Issues
+
+  - Corner buildings spawn on a non-corner lot (this might be vanilla behaviour that the mod brings out more)
+  - Scrollbar is invisible in editor (it's there, so you can use the mouse wheel or guess where it is)
+
+  ## Bug Reporting and Discussions
+
+  Please report bug reports and have discussions on the mod's thread in the [Cities: Skylines Modding Discord](https://discord.com/channels/1024242828114673724/1335344332797907148).
 
 </LongDescription>
 	<!--Thumbnail-->
@@ -77,15 +77,14 @@ Please report bug reports and have discussions on the mod's thread in the [Citie
 	<!--Link to the forum post where the mod can be discussed-->
 	<!--<ForumLink Value="" />-->
 	<!--Version of the mod-->
-	<ModVersion Value="0.4.0" />
+	<ModVersion Value="0.4.1" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.6.*" />
 	<!--Dependency for the mod, can be set multiple times-->
 	<Dependency Id="74417" />
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 <ChangeLog>
-- Added Support for Asset Packs Constraints
-- Added Support for Theme Constraints
+  - Fix: Parking requirements not being applied to buildings
 </ChangeLog>
 	<!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
     <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=_PaNeeFAT-w" />
