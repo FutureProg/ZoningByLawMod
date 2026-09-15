@@ -229,10 +229,8 @@ namespace Trejak.ZoningByLaw.UI
                             List<FieldDataOption<object>> mappedValues = new List<FieldDataOption<object>>();
                             if (itemType == ByLawItemType.AssetStyle)
                             {
-                                // Asset Pack and Asset Theme are combined into one constraint (issue #25)
-                                // so a user can select from both option lists together; EvalAssetStyle
-                                // matches a building against either the pack or the theme half of the
-                                // selection (union), so both are offered in the same checkbox list here.
+                                // Asset Pack and Asset Theme are combined into one constraint, so both
+                                // option lists are offered together in the same checkbox list here.
                                 //
                                 // AssetPackPrefab has no geometry, so its raw thumbnailUrl (a
                                 // ThumbnailCamera render) never resolves. ImageSystem.GetThumbnail

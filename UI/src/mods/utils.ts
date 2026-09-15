@@ -153,9 +153,7 @@ export const getOperationTypes = (byLawItemType: ByLawItemType) : ByLawPropertyO
             re.push(ByLawPropertyOperator.Is);
             return re;
         case ByLawItemType.AssetStyle:
-            // Matches BuildingBlockSystem.GetPropertyOperators: EvalAssetStyle matches if the building
-            // belongs to any selected pack or has any selected theme (union, "at least one"), or none of
-            // them ("is not") - see issue #25.
+            // Matches BuildingBlockSystem.GetPropertyOperators.
             re.push(ByLawPropertyOperator.AtLeastOne);
             re.push(ByLawPropertyOperator.IsNot);
             return re;

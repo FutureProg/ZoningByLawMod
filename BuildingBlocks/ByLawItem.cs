@@ -35,10 +35,10 @@ namespace Trejak.ZoningByLaw.BuildingBlocks
         AirPollutionLevel,
         GroundPollutionLevel,
         NoisePollutionLevel,
-        AssetPack, // Deprecated: superseded by AssetStyle (see issue #25). Kept only so old saves still parse; ByLawRecord migrates it to AssetStyle on load.
+        AssetPack, // Deprecated: superseded by AssetStyle, migrated on load in ByLawRecord.
         Density,
-        Theme, // Deprecated: superseded by AssetStyle (see issue #25). Kept only so old saves still parse; ByLawRecord migrates it to AssetStyle on load.
-        AssetStyle // Combines Asset Pack and Asset Theme selection into one constraint: matches the union of selected packs/themes ("at least one"), or none of them ("is not").
+        Theme, // Deprecated: superseded by AssetStyle, migrated on load in ByLawRecord.
+        AssetStyle // Combined Asset Pack + Asset Theme constraint.
     }
 
     public enum ByLawConstraintType : int

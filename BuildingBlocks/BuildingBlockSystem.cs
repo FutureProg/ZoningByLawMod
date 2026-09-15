@@ -15,8 +15,6 @@ namespace ZoningByLaw.BuildingBlocks
         // Item types whose options are a runtime-discovered, dynamic list (not a fixed enum), and so are
         // stored/edited by stable name rather than by the valueByteFlag bitmask path - see ByLawRecord's
         // per-type *Names fields and ConfigPanelUISystem's checkbox handling for AssetStyle.
-        // AssetPack/Theme are included only so a stray legacy item that hasn't gone through
-        // ByLawRecord's migration (see SerializableByLawItem.ToByLawItem) is still handled correctly.
         public static bool IsDynamicNameBasedMultiSelect(ByLawItemType itemType) =>
             itemType == ByLawItemType.AssetStyle || itemType == ByLawItemType.AssetPack || itemType == ByLawItemType.Theme;
 
@@ -74,10 +72,7 @@ namespace ZoningByLaw.BuildingBlocks
                 case ByLawItemType.Uses:
                     return EvalLandUse(building, properties, item, evalParams);
                 // AssetPack/Theme are only reachable here for a stray legacy item that bypassed
-                // ByLawRecord's migration (new items are always created as AssetStyle - see
-                // ConfigPanelUISystem.ToggleItemEnabled - and loaded ones are migrated in
-                // SerializableByLawItem.ToByLawItem). Routing them through EvalAssetStyle keeps them
-                // correct either way, since a legacy item only ever has hashes from its own domain.
+                // ByLawRecord's migration; EvalAssetStyle handles them correctly either way.
                 case ByLawItemType.AssetPack:
                 case ByLawItemType.Theme:
                 case ByLawItemType.AssetStyle:
@@ -89,16 +84,8 @@ namespace ZoningByLaw.BuildingBlocks
             }
         }
 
-        // Asset Pack and Asset Theme both constrain a building by "style" and were previously two
-        // separate constraint types, ANDed together like every other pair of items in a block (see
-        // ByLawZoneSpawnSystem.CompliesWithByLaw). That made selecting both a pack and a theme require a
-        // building to satisfy both simultaneously - effectively their intersection - instead of spawning
-        // buildings from either selection, and it offered no "none of" (negative) condition at all.
-        // Combining them into one constraint (issue #25) lets a single item hold both an asset-pack
-        // selection and a theme selection, matched as their union: a building matches if it belongs to
-        // ANY selected pack OR has ANY selected theme. AtLeastOne returns that union directly; IsNot
-        // ("none of") returns its negation, so a building must avoid every selected pack AND every
-        // selected theme to pass - exactly the positive/negative semantics the issue asks for.
+        // A building matches if it belongs to ANY selected pack OR has ANY selected theme (union).
+        // AtLeastOne returns that union directly; IsNot ("none of") returns its negation.
         public static bool EvalAssetStyle(ByLawItem item, BuildingByLawProperties properties)
         {
             bool matches = HasCommonHash(item.valueNumberArray, properties.assetPacks) ||
@@ -114,9 +101,7 @@ namespace ZoningByLaw.BuildingBlocks
             }
         }
 
-        // selected/building arrays are left uncreated (rather than an explicit empty allocation) when
-        // there's nothing to store, and NativeArray indexing throws on an uncreated array even at
-        // Length 0, so both must be guarded before iterating.
+        // NativeArray indexing throws on an uncreated array even at Length 0, so both must be guarded.
         private static bool HasCommonHash(NativeArray<int> selectedHashes, NativeArray<int> buildingHashes)
         {
             if (!selectedHashes.IsCreated || !buildingHashes.IsCreated)
@@ -434,9 +419,6 @@ namespace ZoningByLaw.BuildingBlocks
                     re.Add(ByLawPropertyOperator.AtMost);
                     break;
                 case ByLawItemType.AssetStyle:
-                    // EvalAssetStyle matches if the building belongs to ANY selected pack or has ANY
-                    // selected theme (union, "at least one"), and IsNot is the corresponding negative
-                    // "none of" condition - see issue #25.
                     re.Add(ByLawPropertyOperator.AtLeastOne);
                     re.Add(ByLawPropertyOperator.IsNot);
                     break;

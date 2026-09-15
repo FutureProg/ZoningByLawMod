@@ -310,9 +310,8 @@ namespace Trejak.ZoningByLaw.Serialization
         // so a saved by-law always matches the live index within a session. Records saved before this field
         // existed have no assetPackNames and are treated as an empty selection (their old raw-hash
         // valueNumberArray is intentionally ignored for AssetPack/AssetStyle items, since it was never
-        // valid to begin with).
-        // An AssetStyle item (see issue #25) can populate both assetPackNames and themeNames at once -
-        // that's how one combined constraint holds a selection of packs and a selection of themes together.
+        // valid to begin with). An AssetStyle item can populate both assetPackNames and themeNames at
+        // once, since one combined constraint holds a selection of packs and a selection of themes together.
         [JsonProperty("assetPackNames", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string[] assetPackNames;
 
@@ -338,10 +337,8 @@ namespace Trejak.ZoningByLaw.Serialization
             var indexBuildingsSystem = Unity.Entities.World.DefaultGameObjectInjectionWorld?.GetExistingSystemManaged<IndexBuildingsSystem>();
             if (item.byLawItemType == BuildingBlocks.ByLawItemType.AssetStyle)
             {
-                // A combined item's valueNumberArray holds pack hashes and theme hashes together (see
-                // BuildingBlockSystem.EvalAssetStyle), so each hash is resolved against whichever index -
-                // asset packs first, then themes - actually recognizes it, and sorted back into its own
-                // name array for a human-readable, backward-compatible save file.
+                // A combined item's valueNumberArray holds pack hashes and theme hashes together, so
+                // each hash is resolved against whichever index recognizes it.
                 ResolveAssetStyleNames(item, indexBuildingsSystem, out assetPackNames, out themeNames);
             }
             else if (item.byLawItemType == BuildingBlocks.ByLawItemType.AssetPack)
@@ -428,12 +425,8 @@ namespace Trejak.ZoningByLaw.Serialization
         {
             var parsedItemType = Enum.TryParse<BuildingBlocks.ByLawItemType>(byLawItemType, out var bit) ? bit : BuildingBlocks.ByLawItemType.None;
 
-            // Asset Pack and Asset Theme were previously two separate constraint types; they are now
-            // combined into AssetStyle (issue #25) so a building can be matched against selected packs
-            // and selected themes together, as a union, instead of being ANDed against each type
-            // separately. A by-law saved before this change keeps its original type name on disk (no
-            // destructive rewrite of old files is needed), but always loads as AssetStyle from here on,
-            // carrying over whichever name array it already had.
+            // Legacy AssetPack/Theme items load as the combined AssetStyle type from here on, keeping
+            // whichever name array they already had - no destructive rewrite of old files is needed.
             if (parsedItemType == BuildingBlocks.ByLawItemType.AssetPack || parsedItemType == BuildingBlocks.ByLawItemType.Theme)
             {
                 parsedItemType = BuildingBlocks.ByLawItemType.AssetStyle;
@@ -454,9 +447,6 @@ namespace Trejak.ZoningByLaw.Serialization
                 // by-law item silently fail to match any building).
                 constraintType = BuildingBlockSystem.GetConstraintTypes(parsedItemType),
                 itemCategory = Enum.TryParse<BuildingBlocks.ByLawItemCategory>(itemCategory, out var ic) ? ic : BuildingBlocks.ByLawItemCategory.None,
-                // A legacy AssetPack/Theme item was only ever saved with AtLeastOne (its only offered
-                // operator - see BuildingBlockSystem.GetPropertyOperators before this change), which is
-                // still a valid operator for the migrated AssetStyle item, so no remapping is needed here.
                 propertyOperator = Enum.TryParse<BuildingBlocks.ByLawPropertyOperator>(propertyOperator, out var po) ? po : BuildingBlocks.ByLawPropertyOperator.None,
                 valueBounds1 = valueBounds1.ToBounds1(),
                 valueByteFlag = valueByteFlag,
