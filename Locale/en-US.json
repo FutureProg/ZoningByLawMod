@@ -33,6 +33,7 @@
     "ZBL.ByLawItemType[AssetPack]": "Asset Pack",
     "ZBL.ByLawItemType[Density]": "Density",
     "ZBL.ByLawItemType[Theme]": "Theme",
+    "ZBL.ByLawItemType[AssetStyle]": "Asset Style",
     "ZBL.ByLawValueText[Items]": "item(s)",
     "ZBL.ByLawValueText[BoundsTo]": "to",
     "ZBL.FlagValues[None]": "None",

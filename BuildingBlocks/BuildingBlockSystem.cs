@@ -14,9 +14,11 @@ namespace ZoningByLaw.BuildingBlocks
     {
         // Item types whose options are a runtime-discovered, dynamic list (not a fixed enum), and so are
         // stored/edited by stable name rather than by the valueByteFlag bitmask path - see ByLawRecord's
-        // per-type *Names fields and ConfigPanelUISystem's checkbox handling for AssetPack/Theme.
+        // per-type *Names fields and ConfigPanelUISystem's checkbox handling for AssetStyle.
+        // AssetPack/Theme are included only so a stray legacy item that hasn't gone through
+        // ByLawRecord's migration (see SerializableByLawItem.ToByLawItem) is still handled correctly.
         public static bool IsDynamicNameBasedMultiSelect(ByLawItemType itemType) =>
-            itemType == ByLawItemType.AssetPack || itemType == ByLawItemType.Theme;
+            itemType == ByLawItemType.AssetStyle || itemType == ByLawItemType.AssetPack || itemType == ByLawItemType.Theme;
 
         public struct EvaluationParams
         {
@@ -71,10 +73,15 @@ namespace ZoningByLaw.BuildingBlocks
             {
                 case ByLawItemType.Uses:
                     return EvalLandUse(building, properties, item, evalParams);
+                // AssetPack/Theme are only reachable here for a stray legacy item that bypassed
+                // ByLawRecord's migration (new items are always created as AssetStyle - see
+                // ConfigPanelUISystem.ToggleItemEnabled - and loaded ones are migrated in
+                // SerializableByLawItem.ToByLawItem). Routing them through EvalAssetStyle keeps them
+                // correct either way, since a legacy item only ever has hashes from its own domain.
                 case ByLawItemType.AssetPack:
-                    return EvalAssetPack(item, properties);
                 case ByLawItemType.Theme:
-                    return EvalTheme(item, properties);
+                case ByLawItemType.AssetStyle:
+                    return EvalAssetStyle(item, properties);
                 case ByLawItemType.Density:
                     return EvalDensity(item, properties);
                 default:
@@ -82,39 +89,45 @@ namespace ZoningByLaw.BuildingBlocks
             }
         }
 
-        public static bool EvalAssetPack(ByLawItem item, BuildingByLawProperties properties)
+        // Asset Pack and Asset Theme both constrain a building by "style" and were previously two
+        // separate constraint types, ANDed together like every other pair of items in a block (see
+        // ByLawZoneSpawnSystem.CompliesWithByLaw). That made selecting both a pack and a theme require a
+        // building to satisfy both simultaneously - effectively their intersection - instead of spawning
+        // buildings from either selection, and it offered no "none of" (negative) condition at all.
+        // Combining them into one constraint (issue #25) lets a single item hold both an asset-pack
+        // selection and a theme selection, matched as their union: a building matches if it belongs to
+        // ANY selected pack OR has ANY selected theme. AtLeastOne returns that union directly; IsNot
+        // ("none of") returns its negation, so a building must avoid every selected pack AND every
+        // selected theme to pass - exactly the positive/negative semantics the issue asks for.
+        public static bool EvalAssetStyle(ByLawItem item, BuildingByLawProperties properties)
         {
-            // properties.assetPacks is left uncreated (rather than an explicit empty allocation) for
-            // buildings with no packs, and item.valueNumberArray likewise for a legacy/unset item - both
-            // guards are required since NativeArray indexing throws on an uncreated array even at Length 0.
-            if (!item.valueNumberArray.IsCreated || !properties.assetPacks.IsCreated)
+            bool matches = HasCommonHash(item.valueNumberArray, properties.assetPacks) ||
+                HasCommonHash(item.valueNumberArray, properties.themes);
+            switch (item.propertyOperator)
             {
-                return false;
+                case ByLawPropertyOperator.AtLeastOne:
+                    return matches;
+                case ByLawPropertyOperator.IsNot:
+                    return !matches;
+                default:
+                    return false;
             }
-            for(int i = 0; i < item.valueNumberArray.Length; i++)
-            {
-                for (int j = 0; j < properties.assetPacks.Length; j++)
-                {
-                    if (properties.assetPacks[j] == item.valueNumberArray[i])
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
         }
 
-        public static bool EvalTheme(ByLawItem item, BuildingByLawProperties properties)
+        // selected/building arrays are left uncreated (rather than an explicit empty allocation) when
+        // there's nothing to store, and NativeArray indexing throws on an uncreated array even at
+        // Length 0, so both must be guarded before iterating.
+        private static bool HasCommonHash(NativeArray<int> selectedHashes, NativeArray<int> buildingHashes)
         {
-            if (!item.valueNumberArray.IsCreated || !properties.themes.IsCreated)
+            if (!selectedHashes.IsCreated || !buildingHashes.IsCreated)
             {
                 return false;
             }
-            for (int i = 0; i < item.valueNumberArray.Length; i++)
+            for (int i = 0; i < selectedHashes.Length; i++)
             {
-                for (int j = 0; j < properties.themes.Length; j++)
+                for (int j = 0; j < buildingHashes.Length; j++)
                 {
-                    if (properties.themes[j] == item.valueNumberArray[i])
+                    if (selectedHashes[i] == buildingHashes[j])
                     {
                         return true;
                     }
@@ -330,9 +343,8 @@ namespace ZoningByLaw.BuildingBlocks
             switch(itemType)
             {
                 case ByLawItemType.Uses:
-                case ByLawItemType.AssetPack:
                 case ByLawItemType.Density:
-                case ByLawItemType.Theme:
+                case ByLawItemType.AssetStyle:
                     return ByLawConstraintType.MultiSelect;
                 case ByLawItemType.Height:
                 case ByLawItemType.LotWidth:
@@ -365,8 +377,7 @@ namespace ZoningByLaw.BuildingBlocks
                 case ByLawItemType.LotSize:
                 case ByLawItemType.LotDepth:
                 case ByLawItemType.Parking:
-                case ByLawItemType.AssetPack:
-                case ByLawItemType.Theme:
+                case ByLawItemType.AssetStyle:
                     return ByLawItemCategory.Lot;
 
                 case ByLawItemType.Height:               
@@ -422,16 +433,12 @@ namespace ZoningByLaw.BuildingBlocks
                 case ByLawItemType.NoisePollutionLevel:
                     re.Add(ByLawPropertyOperator.AtMost);
                     break;
-                case ByLawItemType.AssetPack:
-                    // EvalAssetPack matches if the building belongs to ANY selected pack, i.e. "at least
-                    // one", not "exactly one" - AtLeastOne is the operator whose label actually matches
-                    // that behavior.
+                case ByLawItemType.AssetStyle:
+                    // EvalAssetStyle matches if the building belongs to ANY selected pack or has ANY
+                    // selected theme (union, "at least one"), and IsNot is the corresponding negative
+                    // "none of" condition - see issue #25.
                     re.Add(ByLawPropertyOperator.AtLeastOne);
-                    break;
-                case ByLawItemType.Theme:
-                    // Same reasoning as AssetPack: EvalTheme matches if the building's (single) theme is
-                    // any one of the selected themes.
-                    re.Add(ByLawPropertyOperator.AtLeastOne);
+                    re.Add(ByLawPropertyOperator.IsNot);
                     break;
                 case ByLawItemType.None:
                 default:

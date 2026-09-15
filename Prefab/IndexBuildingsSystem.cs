@@ -294,8 +294,8 @@ namespace Trejak.ZoningByLaw.Prefab
                         isStorage = archetypeComponents.Contains(typeof(StorageProperty)) && archetypeComponents.Contains(typeof(IndustrialProperty)),
                         pollutionData = hasPollutionData ? pollutionData : default,
                         // Left uncreated (not an explicit zero-length allocation) when a building has none,
-                        // since most buildings belong to no pack/theme - EvalAssetPack/EvalTheme treat an
-                        // uncreated array the same as an empty one. This also means the *previous* value at
+                        // since most buildings belong to no pack/theme - BuildingBlockSystem.EvalAssetStyle
+                        // treats an uncreated array the same as an empty one. This also means the *previous* value at
                         // this slot must be disposed below before it's overwritten, since it may hold a
                         // real allocation from an earlier UpdateIndex pass.
                         assetPacks = nonNullAssetPacks != null
