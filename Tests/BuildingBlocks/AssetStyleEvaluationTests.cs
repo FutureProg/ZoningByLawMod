@@ -284,5 +284,34 @@ namespace Trejak.ZoningByLaw.Tests.BuildingBlocks
                 properties.themes.Dispose();
             }
         }
+
+        [Test]
+        public void TestEvalAssetStyle_PackAndThemeSharingAName_DoNotCrossMatch()
+        {
+            // AssetPackHashUtils and ThemeHashUtils must hash into disjoint spaces even for the same
+            // literal name, since a combined item's valueNumberArray no longer records which domain
+            // each hash came from - selecting only the pack "European" must not also match a building
+            // whose sole distinguishing trait is a theme also named "European".
+            var selectedPackHash = AssetPackHashUtils.NameToHash("European");
+            var item = MakeItem(ByLawPropertyOperator.AtLeastOne, new[] { selectedPackHash });
+            var properties = new BuildingByLawProperties
+            {
+                initialized = true,
+                assetPacks = new NativeArray<int>(0, Allocator.Persistent),
+                themes = new NativeArray<int>(new[] { ThemeHashUtils.NameToHash("European") }, Allocator.Persistent)
+            };
+
+            try
+            {
+                Assert.IsTrue(!BuildingBlockSystem.EvalAssetStyle(item, properties),
+                    "Selecting the pack 'European' should not match a building via a same-named theme");
+            }
+            finally
+            {
+                item.valueNumberArray.Dispose();
+                properties.assetPacks.Dispose();
+                properties.themes.Dispose();
+            }
+        }
     }
 }

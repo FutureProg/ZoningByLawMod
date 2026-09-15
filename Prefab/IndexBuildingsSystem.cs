@@ -20,17 +20,22 @@ namespace Trejak.ZoningByLaw.Prefab
     // directly, since string.GetHashCode() isn't guaranteed stable across process restarts.
     // SerializableByLawItem persists the pack *names* instead and recomputes the hash on load
     // via this same function, so a saved by-law and the live index always agree within a session.
+    //
+    // The "AssetPack:" prefix keeps this hash space disjoint from ThemeHashUtils below: an
+    // AssetStyle item's valueNumberArray holds pack hashes and theme hashes together (see
+    // BuildingBlockSystem.EvalAssetStyle), so a pack and a theme sharing the same name (e.g. both
+    // named "European") must not collide to the same hash - that would make selecting one also
+    // silently select the other.
     public static class AssetPackHashUtils
     {
-        public static int NameToHash(string name) => name.GetHashCode();
+        public static int NameToHash(string name) => ("AssetPack:" + name).GetHashCode();
     }
 
-    // Mirrors AssetPackHashUtils for ThemePrefab names, kept as a separate type so a Theme
-    // hash is never accidentally compared against an AssetPack hash even though both are
-    // just string.GetHashCode() under the hood.
+    // Mirrors AssetPackHashUtils for ThemePrefab names, with its own prefix so a theme hash can
+    // never collide with an asset pack hash of the same name.
     public static class ThemeHashUtils
     {
-        public static int NameToHash(string name) => name.GetHashCode();
+        public static int NameToHash(string name) => ("Theme:" + name).GetHashCode();
     }
 
     public partial class IndexBuildingsSystem : GameSystemBase

@@ -87,6 +87,38 @@ namespace Trejak.ZoningByLaw.Tests.Serialization
         }
 
         [Test]
+        public void TestSerializableByLawItem_LegacyAssetPackRecord_NormalizesOnlyOneOfToAtLeastOne()
+        {
+            // The old AssetPack UI only ever offered the OnlyOneOf operator (a pre-existing mismatch
+            // with the backend, which ignored propertyOperator entirely and always matched on simple
+            // union), so real saved by-laws almost certainly have propertyOperator = OnlyOneOf. The new
+            // EvalAssetStyle only handles AtLeastOne/IsNot, so migration must normalize this to
+            // AtLeastOne or these existing by-laws would silently stop matching any building.
+            var legacyItem = new SerializableByLawItem
+            {
+                byLawItemType = ByLawItemType.AssetPack.ToString(),
+                constraintType = ByLawConstraintType.MultiSelect.ToString(),
+                itemCategory = ByLawItemCategory.Lot.ToString(),
+                propertyOperator = ByLawPropertyOperator.OnlyOneOf.ToString(),
+                assetPackNames = new[] { "European Pack" }
+            };
+
+            var byLawItem = legacyItem.ToByLawItem();
+            try
+            {
+                Assert.IsTrue(byLawItem.propertyOperator == ByLawPropertyOperator.AtLeastOne,
+                    "A legacy OnlyOneOf AssetPack record should normalize to AtLeastOne on migration");
+            }
+            finally
+            {
+                if (byLawItem.valueNumberArray.IsCreated)
+                {
+                    byLawItem.valueNumberArray.Dispose();
+                }
+            }
+        }
+
+        [Test]
         public void TestSerializableByLawItem_LegacyThemeRecord_MigratesToAssetStyle()
         {
             var legacyItem = new SerializableByLawItem

@@ -424,10 +424,11 @@ namespace Trejak.ZoningByLaw.Serialization
         public BuildingBlocks.ByLawItem ToByLawItem()
         {
             var parsedItemType = Enum.TryParse<BuildingBlocks.ByLawItemType>(byLawItemType, out var bit) ? bit : BuildingBlocks.ByLawItemType.None;
+            bool isLegacyAssetType = parsedItemType == BuildingBlocks.ByLawItemType.AssetPack || parsedItemType == BuildingBlocks.ByLawItemType.Theme;
 
             // Legacy AssetPack/Theme items load as the combined AssetStyle type from here on, keeping
             // whichever name array they already had - no destructive rewrite of old files is needed.
-            if (parsedItemType == BuildingBlocks.ByLawItemType.AssetPack || parsedItemType == BuildingBlocks.ByLawItemType.Theme)
+            if (isLegacyAssetType)
             {
                 parsedItemType = BuildingBlocks.ByLawItemType.AssetStyle;
             }
@@ -437,6 +438,18 @@ namespace Trejak.ZoningByLaw.Serialization
                     .Concat((themeNames ?? new string[0]).Select(ThemeHashUtils.NameToHash))
                     .ToArray()
                 : (valueNumberArray ?? new int[0]);
+
+            var parsedPropertyOperator = Enum.TryParse<BuildingBlocks.ByLawPropertyOperator>(propertyOperator, out var po) ? po : BuildingBlocks.ByLawPropertyOperator.None;
+            if (isLegacyAssetType && parsedPropertyOperator != BuildingBlocks.ByLawPropertyOperator.IsNot)
+            {
+                // The old EvalAssetPack/EvalTheme ignored propertyOperator entirely and always matched
+                // on simple union, regardless of what value was stored - including OnlyOneOf, which was
+                // the only operator the old AssetPack UI ever offered. EvalAssetStyle isn't that
+                // permissive (it only handles AtLeastOne/IsNot), so anything but IsNot must be
+                // normalized to AtLeastOne here to preserve the old matching behavior for these records.
+                parsedPropertyOperator = BuildingBlocks.ByLawPropertyOperator.AtLeastOne;
+            }
+
             return new BuildingBlocks.ByLawItem
             {
                 byLawItemType = parsedItemType,
@@ -447,7 +460,7 @@ namespace Trejak.ZoningByLaw.Serialization
                 // by-law item silently fail to match any building).
                 constraintType = BuildingBlockSystem.GetConstraintTypes(parsedItemType),
                 itemCategory = Enum.TryParse<BuildingBlocks.ByLawItemCategory>(itemCategory, out var ic) ? ic : BuildingBlocks.ByLawItemCategory.None,
-                propertyOperator = Enum.TryParse<BuildingBlocks.ByLawPropertyOperator>(propertyOperator, out var po) ? po : BuildingBlocks.ByLawPropertyOperator.None,
+                propertyOperator = parsedPropertyOperator,
                 valueBounds1 = valueBounds1.ToBounds1(),
                 valueByteFlag = valueByteFlag,
                 valueNumber = valueNumber,
