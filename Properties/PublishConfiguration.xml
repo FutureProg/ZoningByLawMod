@@ -24,10 +24,10 @@
   - Localization
   - Icons for By-Laws
   - New Constraints:
-  - ✅ Asset Pack
-  - ✅ Region
-  - Height-to-Setback Ratio
-  - Storage Building
+      - ✅ Asset Pack
+      - ✅ Region
+      - Height-to-Setback Ratio
+      - Storage Building
   - Preview buildings as you create the By-Law
   - City/District Policy to ensure building upgrades match By-Laws
 
@@ -59,7 +59,7 @@
 
   # Known Issues
 
-  - Corner buildings spawn on a non-corner lot (this might be vanilla behaviour that the mod brings out more)
+  - Corner buildings spawn on a non-corner lot (this is vanilla behaviour that the mod brings out more)
   - Scrollbar is invisible in editor (it's there, so you can use the mouse wheel or guess where it is)
 
   ## Bug Reporting and Discussions
@@ -77,14 +77,14 @@
 	<!--Link to the forum post where the mod can be discussed-->
 	<!--<ForumLink Value="" />-->
 	<!--Version of the mod-->
-	<ModVersion Value="0.4.1" />
+	<ModVersion Value="0.5.1" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.6.*" />
 	<!--Dependency for the mod, can be set multiple times-->
 	<Dependency Id="74417" />
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 <ChangeLog>
-  - Fix: Parking requirements not being applied to buildings
+  - Merged asset pack and region constraints into one constraint type "Asset Style"
 </ChangeLog>
 	<!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
     <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=_PaNeeFAT-w" />
