@@ -152,13 +152,10 @@ export const getOperationTypes = (byLawItemType: ByLawItemType) : ByLawPropertyO
             re.push(ByLawPropertyOperator.IsNot);
             re.push(ByLawPropertyOperator.Is);
             return re;
-        case ByLawItemType.AssetPack:
-            re.push(ByLawPropertyOperator.OnlyOneOf);
-            return re;
-        case ByLawItemType.Theme:
-            // Matches BuildingBlockSystem.GetPropertyOperators: EvalTheme matches if the building's theme
-            // is any one of the selected themes, i.e. "at least one".
+        case ByLawItemType.AssetStyle:
+            // Matches BuildingBlockSystem.GetPropertyOperators.
             re.push(ByLawPropertyOperator.AtLeastOne);
+            re.push(ByLawPropertyOperator.IsNot);
             return re;
         case ByLawItemType.Height:
         case ByLawItemType.LotWidth:
@@ -200,14 +197,13 @@ export const getDefaultPropertyOperator = (byLawItemType: ByLawItemType) : ByLaw
 // runtime-discovered list rather than a fixed enum, so they're rendered with the shared icon
 // multi-select editor instead of the generic radio/checkbox enum editor.
 export const isDynamicNameBasedMultiSelect = (byLawItemType: ByLawItemType) : boolean =>
-    byLawItemType === ByLawItemType.AssetPack || byLawItemType === ByLawItemType.Theme;
+    byLawItemType === ByLawItemType.AssetStyle || byLawItemType === ByLawItemType.AssetPack || byLawItemType === ByLawItemType.Theme;
 
 export const getConstraintTypes = (byLawItemType: ByLawItemType) : ByLawConstraintType[] => {
     let re : ByLawConstraintType[] = [];
     switch(byLawItemType) {
         case ByLawItemType.LandUse:
-        case ByLawItemType.AssetPack:
-        case ByLawItemType.Theme:
+        case ByLawItemType.AssetStyle:
             re.push(ByLawConstraintType.MultiSelect);
             break;
         case ByLawItemType.Height:
@@ -244,8 +240,7 @@ export const getItemCategories = (itemType: ByLawItemType) : ByLawItemCategory =
         case ByLawItemType.LotSize:
         case ByLawItemType.Parking:
         case ByLawItemType.LotDepth:
-        case ByLawItemType.AssetPack:
-        case ByLawItemType.Theme:
+        case ByLawItemType.AssetStyle:
             return ByLawItemCategory.Lot;
     
         case ByLawItemType.Height:               

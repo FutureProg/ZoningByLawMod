@@ -227,8 +227,11 @@ namespace Trejak.ZoningByLaw.UI
                         case ByLawConstraintType.MultiSelect:
                         case ByLawConstraintType.SingleSelect:
                             List<FieldDataOption<object>> mappedValues = new List<FieldDataOption<object>>();
-                            if (itemType == ByLawItemType.AssetPack)
+                            if (itemType == ByLawItemType.AssetStyle)
                             {
+                                // Asset Pack and Asset Theme are combined into one constraint, so both
+                                // option lists are offered together in the same checkbox list here.
+                                //
                                 // AssetPackPrefab has no geometry, so its raw thumbnailUrl (a
                                 // ThumbnailCamera render) never resolves. ImageSystem.GetThumbnail
                                 // tries the prefab's own UIObject icon first (what packs normally
@@ -239,26 +242,25 @@ namespace Trejak.ZoningByLaw.UI
                                 // PrefabUISystem.GetTitleAndDescription, which for a plain (non-service,
                                 // non-upgrade) prefab is the locale key "Assets.NAME[<prefab name>]" - use the
                                 // same key here and translate it client-side, like every other option label.
-                                mappedValues = _indexBuildingsSystem.GetAssetPacks()
+                                var packOptions = _indexBuildingsSystem.GetAssetPacks()
                                     .Select(ap => new FieldDataOption<object>()
                                     {
                                         label = $"Assets.NAME[{ap.name}]",
                                         image = ImageSystem.GetThumbnail(ap),
                                         value = _indexBuildingsSystem.GetAssetPackHash(ap)
-                                    }).ToList();
-                            } else if (itemType == ByLawItemType.Theme)
-                            {
+                                    });
                                 // ThemePrefab's icon resolves the same way as AssetPack above, but its
                                 // display name lives in a separate locale group - vanilla's own theme
                                 // picker/tooltip UI resolves theme names via "Assets.THEME[<prefab name>]",
                                 // not "Assets.NAME[...]" (that group is for generic prefabs/asset packs).
-                                mappedValues = _indexBuildingsSystem.GetThemes()
+                                var themeOptions = _indexBuildingsSystem.GetThemes()
                                     .Select(theme => new FieldDataOption<object>()
                                     {
                                         label = $"Assets.THEME[{theme.name}]",
                                         image = ImageSystem.GetThumbnail(theme),
                                         value = _indexBuildingsSystem.GetThemeHash(theme)
-                                    }).ToList();
+                                    });
+                                mappedValues = packOptions.Concat(themeOptions).ToList();
                             } else
                             {
                                 var enumType = BuildingBlockSystem.GetConstraintEnumType(itemType);

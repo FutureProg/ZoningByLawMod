@@ -32,6 +32,7 @@
     "ZBL.ByLawItemType[Color]": "Couleur",
     "ZBL.ByLawItemType[AssetPack]": "Asset Pack",
     "ZBL.ByLawItemType[Theme]": "Theme",
+    "ZBL.ByLawItemType[AssetStyle]": "Asset Style",
     "ZBL.ByLawValueText[Items]": "élément(s)",
     "ZBL.ByLawValueText[BoundsTo]": "à",
     "ZBL.FlagValues[None]": "Aucun",

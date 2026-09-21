@@ -43,8 +43,15 @@ export default ({byLawItem, onChange: onChangeCallback, onDelete: onDeleteCallba
     let nameValues = Object.entries(ByLawItemType)
         .filter(([value, key]) => {
             return !isNaN(Number(value)) && Number(value) > 0;
-        })        
-        .map(([value, key], index) => {        
+        })
+        .filter(([value, key]) => {
+            // AssetPack/Theme are deprecated, superseded by AssetStyle: getConstraintTypes now maps
+            // them to None, so selecting one here would create an item with no editor. Existing
+            // records of these types still load fine - they're migrated to AssetStyle on load.
+            let x: ByLawItemType = Number(value);
+            return x !== ByLawItemType.AssetPack && x !== ByLawItemType.Theme;
+        })
+        .map(([value, key], index) => {
             return {key: splitByUpperCase(key as string), value}
         })
 

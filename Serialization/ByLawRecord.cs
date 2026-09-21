@@ -309,7 +309,9 @@ namespace Trejak.ZoningByLaw.Serialization
         // from these names on load, via the same AssetPackHashUtils.NameToHash used by IndexBuildingsSystem,
         // so a saved by-law always matches the live index within a session. Records saved before this field
         // existed have no assetPackNames and are treated as an empty selection (their old raw-hash
-        // valueNumberArray is intentionally ignored for AssetPack items, since it was never valid to begin with).
+        // valueNumberArray is intentionally ignored for AssetPack/AssetStyle items, since it was never
+        // valid to begin with). An AssetStyle item can populate both assetPackNames and themeNames at
+        // once, since one combined constraint holds a selection of packs and a selection of themes together.
         [JsonProperty("assetPackNames", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string[] assetPackNames;
 
@@ -333,7 +335,13 @@ namespace Trejak.ZoningByLaw.Serialization
             themeNames = null;
 
             var indexBuildingsSystem = Unity.Entities.World.DefaultGameObjectInjectionWorld?.GetExistingSystemManaged<IndexBuildingsSystem>();
-            if (item.byLawItemType == BuildingBlocks.ByLawItemType.AssetPack)
+            if (item.byLawItemType == BuildingBlocks.ByLawItemType.AssetStyle)
+            {
+                // A combined item's valueNumberArray holds pack hashes and theme hashes together, so
+                // each hash is resolved against whichever index recognizes it.
+                ResolveAssetStyleNames(item, indexBuildingsSystem, out assetPackNames, out themeNames);
+            }
+            else if (item.byLawItemType == BuildingBlocks.ByLawItemType.AssetPack)
             {
                 assetPackNames = ResolveDynamicMultiSelectNames(item, "AssetPack", hash => indexBuildingsSystem?.GetAssetPackByHash(hash)?.name);
             }
@@ -370,14 +378,78 @@ namespace Trejak.ZoningByLaw.Serialization
             return names;
         }
 
+        // AssetStyle stores pack hashes and theme hashes in one array, so unlike ResolveDynamicMultiSelectNames
+        // each hash must be tried against both indexes to know which name list it belongs in.
+        private static void ResolveAssetStyleNames(BuildingBlocks.ByLawItem item, IndexBuildingsSystem indexBuildingsSystem, out string[] assetPackNames, out string[] themeNames)
+        {
+            assetPackNames = null;
+            themeNames = null;
+            if (!item.valueNumberArray.IsCreated || item.valueNumberArray.Length == 0)
+            {
+                return;
+            }
+
+            var packNames = new List<string>();
+            var themeNameList = new List<string>();
+            int unresolved = 0;
+            foreach (var hash in item.valueNumberArray)
+            {
+                var packName = indexBuildingsSystem?.GetAssetPackByHash(hash)?.name;
+                if (packName != null)
+                {
+                    packNames.Add(packName);
+                    continue;
+                }
+                var themeName = indexBuildingsSystem?.GetThemeByHash(hash)?.name;
+                if (themeName != null)
+                {
+                    themeNameList.Add(themeName);
+                    continue;
+                }
+                unresolved++;
+            }
+
+            if (unresolved > 0)
+            {
+                Mod.log.Warn(
+                    $"AssetStyle by-law item: could not resolve {unresolved} of {item.valueNumberArray.Length} " +
+                    "selected hash(es) to a pack or theme name while saving (IndexBuildingsSystem not ready?); " +
+                    "those selections will not be persisted this save.");
+            }
+
+            assetPackNames = packNames.Count > 0 ? packNames.ToArray() : null;
+            themeNames = themeNameList.Count > 0 ? themeNameList.ToArray() : null;
+        }
+
         public BuildingBlocks.ByLawItem ToByLawItem()
         {
             var parsedItemType = Enum.TryParse<BuildingBlocks.ByLawItemType>(byLawItemType, out var bit) ? bit : BuildingBlocks.ByLawItemType.None;
-            int[] numberArray = parsedItemType == BuildingBlocks.ByLawItemType.AssetPack
-                ? (assetPackNames ?? new string[0]).Select(AssetPackHashUtils.NameToHash).ToArray()
-                : parsedItemType == BuildingBlocks.ByLawItemType.Theme
-                    ? (themeNames ?? new string[0]).Select(ThemeHashUtils.NameToHash).ToArray()
-                    : (valueNumberArray ?? new int[0]);
+            bool isLegacyAssetType = parsedItemType == BuildingBlocks.ByLawItemType.AssetPack || parsedItemType == BuildingBlocks.ByLawItemType.Theme;
+
+            // Legacy AssetPack/Theme items load as the combined AssetStyle type from here on, keeping
+            // whichever name array they already had - no destructive rewrite of old files is needed.
+            if (isLegacyAssetType)
+            {
+                parsedItemType = BuildingBlocks.ByLawItemType.AssetStyle;
+            }
+
+            int[] numberArray = parsedItemType == BuildingBlocks.ByLawItemType.AssetStyle
+                ? (assetPackNames ?? new string[0]).Select(AssetPackHashUtils.NameToHash)
+                    .Concat((themeNames ?? new string[0]).Select(ThemeHashUtils.NameToHash))
+                    .ToArray()
+                : (valueNumberArray ?? new int[0]);
+
+            var parsedPropertyOperator = Enum.TryParse<BuildingBlocks.ByLawPropertyOperator>(propertyOperator, out var po) ? po : BuildingBlocks.ByLawPropertyOperator.None;
+            if (isLegacyAssetType && parsedPropertyOperator != BuildingBlocks.ByLawPropertyOperator.IsNot)
+            {
+                // The old EvalAssetPack/EvalTheme ignored propertyOperator entirely and always matched
+                // on simple union, regardless of what value was stored - including OnlyOneOf, which was
+                // the only operator the old AssetPack UI ever offered. EvalAssetStyle isn't that
+                // permissive (it only handles AtLeastOne/IsNot), so anything but IsNot must be
+                // normalized to AtLeastOne here to preserve the old matching behavior for these records.
+                parsedPropertyOperator = BuildingBlocks.ByLawPropertyOperator.AtLeastOne;
+            }
+
             return new BuildingBlocks.ByLawItem
             {
                 byLawItemType = parsedItemType,
@@ -388,7 +460,7 @@ namespace Trejak.ZoningByLaw.Serialization
                 // by-law item silently fail to match any building).
                 constraintType = BuildingBlockSystem.GetConstraintTypes(parsedItemType),
                 itemCategory = Enum.TryParse<BuildingBlocks.ByLawItemCategory>(itemCategory, out var ic) ? ic : BuildingBlocks.ByLawItemCategory.None,
-                propertyOperator = Enum.TryParse<BuildingBlocks.ByLawPropertyOperator>(propertyOperator, out var po) ? po : BuildingBlocks.ByLawPropertyOperator.None,
+                propertyOperator = parsedPropertyOperator,
                 valueBounds1 = valueBounds1.ToBounds1(),
                 valueByteFlag = valueByteFlag,
                 valueNumber = valueNumber,

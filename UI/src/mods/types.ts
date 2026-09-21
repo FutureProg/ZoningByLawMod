@@ -56,9 +56,10 @@ export enum ByLawItemType {
     AirPollutionLevel,
     GroundPollutionLevel,
     NoisePollutionLevel,
-    AssetPack,
+    AssetPack, // Deprecated: superseded by AssetStyle, migrated on load.
     Density,
-    Theme
+    Theme, // Deprecated: superseded by AssetStyle, migrated on load.
+    AssetStyle
 }
 
 export enum ByLawConstraintType {
