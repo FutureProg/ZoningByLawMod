@@ -6,6 +6,7 @@ using Trejak.ZoningByLaw;
 using Trejak.ZoningByLaw.BuildingBlocks;
 using Trejak.ZoningByLaw.Prefab;
 using Trejak.ZoningByLaw.UISystems;
+using Unity.Collections;
 using Unity.Entities;
 
 namespace ZoningByLaw.BuildingBlocks
