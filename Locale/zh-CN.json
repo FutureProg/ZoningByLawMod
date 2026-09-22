@@ -33,6 +33,7 @@
     "ZBL.ByLawItemType[AssetPack]": "Asset Pack",
     "ZBL.ByLawItemType[Density]": "密度",
     "ZBL.ByLawItemType[Theme]": "Theme",
+    "ZBL.ByLawItemType[AssetStyle]": "Asset Style",
     "ZBL.ByLawValueText[Items]": "项",
     "ZBL.ByLawValueText[BoundsTo]": "至",
     "ZBL.FlagValues[None]": "无",
